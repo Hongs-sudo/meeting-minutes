@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>수학도서관 중등부 주간회의록</title>
+<meta name="theme-color" content="#1f4e4d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="중등부 회의록">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --ink:#14302e; --ink2:#4d6664; --faint:#8ba09e;
+  --paper:#fff; --desk:#d7dedc; --rail:#123230; --rail2:#1d4644; --rail3:#2c5a57;
+  --line:#c9d5d3; --line2:#e3eae9; --brand:#1f4e4d; --brand-soft:#dfeae9;
+  --alert:#a33a2b; --alert-soft:#fbe6e2; --ok:#2f6b46; --ok-soft:#e2f0e6;
+  --edit:#fffbe9; --ghost:#b9b7a4;
+  --pagew:210mm; --pageh:296.6mm; --padv:11mm; --padh:10mm;
+  --kr:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--kr);color:var(--ink);background:var(--desk);
+  -webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+button,select,input{font-family:inherit}
+button{font-size:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid #4f8f8b;outline-offset:2px}
+
+.app{display:grid;grid-template-columns:266px 1fr;height:100%}
+
+/* ───────── rail ───────── */
+.rail{background:var(--rail);color:#dbe8e6;display:flex;flex-direction:column;min-height:0}
+.rail-head{padding:18px 18px 12px}
+.rail-head h1{margin:0;font-size:15px;font-weight:700;letter-spacing:-.01em;color:#fff}
+.rail-head p{margin:3px 0 0;font-size:11.5px;color:#84a6a3}
+.rail-tabs{display:flex;gap:2px;padding:0 12px 10px}
+.rail-tabs button{flex:1;background:none;border:0;padding:7px 0;border-radius:6px;
+  font-size:12.5px;color:#8fb0ad;font-weight:600}
+.rail-tabs button[aria-selected=true]{background:var(--rail3);color:#fff}
+.search{margin:0 12px 10px;display:flex;gap:5px}
+.search input{width:100%;background:var(--rail2);border:1px solid #2f5f5c;border-radius:6px;
+  padding:7px 10px;color:#eaf2f1;font-size:12.5px}
+.search input{flex:1;min-width:0}
+.search button{flex:none;background:var(--rail2);border:1px solid #2f5f5c;border-radius:6px;
+  padding:0 9px;color:#9fc0bd;font-size:11.5px;font-weight:600;white-space:nowrap}
+.search button:hover{background:var(--rail3);color:#fff}
+.search input::placeholder{color:#7a9c99}
+.rail-list{flex:1 1 auto;min-height:46%;overflow-y:auto;padding:0 8px 8px}
+.mgroup{margin:10px 4px 4px;font-size:11px;font-weight:700;color:#7fa29f}
+.witem{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer}
+.witem:hover{background:var(--rail2)}
+.witem[aria-current=true]{background:#eef4f3;color:var(--rail)}
+.witem[aria-current=true] .wsub{color:#5c7b78}
+.witem input{accent-color:#6fb3ae;margin:0;flex:none}
+.wmain{flex:1;min-width:0}
+.wtitle{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wsub{font-size:11px;color:#87a8a5;margin-top:1px}
+.rail-foot{padding:10px 12px 14px;border-top:1px solid #234f4d;display:grid;gap:7px;
+  flex:0 0 auto;max-height:54%;overflow-y:auto}
+.footbar{display:flex;align-items:center;gap:8px}
+.fstat{flex:1;min-width:0;font-size:11.5px;color:#9fc0bd;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.fstat i{width:7px;height:7px;border-radius:50%;background:#6fb3ae;flex:none}
+.fstat.off i{background:#8a7d5a}
+.gear{flex:none;background:var(--rail2);border:1px solid #2f5f5c;border-radius:6px;
+  padding:5px 10px;color:#cfe2e0;font-size:11.5px;font-weight:600}
+.gear:hover{background:var(--rail3);color:#fff}
+.more{display:grid;gap:6px;padding-top:2px;border-top:1px solid #234f4d;margin-top:2px}
+.more[hidden]{display:none}
+.rail-foot button{background:var(--rail2);border:1px solid #2f5f5c;border-radius:7px;
+  padding:8px 10px;font-size:12.5px;color:#dbe8e6;text-align:left}
+.rail-foot button:hover{background:var(--rail3)}
+.rail-foot .primary{background:#e9f1f0;color:var(--rail);border-color:#e9f1f0;font-weight:700;text-align:center}
+.rail-foot .two{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.rail-foot .two button{text-align:center;padding:8px 4px;font-size:11.5px}
+.fileinfo{font-size:11.5px;line-height:1.45;padding:8px 10px;border-radius:7px;
+  background:#17403e;border:1px solid #2b5b58;color:#a9c6c3}
+.fileinfo b{display:block;color:#eaf4f3;font-size:12px;word-break:break-all}
+.fileinfo.linked{background:#1c4d3a;border-color:#2f7052;color:#b6dcc5}
+.fileinfo.warn{background:#4a2f21;border-color:#7a5030;color:#f0cba6}
+.fileinfo button{margin-top:6px;width:100%;background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:5px;color:#fff;font-size:11.5px;font-weight:600}
+.fileinfo button:hover{background:rgba(255,255,255,.26)}
+.fileinfo .bk{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:11.5px;cursor:pointer}
+.fileinfo .bk input{accent-color:#6fb3ae;margin:0}
+.fileinfo .bkinfo{display:block;margin-top:3px;font-size:10.5px;opacity:.85}
+
+/* ───────── main ───────── */
+.main{min-width:0;display:flex;flex-direction:column;min-height:0}
+.bar{display:flex;align-items:center;gap:8px;padding:10px 18px;background:#eef2f1;
+  border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bar .grow{flex:1}
+.btn{background:#fff;border:1px solid var(--line);border-radius:7px;padding:6px 12px;font-size:12.5px;font-weight:600}
+.btn:hover{border-color:#9db6b3}
+.btn.solid{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.solid:hover{background:#17403f}
+.btn.ghostbtn{background:transparent;border-color:transparent;color:var(--ink2)}
+.btn.danger:hover{color:var(--alert);border-color:var(--alert)}
+.btn[disabled]{opacity:.4;cursor:default}
+.mode{font-size:12px;color:var(--ink2)}
+.sv{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  padding:4px 11px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.sv i{width:7px;height:7px;border-radius:50%;background:#9db6b3;flex:none}
+.sv.typing{border-color:#dcc98a;background:#fffbe9;color:#8a6a1f}
+.sv.typing i{background:#c9a53c;animation:pulse 1s infinite}
+.sv.saving{border-color:#bcd7ea;background:#eef5fb;color:#1e5c88}
+.sv.saving i{background:#3b83c0;animation:pulse .8s infinite}
+.sv.local{border-color:#cfe0de;background:#f1f7f6;color:var(--brand)}
+.sv.local i{background:#4f8f8b}
+.sv.synced{border-color:#bcdcc7;background:var(--ok-soft);color:var(--ok)}
+.sv.synced i{background:#3d8a5c}
+.sv.warn{border-color:#e8b9b0;background:var(--alert-soft);color:var(--alert)}
+.sv.warn i{background:var(--alert)}
+@keyframes pulse{50%{opacity:.25}}
+.btn .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#ffd36b;margin-left:5px;vertical-align:1px}
+.scroll{flex:1;overflow:auto;padding:22px 20px 60px;display:flex;flex-direction:column;align-items:center}
+.tip{width:100%;max-width:820px;margin:0 0 12px;padding:9px 13px;background:#fff8e1;
+  border-left:3px solid #cfa63c;border-radius:0 5px 5px 0;font-size:12.5px;color:#6b5518;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tip .adopts{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
+.tip .ad{border:1px solid #ddc98a;background:#fffdf5;color:#6b5518;border-radius:999px;
+  padding:3px 11px;font-size:12px;font-weight:600;white-space:nowrap}
+.tip .ad:hover{border-color:#c9a53c}
+.tip .ad[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+.tip .ad.all{background:#f3e7c0;border-color:#d9c188}
+.tip .x{margin-left:auto;border:0;background:none;color:#a08a4a;font-size:15px;line-height:1;padding:0 3px}
+
+/* ───────── A4 stage ───────── */
+.stage{position:relative;flex:none}
+.sheet{position:absolute;top:0;left:0;transform-origin:top left;
+  width:var(--pagew);height:var(--pageh);padding:var(--padv) var(--padh);
+  background:var(--paper);overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.13),0 14px 36px rgba(20,48,46,.16)}
+.page{transform-origin:top left;font-size:10pt;line-height:1.36;color:#1A1A1A}
+.editing .sheet{box-shadow:0 1px 2px rgba(0,0,0,.13),0 14px 36px rgba(20,48,46,.16),0 0 0 3px #cbe0de}
+
+.page h2{margin:0;background:var(--brand);color:#fff;text-align:center;font-size:1.65em;
+  font-weight:700;padding:7px 6px;letter-spacing:-.01em}
+.grid{display:grid;border:1px solid var(--line);border-top:0}
+.row{display:grid;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.r3{grid-template-columns:60px 1fr 46px 132px 52px 96px}
+.r2{grid-template-columns:60px 1fr 46px 118px}
+.rn{grid-template-columns:60px 1fr 46px 1fr}
+.r1{grid-template-columns:60px 1fr}
+.lab{background:#f1f6f5;font-weight:700;font-size:.92em;color:var(--brand);
+  display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line);
+  padding:4px 2px;text-align:center;line-height:1.2}
+.val{padding:3px 7px;border-right:1px solid var(--line);min-height:23px;display:flex;
+  align-items:center;gap:4px;flex-wrap:wrap}
+.val:last-child{border-right:0}
+.val .dim{color:#6d7d7c;font-size:.9em}
+.fi{font:inherit;font-size:.92em;border:1px solid var(--line);border-radius:4px;
+  background:#fff;color:inherit;padding:1px 4px;height:1.85em;line-height:1.6;max-width:100%}
+.fi:focus{outline:2px solid #7fb5b1;outline-offset:-1px}
+.fi.d{padding:1px 3px}
+.fi.n{padding:1px 2px}
+.fi.w{min-width:6em}
+.editing .fi{background:var(--edit)}
+.editing .row.r3{grid-template-columns:58px 1.7fr 44px 1fr 52px 1fr}
+.val .cl{margin:0 -2px;font-weight:700}
+.sec{background:#2e6e6c;color:#fff;font-weight:700;font-size:.96em;padding:3px 10px;
+  display:flex;align-items:center;gap:9px;margin-top:5px}
+.sec .hint{font-weight:400;font-size:.84em;color:#bcd8d6}
+.sec .tools{margin-left:auto;display:flex;gap:5px}
+.box{border:1px solid var(--line);border-top:0}
+.line{padding:3px 10px;border-bottom:1px solid var(--line2);min-height:21px}
+.pline{display:grid;grid-template-columns:26px 1fr 88px auto;border-bottom:1px solid var(--line2);min-height:21px}
+.pline:last-child{border-bottom:0}
+.pno{background:#f5f9f8;color:var(--faint);font-size:.86em;display:flex;align-items:center;
+  justify-content:center;border-right:1px solid var(--line2)}
+.pval{padding:3px 9px;min-width:0;word-break:break-word}
+.line:last-child{border-bottom:0}
+
+table.act{width:100%;border-collapse:collapse;table-layout:fixed}
+table.act th{background:#2e6e6c;color:#fff;font-size:.88em;font-weight:700;padding:3px 2px;border:1px solid #2e6e6c}
+table.act td{border:1px solid var(--line);padding:3px 6px;font-size:.94em;vertical-align:middle;height:21px}
+table.act td.c{text-align:center;padding:3px 2px}
+table.act tr.done td{background:var(--ok-soft)}
+table.act tr.late td{background:var(--alert-soft);color:var(--alert);font-weight:600}
+.rowdel{border:0;background:none;color:var(--faint);font-size:12px;line-height:1;padding:0 2px}
+.rowdel:hover{color:var(--alert)}
+
+.ag{border:1px solid var(--line);border-top:0}
+.ag-head{display:grid;grid-template-columns:52px 1fr;border-bottom:1px solid var(--line)}
+.ag-no{background:#2e6e6c;color:#fff;font-weight:700;font-size:.92em;display:flex;
+  align-items:center;justify-content:center;padding:3px}
+.ag-title{background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:.98em;
+  padding:4px 8px;display:flex;align-items:center;gap:8px}
+.ag-body>*:last-child{border-bottom:0}
+.txt{display:grid;grid-template-columns:32px 1fr auto;gap:0;
+  border-bottom:1px solid var(--line2);min-height:19px}
+.tno{padding:2px 2px 2px 8px;font-size:.95em;white-space:nowrap}
+.tbody{padding:2px 10px 2px 2px;white-space:pre-wrap;word-break:break-word;min-width:0}
+.blk{border-bottom:1px solid var(--line2);padding:4px 8px}
+.tbtools{display:flex;gap:4px;margin-bottom:4px;flex-wrap:wrap}
+.tbtools .mini{border-color:#a8c8c6;background:#fff;color:var(--brand)}
+.imgblk{text-align:center}
+.imgblk img{display:inline-block;max-width:100%;border:1px solid var(--line);border-radius:3px}
+.imgblk .cap{font-size:.86em;color:#6d7d7c;margin-top:2px}
+table.sub{width:100%;border-collapse:collapse;table-layout:fixed;border-bottom:1px solid var(--line2)}
+table.sub td{border:1px solid var(--line);padding:2px 3px;font-size:.88em;text-align:center;background:#f8fbfa}
+
+.editing [data-edit]{background:var(--edit);border-radius:2px}
+.editing td [data-edit],.editing .pval [data-edit],.editing .tno [data-edit],.editing .tbody [data-edit],
+.editing .val [data-edit],.editing .ag-title [data-edit]{display:block;width:100%;min-height:1.25em}
+.editing [data-edit]:empty{outline:1px dashed #cdb96f;outline-offset:1px}
+.editing [data-edit]:empty:before{content:attr(data-lb);color:#bdb391;font-size:.9em}
+.editing [data-lb=""]:empty:before{content:""}
+/* 진한 바탕(제목·안건번호) 위에서는 편집 중 글씨를 어둡게 뒤집는다 */
+.editing .page h2 [data-edit],.editing .ag-no [data-edit]{
+  background:var(--edit);color:var(--ink);padding:0 7px;border-radius:3px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.5)}
+[contenteditable]{outline:none}
+[contenteditable]:focus{box-shadow:inset 0 0 0 2px #7fb5b1}
+body:not(.editing) .edit-only{display:none!important}
+.mini{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.16);color:inherit;
+  border-radius:5px;font-size:.84em;padding:1px 7px;font-weight:600}
+.mini:hover{background:rgba(255,255,255,.32)}
+.ag-title .mini{border-color:#a8c8c6;background:#fff;color:var(--brand)}
+
+/* ───────── tracker ───────── */
+.panel{width:min(1080px,100%);background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.panel-head{padding:16px 20px;border-bottom:1px solid var(--line2)}
+.panel-head h3{margin:0 0 3px;font-size:16px}
+.panel-head p{margin:0;font-size:12.5px;color:var(--ink2)}
+.stats{display:flex;border-bottom:1px solid var(--line2)}
+.stat{flex:1;padding:12px 16px;border-right:1px solid var(--line2)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.stat span{font-size:11.5px;color:var(--ink2)}
+.stat.bad b{color:var(--alert)}
+.filters{display:flex;gap:6px;padding:12px 20px;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 13px;font-size:12px;font-weight:600}
+.chip[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+table.trk{width:100%;border-collapse:collapse}
+table.trk th{text-align:left;font-size:11.5px;color:var(--ink2);font-weight:600;
+  padding:9px 14px;border-bottom:1px solid var(--line)}
+table.trk td{padding:9px 14px;border-bottom:1px solid var(--line2);font-size:13px;vertical-align:top}
+table.trk tr.late td{background:var(--alert-soft)}
+table.trk tr.done td{color:var(--faint)}
+table.trk .wk{color:var(--brand);font-weight:600;font-size:12px;background:none;border:0;padding:0;text-decoration:underline}
+.empty{padding:44px 20px;text-align:center;color:var(--faint);font-size:13.5px}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);
+  background:var(--rail);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:50}
+.toast.on{opacity:1;transform:translateX(-50%)}
+
+.fmtbar{display:none;background:#f6f9f8;border-bottom:1px solid var(--line);padding:8px 18px;gap:6px}
+body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
+.fmtbar .fl{font-size:11.5px;color:var(--ink2);font-weight:700}
+.fmtbar .grow{flex:1}
+.fmtbar .selname{font-size:11.5px;color:var(--brand);font-weight:700;
+  max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sq{width:25px;height:25px;border:1px solid var(--line);background:#fff;border-radius:6px;
+  font-size:14px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center}
+.sq:hover{border-color:#9db6b3}
+.num{width:48px;height:25px;border:1px solid var(--line);border-radius:6px;text-align:center;
+  font-size:12.5px;padding:0 2px;background:#fff;color:var(--ink)}
+.unit{font-size:11px;color:var(--faint);margin-left:-2px}
+.sep{width:1px;height:18px;background:var(--line);margin:0 6px}
+.sw{width:19px;height:19px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);padding:0}
+.sw[aria-pressed=true]{box-shadow:0 0 0 2px var(--brand)}
+.fmtbar [disabled]{opacity:.4;cursor:default}
+.editing [data-edit].sel{box-shadow:inset 0 0 0 2px #4f8f8b}
+.modal{position:fixed;inset:0;background:rgba(16,38,37,.55);display:flex;align-items:center;
+  justify-content:center;z-index:60;padding:20px}
+.modal[hidden]{display:none}
+.modal .card{background:#fff;border-radius:12px;padding:22px;width:min(460px,100%);
+  box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{margin:0 0 8px;font-size:17px}
+.modal p{margin:0 0 16px;font-size:12.5px;color:var(--ink2);line-height:1.6}
+.modal label{display:block;font-size:12px;font-weight:700;margin:10px 0 4px}
+.modal input,.modal textarea{width:100%;border:1px solid var(--line);border-radius:7px;
+  padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical}
+.modal textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.5}
+.modal .acts{display:flex;gap:8px;margin-top:18px;align-items:center}
+.modal.login{background:linear-gradient(160deg,#1b4644,#0e2a29)}
+.modal.login .card{width:min(380px,100%)}
+.modal .lg{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.modal .lg img{border-radius:10px}
+.modal .err{margin:0 0 12px;font-size:12.5px;color:var(--alert);background:var(--alert-soft);
+  padding:8px 10px;border-radius:7px;line-height:1.5}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px;
+  font-size:13.5px;font-weight:600}
+.gbtn:hover{background:#f6f9f8;border-color:#9db6b3}
+.or{display:flex;align-items:center;gap:10px;margin:16px 0 2px;color:var(--faint);font-size:11.5px}
+.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line2)}
+.pill{display:inline-block;padding:0 6px;border-radius:9px;font-size:.86em;font-weight:700;
+  min-width:3.4em;text-align:center;border:1px solid;line-height:1.5;white-space:nowrap}
+.st-done{background:#E6F5EC;color:#0E9048;border-color:#0E9048}
+.st-prog{background:#E8F0FE;color:#1257E8;border-color:#1257E8}
+.st-edit{background:#FFF1E3;color:#EA6A00;border-color:#EA6A00}
+.st-etc{background:#F1F5F4;color:#4d6664;border-color:#9db6b3}
+.st-none{background:transparent;color:#b6bfbe;border-color:var(--line2)}
+.editing .pill.st-done{background:#E6F5EC}
+.editing .pill.st-prog{background:#E8F0FE}
+.editing .pill.st-edit{background:#FFF1E3}
+.editing .pill.st-etc{background:#F1F5F4}
+.editing .pill.st-none{background:var(--edit)}
+.stpick{border:0;background:none;color:var(--brand);font-size:.9em;padding:0 1px;line-height:1;cursor:pointer}
+.stc{white-space:nowrap}
+.pst{padding:2px 6px;display:flex;align-items:center;justify-content:center}
+.stmenu{position:fixed;z-index:70;background:#fff;border:1px solid var(--line);border-radius:9px;
+  padding:5px;box-shadow:0 10px 28px rgba(0,0,0,.18);display:grid;gap:4px;min-width:104px}
+.stmenu[hidden]{display:none}
+.stmenu button{border:1px solid;border-radius:7px;padding:5px 10px;font-size:12.5px;font-weight:700}
+#printArea{display:none}
+#capHost{position:fixed;left:-20000px;top:0;width:var(--pagew);height:var(--pageh);background:#fff;overflow:hidden;z-index:-1}
+.modal .shot{margin-top:6px;border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  background:#f4f7f6;min-height:120px;display:flex;align-items:center;justify-content:center}
+.modal .shot img{width:100%;display:block;max-height:46vh;object-fit:contain;object-position:top}
+.modal .shot .ph{color:var(--faint);font-size:12.5px;padding:34px 10px}
+
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .rail{position:fixed;inset:0 auto 0 0;width:266px;z-index:30;transform:translateX(-100%);transition:transform .2s}
+  .rail.open{transform:none}
+  .scroll{padding:14px 10px 40px}
+}
+@media (min-width:901px){#railToggle{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ───────── print : 화면과 동일 ───────── */
+@media print{
+  @page{size:A4 portrait;margin:0}
+  html,body{height:auto;background:#fff}
+  .rail,.bar,.fmtbar,.tip,.toast,.modal,#capHost{display:none!important}
+  .app{display:block}
+  .scroll{display:block;overflow:visible;padding:0;height:auto}
+  .stage{position:static;width:auto!important;height:auto!important}
+  .sheet{position:static;box-shadow:none!important;transform:none!important;
+    width:var(--pagew);height:var(--pageh);break-inside:avoid}
+  .sec .hint,.edit-only{display:none!important}
+  [data-edit]:before,[data-edit]:after{content:none!important}
+  [data-edit],.editing [data-edit]{outline:none!important;box-shadow:none!important;
+    background:none!important;min-height:0!important}
+  .editing [data-edit]{background:none}
+  body.multi .scroll{display:none}
+  body.multi #printArea{display:block}
+  #printArea .sheet{page-break-after:always}
+  #printArea .sheet:last-child{page-break-after:auto}
+  .page h2,.sec,.ag-no,.ag-title,.lab,table.act th,table.act tr.done td,table.act tr.late td,
+  table.sub td,.pill{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pill{background:none!important}
+  .stmenu{display:none!important}
+  .panel{border:0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail" id="rail">
+    <div class="rail-head">
+      <h1>수학도서관 중등부 주간회의록</h1>
+      <p id="railCount">—</p>
+    </div>
+    <div class="rail-tabs" role="tablist">
+      <button role="tab" id="tabMinutes" aria-selected="true">회의록</button>
+      <button role="tab" id="tabTracker" aria-selected="false">실행항목</button>
+    </div>
+    <div class="search">
+      <input id="q" type="search" placeholder="주차·안건·내용 검색" autocomplete="off">
+      <button id="btnOrder" title="목록 순서 바꾸기">과거순</button>
+    </div>
+    <div class="rail-list" id="list"></div>
+    <div class="rail-foot">
+      <button class="primary" id="btnNew">＋ 새 주차 추가</button>
+      <div class="footbar">
+        <span class="fstat" id="footStat">—</span>
+        <button class="gear" id="btnMore" aria-expanded="false" title="저장·연동 설정">설정 ▾</button>
+      </div>
+      <div class="more" id="moreBox" hidden>
+        <div class="fileinfo" id="syncInfo"></div>
+        <button id="btnLogout" hidden>로그아웃</button>
+        <div class="fileinfo" id="fileInfo"></div>
+        <div class="two"><button id="btnFileNew">저장 파일 만들기</button>
+          <button id="btnFileOpen">저장 파일 열기</button></div>
+        <div class="two"><button id="btnExport">사본 내보내기</button>
+          <button id="btnImport">사본 불러오기</button></div>
+        <button id="btnInstall" hidden>이 기기에 앱으로 설치</button>
+      </div>
+      <input type="file" id="fileIn" accept=".json,application/json" hidden>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="bar">
+      <button class="btn ghostbtn" id="railToggle">목록</button>
+      <button class="btn solid" id="btnSave">저장</button>
+      <button class="btn" id="btnEdit">편집</button>
+      <button class="btn" id="btnPrint">이 주차 인쇄</button>
+      <button class="btn" id="btnShare">이미지로 보내기</button>
+      <button class="btn" id="btnDup">복제</button>
+      <button class="btn danger" id="btnDel">삭제</button>
+      <span class="grow"></span>
+      <span class="mode" id="fitInfo"></span>
+      <span class="sv" id="saveState"><i></i><span>불러오는 중…</span></span>
+    </div>
+    <div class="fmtbar" id="fmtbar">
+      <span class="fl">전체 글자</span>
+      <button class="sq" data-base="-1" title="작게">−</button>
+      <input class="num" id="baseNum" inputmode="decimal" aria-label="전체 글자 크기(pt)">
+      <button class="sq" data-base="1" title="크게">＋</button><span class="unit">pt</span>
+      <span class="sep"></span>
+      <span class="fl" title="글자를 드래그해 선택하면 그 부분에만 적용됩니다">선택한 칸</span><span class="selname" id="selName">— 칸을 눌러 선택</span>
+      <button class="sq" id="fsMinus" data-fs="-1">−</button>
+      <input class="num" id="fsNum" inputmode="decimal" aria-label="선택한 칸 글자 크기(pt)">
+      <button class="sq" id="fsPlus" data-fs="1">＋</button><span class="unit">pt</span>
+      <span class="sep"></span>
+      <span id="swatches" style="display:flex;gap:5px"></span>
+      <button class="btn" id="fmtReset" style="padding:4px 10px">이 칸 초기화</button>
+      <span class="grow"></span>
+      <button class="btn" id="fmtResetAll" style="padding:4px 10px">전체 서식 초기화</button>
+    </div>
+    <div class="scroll" id="scroll"></div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+<div id="capHost" aria-hidden="true"></div>
+<div class="modal" id="shareModal" hidden>
+  <div class="card">
+    <h3 id="shareTitle">이미지로 보내기</h3>
+    <p id="shareMsg">이미지를 만들고 있습니다…</p>
+    <div class="shot" id="shareShot"></div>
+    <div class="acts">
+      <button class="btn" id="shareClose">닫기</button>
+      <span style="flex:1"></span>
+      <button class="btn" id="shareCopy" hidden>복사</button>
+      <button class="btn" id="shareDown" hidden>저장</button>
+      <button class="btn solid" id="shareGo" hidden>공유하기</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="stmenu" id="stMenu" hidden>
+  <button data-stv="완료" class="st-done">완료</button>
+  <button data-stv="진행중" class="st-prog">진행중</button>
+  <button data-stv="수정중" class="st-edit">수정중</button>
+  <button data-stv="" class="st-none">비우기</button>
+</div>
+<div class="modal login" id="loginModal" hidden>
+  <div class="card">
+    <div class="lg"><img src="icon-192.png" alt="" width="44" height="44">
+      <div><h3>수학도서관 중등부 주간회의록</h3>
+        <p style="margin:2px 0 0">계속하려면 로그인하세요</p></div></div>
+    <p class="err" id="lgErr" hidden></p>
+    <button class="gbtn" id="lgGoogle">
+      <svg viewBox="0 0 48 48" width="17" height="17" aria-hidden="true">
+        <path fill="#4285F4" d="M45 24.3c0-1.6-.1-2.7-.4-3.9H24v7.1h12c-.2 1.9-1.5 4.7-4.4 6.6l6.7 5.2c4-3.7 6.7-9.1 6.7-15z"/>
+        <path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-7.1 5.5C8 41.3 15.4 46 24 46z"/>
+        <path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l-7.1-5.6C2.9 17 2 20.4 2 24s.9 7 2.4 10z"/>
+        <path fill="#EA4335" d="M24 10.2c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 4 29.9 2 24 2 15.4 2 8 6.7 4.4 14l7.1 5.6C13.3 14.3 18.2 10.2 24 10.2z"/>
+      </svg>
+      <span>Google 계정으로 로그인</span></button>
+    <div class="or"><span>또는 아이디로 로그인</span></div>
+    <label>아이디</label>
+    <input id="lgId" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="예) hong">
+    <label>암호</label>
+    <input id="lgPw" type="password" placeholder="암호">
+    <div class="acts">
+      <button class="btn" id="lgSettings">연동 설정</button>
+      <span style="flex:1"></span>
+      <button class="btn solid" id="lgGo">로그인</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="syncModal" hidden>
+  <div class="card">
+    <h3>기기 연동 설정</h3>
+    <p>PC·아이패드·휴대폰에서 같은 내용을 쓰려면 Firebase 설정값을 넣어주세요.
+       만드는 방법은 함께 드린 <b>설치_연동_안내</b> 문서에 단계별로 적혀 있습니다.</p>
+    <label>Firebase 설정값 (firebaseConfig 중괄호 안쪽을 그대로 붙여넣기)</label>
+    <textarea id="syncCfgIn" rows="7" placeholder='apiKey: "AIza...",
+authDomain: "내프로젝트.firebaseapp.com",
+projectId: "내프로젝트",
+storageBucket: "...",
+messagingSenderId: "...",
+appId: "1:..."'></textarea>
+    <div class="acts">
+      <button class="btn" id="syncOff">연동 해제</button>
+      <span style="flex:1"></span>
+      <button class="btn" id="syncCancel">취소</button>
+      <button class="btn solid" id="syncSave">연결하고 불러오기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SEED = [{"id":"20251202","date":"2025-12-02","ampm":"PM","hh":3,"mm":20,"label":"12월1주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 신유미, 고하송, 양재식, 이병숙","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"25년 2학기 기말 내신대비(1,2학년)","blocks":[{"type":"text","text":"1) 주간보고서 제출 및 업로드"},{"type":"table","rows":[[{"col":2,"span":1,"v":"시작"},{"col":3,"span":2,"v":"주간보고서"},{"col":5,"span":2,"v":"1차 모의고사"},{"col":7,"span":2,"v":"2차 모의고사"}],[{"col":2,"span":1,"v":"11월 2주"},{"col":3,"span":2,"v":"4주차 업로드"},{"col":5,"span":2,"v":"11/20(목)~11/25(화)"},{"col":7,"span":2,"v":"11/27(목)~12/2(화)"}],[{"col":2,"span":1,"v":"11월 3주"},{"col":3,"span":2,"v":"3주차 업로드 및 교재 제출"},{"col":5,"span":2,"v":"11/27(목)~12/2(화)"},{"col":7,"span":2,"v":"12/4(목)~12/9(화)"}],[{"col":2,"span":1,"v":"11월 4주"},{"col":3,"span":2,"v":"2주차 업로드 및 교재 제출"},{"col":5,"span":2,"v":"12/4(목)~12/9(화)"},{"col":7,"span":2,"v":"12/11(목)~12/16(화)"}]]},{"type":"text","text":"2) 시험 요일, 날짜 및 범위 확인 / 교과서 및 학습지 확인  →  학교학습지는 입수되는대로 My Box에 공유해주세요!"},{"type":"text","text":"3) 직전보강 일정 제출 및 교과서&학습지 제출 : ① 직보일정 ~12/4(목)까지 / ② 교과서&학습지 제출은 각 일정별 4주차 금요일까지"},{"type":"text","text":"4) 교재 제출 : 입구 옆 상담실"}]},{"no":"안건2","title":"겨울방학특강 관련사항","blocks":[{"type":"text","text":"1) 특강관련 세부사항 제출 : 12/5(금)까지"},{"type":"text","text":" ① 특강내용   ② 기간(일정,수업시간 등)   ③ 수강예정 학생명단   → 담당선생님이 특강 진행하기 애매한 학생들은 명단 따로 정리해서 제출"}]},{"no":"안건3","title":"상담 달성율, E-MATH 등 기타 안건","blocks":[{"type":"text","text":"1) 주차별 상담 달성율 : ① 12/12(금) 40%   ② 12/19(금) 70%   ③ 12/26(금) 100%"},{"type":"text","text":"2) E-MATH : 예비중1 진행 중"},{"type":"text","text":" → 1주차_12/1(월)~12/5(금) / 2주차_12/8(월)~12/12(금) / 3주차[기간별오답]_12/15(월)~12/19(금) / 4주차[월말평가]+12/22(월)~12/27(토)"},{"type":"text","text":" → 12월 월말평가 범위 : 소인수분해~최대공약수와 최소공배수"},{"type":"text","text":"3) 내신대비 준비관련 특이사항 :"}]},{"no":"안건4","title":"건의사항","blocks":[]}],"next":{"date":"2025-12-09","ampm":"PM","hh":10,"mm":10}},{"id":"20251209","date":"2025-12-09","ampm":"PM","hh":10,"mm":10,"label":"12월2주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 신유미, 고하송, 양재식, 이병숙","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"25년 2학기 기말 내신대비(1,2학년)","blocks":[{"type":"text","text":"1) 주간보고서 제출 및 업로드"},{"type":"table","rows":[[{"col":2,"span":1,"v":"시작"},{"col":3,"span":2,"v":"주간보고서"},{"col":5,"span":2,"v":"1차 모의고사"},{"col":7,"span":2,"v":"2차 모의고사"}],[{"col":2,"span":1,"v":"11월 2주"},{"col":3,"span":2,"v":"-"},{"col":5,"span":2,"v":"11/20(목)~11/25(화)"},{"col":7,"span":2,"v":"11/27(목)~12/2(화)"}],[{"col":2,"span":1,"v":"11월 3주"},{"col":3,"span":2,"v":"4주차 업로드"},{"col":5,"span":2,"v":"11/27(목)~12/2(화)"},{"col":7,"span":2,"v":"12/4(목)~12/9(화)"}],[{"col":2,"span":1,"v":"11월 4주"},{"col":3,"span":2,"v":"3주차 업로드 및 교재 제출"},{"col":5,"span":2,"v":"12/4(목)~12/9(화)"},{"col":7,"span":2,"v":"12/11(목)~12/16(화)"}]]},{"type":"text","text":"2) 시험 요일, 날짜 및 범위 확인 / 교과서 및 학습지 확인  →  학교학습지는 입수되는대로 My Box에 공유해주세요!"},{"type":"text","text":"3) 직전보강 일정 제출 및 교과서&학습지 제출 : ① 직보일정(추가) / ② 교과서&학습지 제출은 각 일정별 4주차 금요일까지"},{"type":"text","text":"4) 교재 제출 : 입구 옆 상담실"},{"type":"text","text":"5) 내신분석회의 1차(월촌1,2 / 신목1,2) : 12/12(금) PM2:00"},{"type":"table","rows":[[{"col":3,"span":1,"v":"월촌1"},{"col":4,"span":1,"v":"월촌2"},{"col":5,"span":1,"v":"신목1"},{"col":6,"span":1,"v":"신목2"}],[{"col":2,"span":1,"v":"담당T"},{"col":3,"span":1,"v":"서연우T"},{"col":4,"span":1,"v":"고하송T"},{"col":5,"span":1,"v":"신유미T"},{"col":6,"span":1,"v":"홍재화T"}]]},{"type":"text","text":"            ※ 2차(목운1,2) : 12/18(목) PM2:00 - 예정 / 3차(양정1,2) : 12/23(화) PM2:00 - 예정   →   자세한 내용은 카카오워크로 추가공지 하겠습니다."}]},{"no":"안건2","title":"겨울방학특강 관련사항","blocks":[{"type":"text","text":"1) 선생님별 특강 예정사항 : 특강 시작일정 1/12(월) ~ 특강 종료일정 2/28(토)"},{"type":"table","rows":[[{"col":3,"span":1,"v":"1월"},{"col":4,"span":1,"v":"2월"},{"col":6,"span":1,"v":"1월"},{"col":7,"span":1,"v":"2월"}],[{"col":2,"span":1,"v":"고하송T"},{"col":3,"span":1,"v":"① 1월~2월 : 중등2-1개념완성(과정)_화목\n② 1월~2월 : 중등2-2개념완성(과정)_월금"},{"col":5,"span":1,"v":"서연우T"},{"col":6,"span":1,"v":"① 1월~2월 : 개별진도_화목\n② 1월~2월 : 함수특강(테마)_수금\n③ 1월~2월 : 공수1/모의고사_일"}],[{"col":2,"span":1,"v":"신유미T"},{"col":3,"span":1,"v":"① 1월~2월 : 중등 일품특강(개별)_목\n② 1월~2월 : 중등2-2개념완성(과정)_화수"},{"col":5,"span":1,"v":"양재식T"},{"col":6,"span":1,"v":"① 1월~2월 : 미적분1(과정)_월수\n② 1월~2월 : 대수(과정)_화목"}],[{"col":2,"span":1,"v":"이병숙T"},{"col":5,"span":1,"v":"홍재화T"},{"col":6,"span":1,"v":"① 1월 : 중등3-2개념완성(과정)_월수금\n② 2월 : 고1-1-중간 미리보기(테마)_월수금\n③ 1월~2월 : 회차+(개별)_화목"}]]}]},{"no":"안건3","title":"상담 달성율, E-MATH 등 기타 안건","blocks":[{"type":"text","text":"1) 주차별 상담 달성율 : ① 12/12(금) 40%   ② 12/19(금) 70%   ③ 12/26(금) 100%"},{"type":"text","text":"2) E-MATH : 예비중1 진행 중"},{"type":"text","text":" → 1주차_12/1(월)~12/5(금) / 2주차_12/8(월)~12/12(금) / 3주차[기간별오답]_12/15(월)~12/19(금) / 4주차[월말평가]+12/22(월)~12/27(토)"},{"type":"text","text":" → 12월 월말평가 범위 : 소인수분해~최대공약수와 최소공배수"},{"type":"text","text":"4) 내신대비 준비관련 특이사항 :"}]}],"next":{"date":"2025-12-16","ampm":"PM","hh":10,"mm":10}},{"id":"20251223","date":"2025-12-23","ampm":"PM","hh":2,"mm":30,"label":"12월4주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 신유미, 고하송, 양재식, 이병숙","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"25년 2학기 기말 내신대비","blocks":[{"type":"text","text":"1) 내신분석회의 2차(목운1,2 / 양정1,2) : 12/26(금) PM2:00"},{"type":"table","rows":[[{"col":3,"span":1,"v":"목운1"},{"col":4,"span":1,"v":"목운2"},{"col":5,"span":1,"v":"양정1"},{"col":6,"span":1,"v":"양정2"}],[{"col":2,"span":1,"v":"담당T"},{"col":3,"span":1,"v":"서연우T"},{"col":4,"span":1,"v":"이병숙T"},{"col":5,"span":1,"v":"고하송T"},{"col":6,"span":1,"v":"신유미T"}]]}]},{"no":"안건2","title":"겨울방학특강 관련사항","blocks":[{"type":"text","text":"1) 선생님별 특강 내용 : 특강 시작일정 1/12(월) ~ 특강 종료일정 2/28(토)"},{"type":"table","rows":[[{"col":3,"span":1,"v":"1월"},{"col":4,"span":1,"v":"2월"},{"col":6,"span":1,"v":"1월"},{"col":7,"span":1,"v":"2월"}],[{"col":2,"span":1,"v":"고하송T"},{"col":3,"span":1,"v":" ① 1월~2월 : 중등3-1개념완성(과정)_화목\n ② 1월~2월 : 중등2-2개념완성(과정)_월금"},{"col":5,"span":1,"v":"서연우T"},{"col":6,"span":1,"v":" ① 1월~2월 : 공수1_화목일/모의고사_일\n ② 1월~2월 : 회차+(개별)_수"}],[{"col":2,"span":1,"v":"신유미T"},{"col":3,"span":1,"v":" ① 1월~2월 : 중등 일품특강(개별)_목\n ② 1월~2월 : 중등2-2개념완성(과정)_화수"},{"col":5,"span":1,"v":"양재식T"},{"col":6,"span":1,"v":" ① 1월~2월 : 미적분1(과정)_월수\n ② 1월~2월 : 공수2(과정)_화목"}],[{"col":2,"span":1,"v":"이병숙T"},{"col":5,"span":1,"v":"홍재화T"},{"col":6,"span":1,"v":" ① 1월 : 중등3-2개념완성(과정)_월수금\n ② 2월 : 고1-1-중간 미리보기(테마)_월수금\n ③ 1월~2월 : 회차+(개별)_화목"}]]},{"type":"text","text":"2) 방학특강 인원 확정 : ~1/2(금)까지 (→ 인원 확정시 확정명단 이경희 부원장님께 전달)"}]},{"no":"안건3","title":"상담 달성율, E-MATH 등 기타 안건","blocks":[{"type":"text","text":"1) 주차별 상담 달성율 : ① 12/12(금) 40%   ② 12/19(금) 70%   ③ 12/26(금) 100%"},{"type":"text","text":"2) E-MATH : 예비중1 진행 중"},{"type":"text","text":" ① 1주차_12/1(월)~12/5(금) / 2주차_12/8(월)~12/12(금) / 3주차[기간별오답]_12/15(월)~12/19(금) / 4주차[월말평가]+12/22(월)~12/27(토)"},{"type":"text","text":" ② 12월 월말평가 범위 : 소인수분해~최대공약수와 최소공배수"},{"type":"text","text":" ③ 구글시트 점수기록 / 기간별오답 제출(이영진 실장님)완료 확인 체크"},{"type":"text","text":"3) 학원방학 : 12/29(월)~1/1(목)"},{"type":"text","text":"4) 1월 1주차 회의 : 1/2(금) PM3:00"}]}],"next":{"date":"2025-12-30","ampm":"PM","hh":2,"mm":30}},{"id":"20260102","date":"2026-01-02","ampm":"PM","hh":3,"mm":0,"label":"1월1주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 신유미, 고하송, 양재식, 이병숙","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"겨울방학특강 관련사항","blocks":[{"type":"text","text":"1) 선생님별 특강 내용 : 특강 시작일정 1/12(월) ~ 특강 종료일정 2/28(토)"},{"type":"table","rows":[[{"col":3,"span":1,"v":"1월"},{"col":4,"span":1,"v":"2월"},{"col":6,"span":1,"v":"1월"},{"col":7,"span":1,"v":"2월"}],[{"col":2,"span":1,"v":"고하송T"},{"col":3,"span":1,"v":" ① 1월~2월 : 중등3-1개념완성(과정)_화목\n ② 1월~2월 : 중등2-2개념완성(과정)_월금"},{"col":5,"span":1,"v":"서연우T"},{"col":6,"span":1,"v":" ① 1월~2월 : 공수1_화목일/모의고사_일\n ② 1월~2월 : 회차+(개별)_수"}],[{"col":2,"span":1,"v":"신유미T"},{"col":3,"span":1,"v":" ① 1월~2월 : 중등 일품특강(개별)_목\n ② 1월~2월 : 중등2-2개념완성(과정)_화수"},{"col":5,"span":1,"v":"양재식T"},{"col":6,"span":1,"v":" ① 1월~2월 : 미적분1(과정)_월수\n ② 1월~2월 : 공수2(과정)_화목"}],[{"col":2,"span":1,"v":"이병숙T"},{"col":5,"span":1,"v":"홍재화T"},{"col":6,"span":1,"v":" ① 1월 : 중등3-2개념완성(과정)_월수금\n ② 2월 : 고1-1-중간 미리보기(테마)_월수금\n ③ 1월~2월 : 회차+(개별)_화목"}]]},{"type":"text","text":"2) 방학특강 인원 확정 : ~1/5(월)까지 최종집계 후 퇴근 전까지 제출(→ 인원 확정시 확정명단 이경희 부원장님께 전달)"}]},{"no":"안건2","title":"상담 달성율, E-MATH(1월) 등","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(1월) : ① 1/9(금) 40%   ② 1/16(금) 70%   ③ 1/23(금) 100%"},{"type":"text","text":"2) E-MATH(1월) : 예비중1 진행 중"},{"type":"text","text":" ① 1주차_12/29(월)~1/2(금) / 2주차_1/5(월)~1/9(금) / 3주차[기간별오답]_1/12(월)~1/16(금) / 4주차[월말평가]_1/19(월)~1/24(토)"},{"type":"text","text":" ② 1월 월말평가 범위 : 정수와 유리수~정수와 유리수의 계산"},{"type":"text","text":" ③ 1~2주차 : 점수기록(구글시트) → 3주차 : 기간별오답 제출(이영진 실장님)완료 후 확인 체크(구글시트)"},{"type":"text","text":"3) 1월 2주차 회의 : 1/7(수) PM3:00"}]},{"no":"안건3","title":"기타","blocks":[]}],"next":{"date":"2026-01-09","ampm":"PM","hh":3,"mm":0}},{"id":"20260107","date":"2026-01-07","ampm":"PM","hh":3,"mm":0,"label":"1월2주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 신유미, 고하송, 양재식, 이병숙","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"겨울방학특강 관련사항","blocks":[{"type":"text","text":"1) 선생님별 특강 내용 : 특강 시작일정 1/12(월) ~ 특강 종료일정 2/28(토)"},{"type":"text","text":"2) 방학특강 인원 변동사항 : 이경희 부원장님께 바로 전달해주세요."}]},{"no":"안건2","title":"상담 달성율, E-MATH(1월/2월)","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(1월) 조정안 : ① 1/9(금) 30%   ② 1/16(금) 50%   ③ 1/23(금) 70%   ④ 1/30(금) 100%"},{"type":"text","text":"2) E-MATH(1월) : 예비중1 진행 중"},{"type":"text","text":" ① 1주차_12/29(월)~1/2(금) / 2주차_1/5(월)~1/9(금) / 3주차[기간별오답]_1/12(월)~1/16(금) / 4주차[월말평가]_1/19(월)~1/24(토)"},{"type":"text","text":" ② 1월 월말평가 범위 : 정수와 유리수~정수와 유리수의 계산"},{"type":"text","text":" ③ 1~2주차 : 점수기록(구글시트) → 3주차 : 기간별오답 제출(이영진 실장님)완료 후 확인 체크(구글시트)"},{"type":"text","text":"3) E-MATH(2월) 일정 : 1주차_1/26(월)~30(금), 2주차_2/2(월)~6(금), 3주차[기간별오답]_2/9(월)~20(금), 4주차[월말평가]_2/23(월)~28(토)"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 중등부 담당선생님별 학생 진도현황 작성 : ~1/8(목)까지"},{"type":"text","text":"2) 수행평가 준비 관련"},{"type":"text","text":"3) 교사용자료 : 교사용(또는 학생요)교재 및 PDF파일"}]}],"next":{"date":"2026-01-14","ampm":"PM","hh":3,"mm":0}},{"id":"20260204","date":"2026-02-04","ampm":"PM","hh":10,"mm":10,"label":"2월1주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 신유미, 고하송, 양재식, 이병숙","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"업무관련사항","blocks":[{"type":"text","text":"1) 3-5월 로드맵 작성 : (1차) 2/13(금)까지 파일업로드 후 출력해서 한 부 제출     (2차) 2/25(수)까지 수정 및 피드백 마무리"},{"type":"text","text":"2) 중등부 담당선생님별 2월말 예상진도 제출 : 2/6(금)까지 파일로 개별전송 요망"},{"type":"text","text":"3) 아카 진도입력 및 데일리리포트 업로드(MyBox)"},{"type":"text","text":"4) 겨울방학 특강 관련 중간점검 - 선생님별 특이사항 체크"}]},{"no":"안건2","title":"상담 달성율, E-MATH(2월)","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(2월) : ① 2/6(금) 30%   ② 2/13(금) 50%   ③ 2/20(금) 70%   ④ 2/27(금) 100%"},{"type":"text","text":"  → 방학특강 종료시점 이전 상담전화 반드시 진행. 3월 신학기 수업관련 학생별 셋팅하면서 특이사항 소통하기."},{"type":"text","text":"2) E-MATH(2월) : 예비중1 진행 중"},{"type":"text","text":" ① 1주차_1/26(월)~1/30(금) / 2주차_2/2(월)~2/6(금) / 3주차[기간별오답]_2/9(월)~2/20(금) / 4주차[월말평가]_2/23(월)~2/28(토)"},{"type":"text","text":" ② 2월 월말평가 범위 : 문자의 사용과 식의 계산"},{"type":"text","text":" ③ 1~2주차 : 점수기록(구글시트) → 3주차 : 기간별오답 제출(이영진 실장님)완료 후 확인 체크(구글시트)"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일"},{"type":"text","text":"2) 미리보는 1학기 진단평가 : 2월 2주차~3주차_2/12(목)~2/21(토)     - 대상 : 예비중2, 예비중3     - 범위 : 각 학년 1학기 전범위(예정)"}]}],"next":{"date":"2026-02-11","ampm":"PM","hh":10,"mm":10}},{"id":"20260224","date":"2026-02-24","ampm":"PM","hh":10,"mm":5,"label":"2월4주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 신유미, 고하송, 양재식, 이병숙","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"업무관련사항","blocks":[{"type":"text","text":"1) 3-5월 로드맵 : (2차) 2/25(수)까지 수정 및 피드백 마무리 / (발송) 3/4(수)까지 발송 및 상담 완료"},{"type":"text","text":"2) 겨울방학특강 마무리 상담 + 3월 신학기 시간표 안내 등 학생 및 학부모님 개별상담 마무리 : ~2/28(토)까지"},{"type":"text","text":"   → 3/2(월), 3/3(화) 수업은 2/16(월), 2/17(화) 설연휴 대체수업으로 진행. 실제 3월 신학기 수업의 시작은 3/4(수)부터입니다."},{"type":"text","text":"3) 아카 진도입력 및 데일리 리포트 업로드(MyBox)"},{"type":"text","text":"4) 겨울방학 특강 관련 특이사항 :"},{"type":"text","text":"5) 3월 월평가(중2/중3) : 미리보는 1학기 중간고사_3/16(월)~3/21(토)"}]},{"no":"안건2","title":"상담 달성율, E-MATH(2월)","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(2월) : ① 2/6(금) 30%   ② 2/13(금) 50%   ③ 2/20(금) 70%   ④ 2/27(금) 100%"},{"type":"text","text":"  → 방학특강 종료시점 이전 상담전화 반드시 진행. 3월 신학기 수업관련 학생별 셋팅하면서 특이사항 소통하기."},{"type":"text","text":"2) E-MATH(2월) : 예비중1 진행 중"},{"type":"text","text":" ① 1주차_1/26(월)~1/30(금) / 2주차_2/2(월)~2/6(금) / 3주차[기간별오답]_2/9(월)~2/20(금) / 4주차[월말평가]_2/23(월)~2/28(토)"},{"type":"text","text":" ② 2월 월말평가 범위 : 문자의 사용과 식의 계산"},{"type":"text","text":" ③ 3주차 : 기간별오답 제출 및 제출완료 후 확인 체크(구글시트)"},{"type":"text","text":"3) E-MATH(3월) : [범위] 일차방정식 (일차방정식의 활용은 포함X)"},{"type":"text","text":"  - 1주차_3/2(월)~3/6(금) / 2주차_3/9(월)~3/13(금) / 3주차[기간별오답]_3/16(월)~2/20(금) / 4주차[월말평가]_3/23(월)~3/28(토)"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일"},{"type":"text","text":"2) 학교별 홈페이지 아이디/비번 수집 : 3/6(금)까지"},{"type":"text","text":"3) 2025년 수행평가 관련자료 수집"},{"type":"text","text":"4) 2026학년도 학사일정 수집(학교알리미 활용) → 학교별 담당T 정하기"},{"type":"text","text":"   ① 월촌중 :                            ② 신목중 :                            ③ 목운중 :                            ④ 양정중 :"},{"type":"text","text":"   ⑤ 기타 : (                                                                                            )   ※ 3/14(토)까지 1차 조사 진행 후 결과에 따라 추가진행 예정"},{"type":"text","text":"5) 3월 1주차 회의일정 : 3/3(화) PM3:00~"}]}],"next":{"date":"2026-03-03","ampm":"PM","hh":10,"mm":5}},{"id":"20260303","date":"2026-03-03","ampm":"PM","hh":3,"mm":0,"label":"3월1주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 신유미, 고하송, 양재식, 이병숙","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"업무관련사항","blocks":[{"type":"text","text":"1) 3-5월 로드맵 : (발송) 3/6(금)까지 발송 및 상담 완료"},{"type":"text","text":"2) 3/2(월), 3/3(화) 수업은 2/16(월), 2/17(화) 설연휴 대체수업으로 진행. 실제 3월 신학기 수업의 시작은 3/4(수)부터입니다."},{"type":"text","text":"3) 아카 진도입력 및 데일리 리포트 업로드(MyBox)"},{"type":"text","text":"4) 3월 월평가(중2/중3) : 미리보는 1학기 중간고사_3/16(월)~3/21(토)"},{"type":"text","text":"5) 2026년 1학기 중간고사 대비 : ① 1차 시작 - 3/23(월)~     ② 2차 시작 - 3/30(월)~"},{"type":"text","text":"  → 중간고사 일정 : 선유중 4/22(수)~23(목), 월촌중 4/29(수)~30(목)"}]},{"no":"안건2","title":"상담 달성율, E-MATH : 3월","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(3월) : ① 3/6(금) 30%   ② 3/13(금) 50%   ③ 3/20(금) 70%   ④ 3/27(금) 100%"},{"type":"text","text":"2) E-MATH(3월) : [범위] 일차방정식 (일차방정식의 활용은 포함X)"},{"type":"text","text":"  - 1주차_3/2(월)~3/6(금) / 2주차_3/9(월)~3/13(금) / 3주차[기간별오답]_3/16(월)~2/20(금) / 4주차[월말평가]_3/23(월)~3/28(토)"},{"type":"text","text":"3) 학생 특이사항 :"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 학교별 홈페이지 아이디/비번 수집 : ~3/6(금)까지"},{"type":"text","text":"3) 3월 반이동학생 관련사항 공유"},{"type":"text","text":"4) 겨울방학 특강 관련 특이사항 :"}]}],"next":{"date":"2026-03-10","ampm":"PM","hh":3,"mm":0}},{"id":"20260310","date":"2026-03-10","ampm":"PM","hh":3,"mm":0,"label":"3월2주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 고하송, 조성진, 임소리","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 중간고사대비 관련사항","blocks":[{"type":"text","text":"1) 3월 월평가(중2/중3) : 미리보는 1학기 중간고사_3/16(월)~3/21(토)"},{"type":"text","text":"2) 2026년 1학기 중간고사 대비"},{"type":"text","text":"  ① 1차 시작 - 3/23(월)~ : 선유중(4/22-23), 목운중(4/23-24)"},{"type":"text","text":"  ② 2차 시작 - 3/30(월)~ : 월촌중(4/29-30), 신목중(4/29-30)"},{"type":"text","text":"3) 학교별/학년별 시험범위 확인 및 교과서 확인"},{"type":"text","text":"4) 주말 기출모의고사 : 4주간 매주 한 학교, 2개년도(2024/2025) 기출시험지 진행. → 시험시간_1.5h / 오답 및 풀이_1.5h"},{"type":"text","text":"                                (※ 자세한 일정 및 내용은 '내신대비 계획표' 참조)"}]},{"no":"안건2","title":"상담 달성율, E-MATH : 3월","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(3월) : ① 3/6(금) 30%   ② 3/13(금) 50%   ③ 3/20(금) 70%   ④ 3/27(금) 100%"},{"type":"text","text":"2) E-MATH(3월) : [범위] 일차방정식 (일차방정식의 활용은 포함X)"},{"type":"text","text":"  - 1주차_3/2(월)~3/6(금) / 2주차_3/9(월)~3/13(금) / 3주차[기간별오답]_3/16(월)~2/20(금) / 4주차[월말평가]_3/23(월)~3/28(토)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 학교별 홈페이지 아이디/비번 수집(2차) : ~3/13(금)까지"},{"type":"text","text":"3) 아카 진도입력 및 데일리 리포트 업로드(MyBox)"}]}],"next":{"date":"2026-03-17","ampm":"PM","hh":3,"mm":0}},{"id":"20260317","date":"2026-03-17","ampm":"PM","hh":3,"mm":0,"label":"3월3주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 고하송, 조성진, 임소리","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 중간고사대비 관련사항","blocks":[{"type":"text","text":"1) 3월 월평가(중2/중3) : 미리보는 1학기 중간고사_3/16(월)~3/21(토) → 진행중~!! 학생별로 빠지는 인원 없는지 담당쌤 반드시 확인하기~!!"},{"type":"text","text":"2) 2026년 1학기 중간고사 대비"},{"type":"text","text":"  ① 1차 시작 - 3/23(월)~ : 선유중(4/22-23), 목운중(4/23-24)"},{"type":"text","text":"  ② 2차 시작 - 3/30(월)~ : 월촌중(4/29-30), 신목중(4/29-30)"},{"type":"text","text":"3) 학교별/학년별 시험범위 확인 및 교과서 확인"},{"type":"text","text":"4) 주말 기출모의고사 : 4주간 매주 한 학교, 2개년도(2024/2025) 기출시험지 진행. → 시험시간_1.5h / 오답 및 풀이_1.5h"},{"type":"text","text":"                                → 주차별 신청인원 명단작성(엑셀파일_구글 워크시트 공유) : 해당 주차의 목요일까지 작성 완료~!"},{"type":"text","text":"                                예시) 3/28(토),29(일) 모평일정 → 3/26(목) 퇴근 전까지 작성~!!"},{"type":"text","text":"5) 내신대비교재 관련 사항 : 세부사항은 '세부구성안' 개별참조"}]},{"no":"안건2","title":"상담 달성율, E-MATH : 3월","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(3월) : ① 3/6(금) 30%   ② 3/13(금) 50%   ③ 3/20(금) 70%   ④ 3/27(금) 100%"},{"type":"text","text":"2) E-MATH(3월) : [범위] 일차방정식 (일차방정식의 활용은 포함X)"},{"type":"text","text":"  - 1주차_3/2(월)~3/6(금) / 2주차_3/9(월)~3/13(금) / 3주차[기간별오답]_3/16(월)~2/20(금) / 4주차[월말평가]_3/23(월)~3/28(토)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 학교별 홈페이지 아이디/비번 수집 : 내신대비기간 중 계속해서 수집해주세요."},{"type":"text","text":"3) 아카 진도입력 및 데일리 리포트 업로드(MyBox)"}]}],"next":{"date":"2026-03-24","ampm":"PM","hh":3,"mm":0}},{"id":"20260324","date":"2026-03-24","ampm":"PM","hh":3,"mm":0,"label":"3월4주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 고하송, 조성진, 임소리","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 중간고사대비 관련사항","blocks":[{"type":"text","text":"1) 3월 월평가(중2/중3) : 미리보는 1학기 중간고사 → 오답 마무리 후 시험지는 제출"},{"type":"text","text":"2) 2026년 1학기 중간고사 대비"},{"type":"text","text":"  ① 1차 시작 - 3/23(월)~ : 선유중(4/22-23), 목운중(4/23-24)"},{"type":"text","text":"  ② 2차 시작 - 3/30(월)~ : 월촌중(4/29-30), 신목중(4/29-30)"},{"type":"text","text":"★3) 학교별/학년별 시험범위 확인 및 교과서 확인 → 확인되는 내용은 바로 공유해주세요."},{"type":"text","text":"★4) 주말 기출모의고사 : 4주간 매주 한 학교, 2개년도(2024/2025) 기출시험지 진행. → 시험시간_1.5h / 오답 및 풀이_1.5h"},{"type":"text","text":"                                → 주차별 신청인원 명단작성(엑셀파일_구글 워크시트 공유) : 해당 주차의 목요일까지 작성 완료~!"},{"type":"text","text":"                                예시) 3/28(토),29(일) 모평일정 → 3/26(목) 퇴근 전까지 작성~!!"},{"type":"text","text":"5) 내신대비교재 관련 사항 : 이번 중간고사 대비 진행하면서 개선이 필요한 점을 잘 체크해주세요."},{"type":"text","text":"6) 내신대비 주간보고서 : ① 3월 4주차 시작 → 0주차 업로드 확인! / 1주차_3/28(토)까지 발송 완료"},{"type":"text","text":"                                 ② 3월 5주차 시작 → 0주차 업로드_3/27(금)까지"},{"type":"text","text":"7) 오답매크로 사용 관련 문제되는 부분은 개별적으로 문의 주세요."}]},{"no":"안건2","title":"상담 달성율, E-MATH : 3월","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(3월) : ① 3/6(금) 30%   ② 3/13(금) 50%   ③ 3/20(금) 70%   ④ 3/27(금) 100%"},{"type":"text","text":"2) E-MATH(3월) : [범위] 일차방정식 (일차방정식의 활용은 포함X)"},{"type":"text","text":"  - 1주차_3/2(월)~3/6(금) / 2주차_3/9(월)~3/13(금) / 3주차[기간별오답]_3/16(월)~2/20(금) / 4주차[월말평가]_3/23(월)~3/28(토)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 학교별 홈페이지 아이디/비번 수집 : 내신대비기간 중 계속해서 수집해주세요."},{"type":"text","text":"3) 아카 진도입력 및 데일리 리포트 업로드(MyBox)"}]}],"next":{"date":"2026-03-31","ampm":"PM","hh":3,"mm":0}},{"id":"20260331","date":"2026-03-31","ampm":"PM","hh":3,"mm":0,"label":"4월1주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 고하송, 조성진, 임소리","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 중간고사대비 관련사항","blocks":[{"type":"text","text":"1) '내신대비교재 진행상황 체크리스트' 작성 → 4월 1주차 시작하는 학생들 내용부터 작성 후 금요일(또는 토요일) 퇴근 전 제출"},{"type":"text","text":"2) 2026년 1학기 중간고사 대비 전체일정"},{"type":"text","text":"  ① 1차 시작 - 3/23(월)~ : 선유중(4/22-23), 가재울중(4/22-23), 목운중(4/23-24) → 4/24(금) 종료"},{"type":"text","text":"  ② 2차 시작 - 3/30(월)~ : 월촌중(4/29-30), 신목중(4/29-30), 양정중(4/29-30) 외 9개 학교들  → 4/30(목) 종료"},{"type":"text","text":"★3) 학교별/학년별 시험범위 확인 및 교과서 확인 → 확인되는 내용은 바로 공유해주세요."},{"type":"text","text":"★4) 주말 기출모의고사 : 4주간 매주 한 학교, 2개년도(2024/2025) 기출시험지 진행. → 시험시간_1.5h / 오답 및 풀이_1.5h"},{"type":"text","text":"                               → 주차별 신청인원 명단작성(엑셀파일_구글 워크시트 공유) : 2주차는 4/2(목)까지 작성 마무리 해주세요."},{"type":"text","text":"     ┗ 1주차 진행 완료 : 구글 워크시트에 학생별 점수 기록. 성적정리 및 시험지는 매주 월요일 4시 이전 카카오워크에 업로드 예정."},{"type":"text","text":"5) 내신대비교재 관련 사항 : '나'과정 교재를 사용하는 학생들 문항수 조정 관련"},{"type":"text","text":"6) 내신대비 주간보고서 : ① 3월 4주차 시작 → 1주차 업로드 확인! / 2주차_4/4(토)까지 발송"},{"type":"text","text":"                                 ② 3월 5주차 시작 → 0주차 업로드 확인! / 1주차_4/4(토)까지 발송"},{"type":"text","text":"7) 오답매크로 사용 관련 문제되는 부분은 개별적으로 문의 주세요."}]},{"no":"안건2","title":"상담 달성율, E-MATH : 4월","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(3월) : ① 3/6(금) 30%   ② 3/13(금) 50%   ③ 3/20(금) 70%   ④ 3/31(화) 100%"},{"type":"text","text":"2) E-MATH(4월) : [범위] 일차방정식 (일차방정식의 활용은 포함X)"},{"type":"text","text":"  - 1주차_3/30(월)~4/3(금) / 2주차_4/6(월)~4/10(금) / 3주차[기간별오답]_4/13(월)~4/22(수) / 4주차[월말평가]_4/23(목)~4/30(목)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"   → 교과서 파일 업로드 중(My Box>A.내신대비>E.교과서) : 중2(2022개정)_천재(김), 천재(류), 동아, 미래앤, 비상 - 업로드 완료!"},{"type":"text","text":"2) 학교별 홈페이지 아이디/비번 수집 : 내신대비기간 중 계속해서 수집해주세요."},{"type":"text","text":"3) 아카 진도입력 및 데일리 리포트 업로드(MyBox)"}]}],"next":{"date":"2026-04-07","ampm":"PM","hh":3,"mm":0}},{"id":"20260407","date":"2026-04-07","ampm":"PM","hh":3,"mm":0,"label":"4월2주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 고하송, 조성진, 임소리","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 중간고사대비 관련사항","blocks":[{"type":"text","text":"1) '내신대비교재 진행상황 체크리스트' 작성 → 금요일(또는 토요일) 퇴근 전 제출"},{"type":"text","text":"2) 2026년 1학기 중간고사 대비 전체일정"},{"type":"text","text":"  ① 1차 시작 - 3/23(월)~ : 선유중(4/22-23), 가재울중(4/22-23), 목운중(4/23-24) → 4/24(금) 종료"},{"type":"text","text":"  ② 2차 시작 - 3/30(월)~ : 월촌중(4/29-30), 신목중(4/29-30), 양정중(4/29-30) 외 9개 학교들  → 4/30(목) 종료"},{"type":"text","text":"★3) 학교별/학년별 시험범위 확인 및 교과서 확인 → 확인되는 내용은 바로 공유해주세요."},{"type":"text","text":"★4) 주말 기출모의고사 : 4주간 매주 한 학교, 2개년도(2024/2025) 기출시험지 진행. → 시험시간_1.5h / 오답 및 풀이_1.5h"},{"type":"text","text":"     ① 주차별 신청인원 명단작성(엑셀파일_구글 워크시트 공유) : 이번 주차부터는 수요일까지 작성 완료! (※수요일 이후 파일내용 변경금지!)"},{"type":"text","text":"     ② 진행 완료 된 시험의 성적은 구글 워크시트의 두 번째 시트 '점수종합'을 통해서 확인 하실 수 있습니다."},{"type":"text","text":"     → 성적 기록은 일요일 마지막 타임까지 진행된 성적까지 종합하여 최종적으로 매주 월요일 4시까지 확정됩니다."},{"type":"text","text":"     ③ 4월 1주차 문제풀이 내용부터는 Class in을 통해서 '풀이영상 다시보기(플레이백)'가 가능합니다."},{"type":"text","text":"     ④ 정해진 시간에 늦어서 시험시간을 충분히 쓰지 못해서 성적이 제대로 나오지 않거나 전체적인 스케쥴이 딜레이되는 경우가 발생하고 있습니다."},{"type":"text","text":"        스스로 정한 시간인만큼 반드시 수업시간을 엄수할 수 있도록 학생들에게 공지 부탁드립니다."},{"type":"text","text":"5) 내신대비 주간보고서 : ① 3월 4주차 시작 → 2주차 업로드 확인! / 3주차_4/11(토)까지 발송"},{"type":"text","text":"                                 ② 3월 5주차 시작 → 1주차 업로드 확인! / 2주차_4/11(토)까지 발송"},{"type":"text","text":"6) 오답매크로 사용 관련 문제되는 부분은 개별적으로 문의 주세요."}]},{"no":"안건2","title":"상담 달성율(4월), E-MATH : 4월","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(4월) :  4/30(목) 100% → 4월 중간고사 대비 기간에는 상담 달성율 중간체크 없이 월말에 100%만 체크 진행!"},{"type":"text","text":"2) E-MATH(4월) : [범위] 일차방정식의 활용"},{"type":"text","text":"  - 1주차_4/6(월)~4/10(금) / 2주차_4/13(월)~4/17(금) / 3주차[기간별오답]_4/20(월)~4/24(금) / 4주차[월말평가]_4/27(목)~5/2(토)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"   → 교과서 파일 업로드 중(My Box>A.내신대비>E.교과서)"},{"type":"text","text":"2) 학교별 홈페이지 아이디/비번 수집 : 내신대비기간 중 계속해서 수집해주세요."},{"type":"text","text":"3) 아카 진도입력 및 데일리 리포트 업로드(MyBox)"}]}],"next":{"date":"2026-04-14","ampm":"PM","hh":3,"mm":0}},{"id":"20260414","date":"2026-04-14","ampm":"PM","hh":3,"mm":0,"label":"4월3주차","author":"홍재화","attendees":"홍재화, 이경희, 서연우, 고하송, 조성진, 임소리","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 중간고사대비 관련사항","blocks":[{"type":"text","text":"1) '내신대비교재 진행상황 체크리스트' 작성 → 금요일(또는 토요일) 퇴근 전 제출"},{"type":"text","text":"2) 2026년 1학기 중간고사 대비 전체일정"},{"type":"text","text":"  ① 1차 시작 - 3/23(월)~ : 선유중(4/22-23), 가재울중(4/22-23), 목운중(4/23-24) → 4/24(금) 종료"},{"type":"text","text":"  ② 2차 시작 - 3/30(월)~ : 월촌중(4/29-30), 신목중(4/29-30), 양정중(4/29-30) 외 9개 학교들  → 4/30(목) 종료"},{"type":"text","text":"★3) 학교별/학년별 시험범위 확인 및 교과서 확인 → 확인되는 내용은 바로 공유해주세요."},{"type":"text","text":"★4) 주말 기출모의고사 : 4주간 매주 한 학교, 2개년도(2024/2025) 기출시험지 진행. → 시험시간_1.5h / 오답 및 풀이_1.5h"},{"type":"text","text":"     ① 주차별 신청인원 명단작성(엑셀파일_구글 워크시트 공유) : 이번 주차부터는 수요일까지 작성 완료! (※수요일 이후 파일내용 변경금지!)"},{"type":"text","text":"     ② 진행 완료 된 시험의 성적은 구글 워크시트의 두 번째 시트 '점수종합'을 통해서 확인 하실 수 있습니다."},{"type":"text","text":"     → 성적 기록은 일요일 마지막 타임까지 진행된 성적까지 종합하여 최종적으로 매주 월요일 4시까지 확정됩니다."},{"type":"text","text":"     ③ 4월 1주차 문제풀이 내용부터는 Class in을 통해서 '풀이영상 다시보기(플레이백)'가 가능합니다."},{"type":"text","text":"5) 내신대비 주간보고서 : ① 3월 4주차 시작 → 3주차 업로드 확인! / 4주차_4/20(월)까지 직보일정 포함해서 발송해주세요."},{"type":"text","text":"                                 ② 3월 5주차 시작 → 2주차 업로드 확인! / 3주차_4/18(토)까지 발송"},{"type":"text","text":"6) 오답매크로 사용 관련 문제되는 부분은 개별적으로 문의 주세요."}]},{"no":"안건2","title":"상담 달성율(4월), E-MATH : 4월","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(4월) :  4/30(목) 100% → 4월 중간고사 대비 기간에는 상담 달성율 중간체크 없이 월말에 100%만 체크 진행!"},{"type":"text","text":"2) E-MATH(4월) : [범위] 일차방정식의 활용"},{"type":"text","text":"  - 1주차_4/6(월)~4/10(금) / 2주차_4/13(월)~4/17(금) / 3주차[기간별오답]_4/20(월)~4/24(금) / 4주차[월말평가]_4/27(목)~5/2(토)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"   → 교과서 파일 업로드 중(My Box>A.내신대비>E.교과서)"},{"type":"text","text":"2) 학교별 홈페이지 아이디/비번 수집 : 내신대비기간 중 계속해서 수집해주세요."},{"type":"text","text":"3) 아카 진도입력 및 데일리 리포트 업로드(MyBox)"}]}],"next":{"date":"2026-05-01","ampm":"PM","hh":3,"mm":0}},{"id":"20260506","date":"2026-05-06","ampm":"PM","hh":3,"mm":0,"label":"5월1주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 기말고사대비 관련사항","blocks":[{"type":"text","text":"1) 1학기 기말대비 전반적인 일정은 기말 '내신대비' 계획서 참고"},{"type":"text","text":"2) 주요 준비사항"},{"type":"text","text":"   ① 학교/학년별 담당T 배정"},{"type":"table","rows":[[{"col":2,"span":1,"v":"학교"},{"col":3,"span":2,"v":"월촌중"},{"col":5,"span":2,"v":"신목중"},{"col":7,"span":4,"v":"※ 주요 업무 사항 "}],[{"col":2,"span":1,"v":"학년"},{"col":3,"span":1,"v":"2학년"},{"col":4,"span":1,"v":"3학년"},{"col":5,"span":1,"v":"2학년"},{"col":6,"span":1,"v":"3학년"},{"col":7,"span":4,"v":"ⅰ) 담당 학교/학년의 교과서 Print 준비"}],[{"col":2,"span":1,"v":"담당T"},{"col":3,"span":1,"v":"김선애T"},{"col":4,"span":1,"v":"홍재화T"},{"col":5,"span":1,"v":"홍재화T"},{"col":6,"span":1,"v":"이용제T"},{"col":7,"span":4,"v":"ⅱ) 담당 학교/학년의 학교 Print 준비"}],[{"col":2,"span":1,"v":"학교"},{"col":3,"span":2,"v":"양정중"},{"col":5,"span":2,"v":"목운중"},{"col":7,"span":4,"v":"ⅲ) 담당 학교/학년의 주말 기출모의고사 담당"}],[{"col":2,"span":1,"v":"학년"},{"col":3,"span":1,"v":"2학년"},{"col":4,"span":1,"v":"3학년"},{"col":5,"span":1,"v":"2학년"},{"col":6,"span":1,"v":"3학년"},{"col":7,"span":4,"v":"    → 주말 기출모의고사 시간표 : 5/12(화) 회의"}],[{"col":2,"span":1,"v":"담당T"},{"col":3,"span":1,"v":"조성진T"},{"col":4,"span":1,"v":"이용제T"},{"col":5,"span":1,"v":"고하송T"},{"col":6,"span":1,"v":"임소리T"}]]},{"type":"text","text":"            ※ 기타(나머지 학교 2학년,3학년) → 담당 선생님이 학교Print 개별적으로 챙기기"},{"type":"text","text":"   ② 기출모의고사 스터디_5/18(월)~5/30(토) : 2주간 총 2회 진행예정  → 세부일정 : 5/12(화) 회의"},{"type":"text","text":"      ⇨ 1회차 : 월촌중(25,24), 신목중(25,24)   /   2회차 : 목운중(25,24), 양정중(25,24)"}]},{"no":"안건2","title":"상담 달성율(5월), E-MATH : 5월, 6-8월 로드맵","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(5월) : ① 5/8(금) 30%   ② 5/15(금) 50%   ③ 5/22(금) 70%   ④ 5/29(화) 100%"},{"type":"text","text":"2) E-MATH(5월) : [범위]"},{"type":"text","text":"  - 1주차_5/4(월)~5/8(금) / 2주차_5/11(월)~5/15(금) / 3주차[기간별오답]_5/18(월)~5/22(금) / 4주차[월말평가]_5/25(목)~5/30(토)"},{"type":"text","text":"3) 6-8월 로드맵 : (1차) ~5/20(수)   →   (2차) ~5/27(수)   →   (발송) 6/1(월)~6/2(수)"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 여름방학 특강관련 논의 → 5/12(화) 회의에서 진행"},{"type":"text","text":"4) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-05-12","ampm":"PM","hh":3,"mm":0}},{"id":"20260512","date":"2026-05-12","ampm":"PM","hh":3,"mm":0,"label":"5월2주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 기말고사대비 관련사항","blocks":[{"type":"text","text":"1) 1학기 기말대비 전반적인 일정은 기말 '내신대비' 계획서 참고"},{"type":"text","text":"2) 주요 준비사항"},{"type":"text","text":"   ① 학교/학년별 담당T 배정"},{"type":"table","rows":[[{"col":2,"span":1,"v":"학교"},{"col":3,"span":2,"v":"월촌중"},{"col":5,"span":2,"v":"신목중"},{"col":7,"span":4,"v":"※ 주요 업무 사항 "}],[{"col":2,"span":1,"v":"학년"},{"col":3,"span":1,"v":"2학년"},{"col":4,"span":1,"v":"3학년"},{"col":5,"span":1,"v":"2학년"},{"col":6,"span":1,"v":"3학년"},{"col":7,"span":4,"v":"ⅰ) 담당 학교/학년의 교과서 Print 준비"}],[{"col":2,"span":1,"v":"담당T"},{"col":3,"span":1,"v":"김선애T"},{"col":4,"span":1,"v":"홍재화T"},{"col":5,"span":1,"v":"홍재화T"},{"col":6,"span":1,"v":"이용제T"},{"col":7,"span":4,"v":"ⅱ) 담당 학교/학년의 학교 Print 준비"}],[{"col":2,"span":1,"v":"학교"},{"col":3,"span":2,"v":"양정중"},{"col":5,"span":2,"v":"목운중"},{"col":7,"span":4,"v":"ⅲ) 담당 학교/학년의 주말 기출모의고사 담당"}],[{"col":2,"span":1,"v":"학년"},{"col":3,"span":1,"v":"2학년"},{"col":4,"span":1,"v":"3학년"},{"col":5,"span":1,"v":"2학년"},{"col":6,"span":1,"v":"3학년"},{"col":7,"span":4,"v":"    → 주말 기출모의고사 시간표 작성"}],[{"col":2,"span":1,"v":"담당T"},{"col":3,"span":1,"v":"조성진T"},{"col":4,"span":1,"v":"이용제T"},{"col":5,"span":1,"v":"고하송T"},{"col":6,"span":1,"v":"임소리T"}]]},{"type":"text","text":"            ※ 기타(나머지 학교 2학년,3학년) → 담당 선생님이 학교Print 개별적으로 챙기기"},{"type":"text","text":"   ② 기출모의고사 스터디_5/18(월)~5/30(토) : 2주간 총 2회 진행예정  → 세부일정 정하기"},{"type":"text","text":"      ⇨ 1회차 : 월촌중(25,24), 신목중(25,24)_5/20(수) PM2:00~          2회차 : 목운중(25,24), 양정중(25,24)_5/27(수) PM2:00~"},{"type":"text","text":"3) 주말(토요일) 클리닉 신청명단 작성 : 구글시트 공유 → 선생님별 작성 → 수업 진행 후 결과 피드백(구글시트)"}]},{"no":"안건2","title":"상담 달성율(5월), E-MATH : 5월, 6-8월 로드맵","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(5월) : ① 5/8(금) 30%   ② 5/15(금) 50%   ③ 5/22(금) 70%   ④ 5/29(화) 100%"},{"type":"text","text":"2) E-MATH(5월) : [범위] 좌표평면과 그래프 ~ 정비례와 반비례"},{"type":"text","text":"  - 1주차_5/4(월)~5/8(금) / 2주차_5/11(월)~5/15(금) / 3주차[기간별오답]_5/18(월)~5/22(금) / 4주차[월말평가]_5/25(목)~5/30(토)"},{"type":"text","text":"3) 6-8월 로드맵 : (1차) ~5/20(수)   →   (2차) ~5/27(수)   →   (발송) 6/1(월)~6/2(수)"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 여름방학 특강관련 논의 → 5/18(월)까지 특강계획서 1차 작성 및 제출"},{"type":"text","text":"4) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-05-19","ampm":"PM","hh":3,"mm":0}},{"id":"20260519","date":"2026-05-19","ampm":"PM","hh":3,"mm":0,"label":"5월3주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애, 김소연","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 기말고사대비 관련사항","blocks":[{"type":"text","text":"1) 1학기 기말대비의 전반적인 일정 및 교재관련 사항들은 기말 '내신대비' 계획서 참고"},{"type":"text","text":"2) 주요 준비사항"},{"type":"text","text":"   ① 학교/학년별 담당T 배정"},{"type":"table","rows":[[{"col":2,"span":2,"v":"월촌중"},{"col":4,"span":2,"v":"신목중"},{"col":6,"span":2,"v":"목운중"},{"col":8,"span":3,"v":"양정중"}],[{"col":2,"span":1,"v":"2학년 : 김선애T"},{"col":3,"span":1,"v":"3학년 : 홍재화T"},{"col":4,"span":1,"v":"2학년 : 홍재화T"},{"col":5,"span":1,"v":"3학년 : 이용제T"},{"col":6,"span":1,"v":"2학년 : 고하송T"},{"col":7,"span":1,"v":"3학년 : 임소리T"},{"col":8,"span":1,"v":"2학년 : 조성진T"},{"col":9,"span":1,"v":"3학년 : 이용제T"}]]},{"type":"text","text":"   ② 기출모의고사 스터디_5/18(월)~5/30(토) : 2주간 총 2회 진행"},{"type":"text","text":"      ⇨ 1회차 : 월촌중(25,24), 신목중(25,24)_5/20(수) PM2:00~          2회차 : 목운중(25,24), 양정중(25,24)_5/27(수) PM2:00~"},{"type":"text","text":"3) 내신대비특별반 진행 : 1주차_5/18(월)~23(토), 2주차_5/25(월)~30(토)"},{"type":"text","text":"4) 학교별/학년별 시험범위 및  내신대비 일정 확인 : (1차) ~5/25(화)까지_전체시험일정 및 시험범위(확정은 아니더라도 대략적인 범위 확인)"},{"type":"text","text":"5) 내신대비 점검표 : 선생님별 구글시트(공유)로 진행 내신대비 시작 후 매주 금요일까지 작성 마무리 → 토요일에 확인 진행 ⇨ 6월 1주차부터 진행"},{"type":"text","text":"6) 내신대비 교재 : 매주 마무리된 교재는 모두 걷어주세요 → 4주차에 전체오답 작성을 위해 필요합니다"},{"type":"text","text":"7) 주말(토요일) 클리닉 신청명단 작성 : 구글시트 공유 → 선생님별 작성(매주 목요일까지) → 수업 진행 후 결과 피드백(월요일 출근 후 확인 가능)"},{"type":"text","text":"   ⇨ 5/23(토), 30(토) : 내신특별반 피드백 +α ⇨ 6/13(토), 20(토), 27(토) : 교과서 피드백 +α ⇨ 6/20(토), 27(토), 4(토) : 학교Print 피드백 +α"}]},{"no":"안건2","title":"상담 달성율(5월), E-MATH : 5월, 6-8월 로드맵","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(5월) : ① 5/8(금) 30%   ② 5/15(금) 50%   ③ 5/22(금) 70%   ④ 5/29(화) 100%"},{"type":"text","text":"2) E-MATH(5월) : [범위] 좌표평면과 그래프 ~ 정비례와 반비례"},{"type":"text","text":"  - 1주차_5/4(월)~5/8(금) / 2주차_5/11(월)~5/15(금) / 3주차[기간별오답]_5/18(월)~5/22(금) / 4주차[월말평가]_5/25(목)~5/30(토)"},{"type":"text","text":"3) 6-8월 로드맵 : (1차) ~5/20(수)   →   (2차) ~5/27(수)   →   (발송) 6/1(월)~6/2(수)"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 여름방학 특강관련 논의 → 5/25(월)까지 특강계획서 2차 작성 및 제출"},{"type":"text","text":"   ⇨"},{"type":"text","text":"4) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-05-26","ampm":"PM","hh":2,"mm":30}},{"id":"20260526","date":"2026-05-26","ampm":"PM","hh":2,"mm":30,"label":"5월4주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애, 김소연","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 기말고사대비 관련사항","blocks":[{"type":"text","text":"1) 1학기 기말대비의 전반적인 일정 및 교재관련 사항들은 기말 '내신대비' 계획서 참고"},{"type":"text","text":"2) 주요 준비사항"},{"type":"text","text":"   ① 학교/학년별 담당T 배정"},{"type":"table","rows":[[{"col":2,"span":2,"v":"월촌중"},{"col":4,"span":2,"v":"신목중"},{"col":6,"span":2,"v":"목운중"},{"col":8,"span":3,"v":"양정중"}],[{"col":2,"span":1,"v":"2학년 : 김선애T"},{"col":3,"span":1,"v":"3학년 : 홍재화T"},{"col":4,"span":1,"v":"2학년 : 홍재화T"},{"col":5,"span":1,"v":"3학년 : 이용제T"},{"col":6,"span":1,"v":"2학년 : 고하송T"},{"col":7,"span":1,"v":"3학년 : 임소리T"},{"col":8,"span":1,"v":"2학년 : 조성진T"},{"col":9,"span":1,"v":"3학년 : 이용제T"}]]},{"type":"text","text":"   ② 기출모의고사 스터디_5/18(월)~5/30(토) : 2주간 총 2회 진행"},{"type":"text","text":"      ⇨ 1회차 : 월촌중(25,24), 신목중(25,24)_5/20(수) PM2:00~          2회차 : 목운중(25,24), 양정중(25,24)_5/27(수) PM2:00~"},{"type":"text","text":"3) 내신대비특별반 진행 : 1주차_5/18(월)~23(토), 2주차_5/25(월)~30(토)  /  월촌중 2, 3학년 → 6/1(월)~6/5(금) 수련회로 인한 부족분 추가진행"},{"type":"text","text":"4) 학교별/학년별 시험범위 및  내신대비 일정 확인 : (1차) ~5/25(화)까지_전체시험일정 및 시험범위(확정은 아니더라도 대략적인 범위 확인)"},{"type":"text","text":"5) 내신대비 점검표 : 선생님별 구글시트(공유)로 진행 내신대비 시작 후 매주 금요일까지 작성 마무리 → 토요일에 확인 진행 ⇨ 6월 1주차부터 진행"},{"type":"text","text":"6) 내신대비 교재 : 매주 마무리된 교재는 모두 걷어주세요 → 4주차에 전체오답 작성을 위해 필요합니다"},{"type":"text","text":"7) 주말(토요일) 클리닉 신청명단 작성 : 구글시트 공유 → 선생님별 작성(매주 목요일까지) → 수업 진행 후 결과 피드백(월요일 출근 후 확인 가능)"},{"type":"text","text":"   ⇨ 5/23(토), 30(토) : 내신특별반 피드백 +α ⇨ 6/13(토), 20(토), 27(토) : 교과서 피드백 +α ⇨ 6/20(토), 27(토), 4(토) : 학교Print 피드백 +α"},{"type":"text","text":"8) 5/29(금), 30(토) : 보강데이 → 0주차 미리보는 기말고사_목운중25,24 기출Test+풀이 진행"},{"type":"text","text":"9) 주말 모의고사 신청 & 성적정리 파일 : 구글시트로 공유 → 6월 2주차부터 매주 목요일까지 작성 → 월요일 4시 전까지 성적정리 업로드"}]},{"no":"안건2","title":"상담 달성율(5월), E-MATH : 5월, 6-8월 로드맵, 중등부 설명회","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(5월) : ① 5/8(금) 30%   ② 5/15(금) 50%   ③ 5/22(금) 70%   ④ 5/29(금) 100%"},{"type":"text","text":"2) E-MATH(5월) : [범위] 좌표평면과 그래프 ~ 정비례와 반비례"},{"type":"text","text":"  - 1주차_5/4(월)~5/8(금) / 2주차_5/11(월)~5/15(금) / 3주차[기간별오답]_5/18(월)~5/22(금) / 4주차[월말평가]_5/25(목)~5/30(토)"},{"type":"text","text":"3) 6-8월 로드맵 : (1차) ~5/20(수)   →   (2차) ~5/29(금)   →   (발송) 6/1(월)~6/2(수)"},{"type":"text","text":" → 선생님별 미팅일정 : 이용제T(               ), 고하송T(               ), 조성진T(               ), 임소리T(               ), 김선애T(               )"},{"type":"text","text":"4) 중등부 설명회 준비"},{"type":"table","rows":[[{"col":1,"span":2,"v":"   ① 내용 : (학년별) →"},{"col":3,"span":1,"v":"중1 : "},{"col":5,"span":1,"v":"중2 : "},{"col":7,"span":1,"v":"중3 : "}]]},{"type":"text","text":"   ② 일정 :"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 여름방학 특강관련 논의 → 5/28(목)까지 특강계획서(최종안) 작성 및 제출"},{"type":"text","text":"   ① 몰입특강O :                                                                                 몰입특강X :"},{"type":"text","text":"   ② 회차Plus(+) : 담당선생님 개별 특강시간표 진행"},{"type":"table","rows":[[{"col":1,"span":2,"v":"       ⇨ 과정특강 담당T : "},{"col":3,"span":1,"v":"중등1-2"},{"col":4,"span":1,"v":"중등2-2(기본)"},{"col":5,"span":1,"v":"중등2-2(응용심화)"},{"col":6,"span":1,"v":"중등3-2(기본)"},{"col":7,"span":1,"v":"중등3-2(응용심화)"},{"col":8,"span":1,"v":"공통수학1"},{"col":9,"span":1,"v":"공통수학2"}]]},{"type":"text","text":"4) 학생대상 홍보 관련 : 예정) 학교 앞 아이스크림 홍보"},{"type":"text","text":"5) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-06-02","ampm":"PM","hh":2,"mm":30}},{"id":"20260602","date":"2026-06-02","ampm":"PM","hh":2,"mm":30,"label":"6월1주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애, 김소연","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 기말고사대비 관련사항","blocks":[{"type":"text","text":"1) 1학기 기말대비의 전반적인 일정 및 교재관련 사항들은 기말 '내신대비' 계획서 참고"},{"type":"text","text":"2) 주요 준비사항 : 학교/학년별 담당T 배정  →  학년별/학교별 교과서 및 학교프린트를 사용 가능한 상태로 준비  +  학교별/학년별 수행평가 업로드"},{"type":"table","rows":[[{"col":2,"span":2,"v":"월촌중"},{"col":4,"span":2,"v":"신목중"},{"col":6,"span":2,"v":"목운중"},{"col":8,"span":3,"v":"양정중"}],[{"col":2,"span":1,"v":"2학년 : 김선애T"},{"col":3,"span":1,"v":"3학년 : 홍재화T"},{"col":4,"span":1,"v":"2학년 : 홍재화T"},{"col":5,"span":1,"v":"3학년 : 이용제T"},{"col":6,"span":1,"v":"2학년 : 고하송T"},{"col":7,"span":1,"v":"3학년 : 임소리T"},{"col":8,"span":1,"v":"2학년 : 조성진T"},{"col":9,"span":1,"v":"3학년 : 이용제T"}]]},{"type":"text","text":"3) 내신대비특별반 진행 : 1주차_5/18(월)~23(토), 2주차_5/25(월)~30(토)  /  월촌중 2, 3학년 → 6/1(월)~6/5(금) 수련회로 인한 부족분 추가진행"},{"type":"text","text":"4) 학교별/학년별 시험범위 및  내신대비 일정 확인 : (2차) ~6/5(금)까지_전체시험일정 및 시험범위(확정은 아니더라도 대략적인 범위 확인)"},{"type":"text","text":"5) 내신대비 점검표 : 선생님별 구글시트(공유)로 진행. 매주 금요일까지 작성 마무리 → 토요일에 확인 진행 ⇨ 1차 : ~6/5(금)까지"},{"type":"text","text":"6) 내신대비 교재 : 매주 마무리된 교재는 모두 걷어주세요 → 4주차에 전체오답 작성을 위해 필요합니다. (※ 전체오답_'매쓰홀릭'으로 진행예정)"},{"type":"text","text":"7) 주말(토요일) 클리닉 신청명단 작성 : 구글시트 공유 → 선생님별 작성(매주 목요일까지) → 수업 진행 후 결과 피드백(월요일 출근 후 확인 가능)"},{"type":"text","text":"   ⇨ 5/23(토), 30(토) : 내신특별반 피드백 +α ⇨ 6/13(토), 20(토), 27(토) : 교과서 피드백 +α ⇨ 6/20(토), 27(토), 4(토) : 학교Print 피드백 +α"},{"type":"text","text":"8) 0주차 미리보는 기말고사_목운중25,24 → 시험 진행한 학생들은 성적 기록(구글시트)"},{"type":"text","text":"9) 주말 모의고사 신청 & 성적정리 파일 : 구글시트로 공유 → 6월 2주차부터 매주 목요일까지 작성 → 월요일 4시 전까지 성적정리 업로드"}]},{"no":"안건2","title":"상담 달성율(5월), E-MATH : 5월, 6-8월 로드맵, 중등부 설명회, 2학기 수업 준비 관련","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(6월) : ① 6/5(금) 30%   ② 6/12(금) 50%   ③ 6/19(금) 70%   ④ 6/26(금) 100%"},{"type":"text","text":"2) E-MATH(6월) : [범위] 1학기 전범위"},{"type":"text","text":"  - 1주차_6/1(월)~6/5(금) / 2주차_6/8(월)~6/12(금) / 3주차[기간별오답]_6/15(월)~6/19(금) / 4주차[월말평가]_6/22(월)~6/27(토)"},{"type":"text","text":"3) 6-8월 로드맵 : (1차) ~5/20(수)   →   (2차) ~5/29(금)   →   (발송/상담) 6/1(월)~6/5(금)"},{"type":"text","text":"4) 중등부 설명회   →  예상일정 : 6/20(토)_중2/중3, 6/27(토)_중1(+초5,초6)"},{"type":"text","text":"5) 2학기 수업준비 관련 : '2026년 전반기 학생별 진도표' 작성 → 전체 학생들의 진도현황 확인 후 2학기 수업구성 진행예정"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 여름방학 특강관련 사항 → 6/5(금)까지 최종 정리 후  6월 2주차부터 여름방학 특강관련 포스터 게시예정"},{"type":"text","text":"   ① 몰입특강O : 김선애T, 이용제T, 조성진T, 홍재화T                                    몰입특강X : 고하송T, 임소리T"},{"type":"text","text":"   ② 과정특강 및  회차특강 : 자세한 내용은 '2026년 여름방학 특강일정 종합' 참고"},{"type":"table","rows":[[{"col":1,"span":2,"v":"       ⇨ 과정특강 담당T : "},{"col":3,"span":1,"v":"중등1-2"},{"col":4,"span":1,"v":"중등2-2(기본)"},{"col":5,"span":1,"v":"중등2-2(응용심화)"},{"col":6,"span":1,"v":"중등3-2(기본)"},{"col":7,"span":1,"v":"중등3-2(응용심화)"},{"col":8,"span":1,"v":"공통수학1"},{"col":9,"span":1,"v":"공통수학2"}],[{"col":3,"span":1,"v":"고하송T"},{"col":4,"span":1,"v":"이용제T"},{"col":5,"span":1,"v":"김선애T"},{"col":6,"span":1,"v":"고하송T"},{"col":7,"span":1,"v":"홍재화T"},{"col":8,"span":1,"v":"임소리T\n이용제T"},{"col":9,"span":1,"v":"임소리T"}]]},{"type":"text","text":"4) 학생대상 홍보 관련 :"},{"type":"text","text":"5) 학생대상 홍보 관련 :"},{"type":"text","text":"6) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-06-09","ampm":"PM","hh":2,"mm":30}},{"id":"20260609","date":"2026-06-09","ampm":"PM","hh":2,"mm":30,"label":"6월2주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애, 김소연","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 기말고사대비 관련사항","blocks":[{"type":"text","text":"1) 1학기 기말대비의 전반적인 일정 및 교재관련 사항들은 기말 '내신대비' 계획서 참고"},{"type":"text","text":"2) 주요 준비사항 : 학교/학년별 담당T 배정  →  학년별/학교별 교과서 및 학교프린트를 사용 가능한 상태로 준비  +  학교별/학년별 수행평가 업로드"},{"type":"table","rows":[[{"col":2,"span":2,"v":"신목중"},{"col":4,"span":2,"v":"양정중"},{"col":6,"span":2,"v":"월촌중"},{"col":8,"span":3,"v":"목운중"}],[{"col":2,"span":1,"v":"2학년 : 홍재화T"},{"col":3,"span":1,"v":"3학년 : 이용제T"},{"col":4,"span":1,"v":"2학년 : 조성진T"},{"col":5,"span":1,"v":"3학년 : 이용제T"},{"col":6,"span":1,"v":"2학년 : 김선애T"},{"col":7,"span":1,"v":"3학년 : 홍재화T"},{"col":8,"span":1,"v":"2학년 : 고하송T"},{"col":9,"span":1,"v":"3학년 : 임소리T"}]]},{"type":"text","text":"★3) 학교별/학년별 시험범위 및  내신대비 일정 확인 : 확인 되는대로 중등부 단톡방(또는 카카오워크)를 통해 공유"},{"type":"text","text":"★4) 내신대비 점검표 : 선생님별 구글시트(공유)로 진행. 매주 금요일까지 작성 마무리 → 토요일에 확인 진행 ⇨ 2차 : ~6/12(금)까지"},{"type":"text","text":"5) 내신대비 교재 : 매주 마무리된 교재는 모두 걷어주세요 → 4주차에 전체오답 작성을 위해 필요합니다. (※ 전체오답_'매쓰홀릭'으로 진행예정)"},{"type":"text","text":"★6) 주말(토요일) 클리닉 신청명단 작성 : 구글시트 공유 → 선생님별 작성(매주 목요일까지) → 수업 진행 후 결과 피드백(월요일 출근 후 확인 가능)"},{"type":"text","text":"   ⇨ 5/23(토), 30(토) : 내신특별반 피드백 +α ⇨ 6/13(토), 20(토), 27(토) : 교과서 피드백 +α ⇨ 6/20(토), 27(토), 4(토) : 학교Print 피드백 +α"},{"type":"text","text":"7) 주말 모의고사 신청 & 성적정리 파일 : 구글시트로 공유 → 수업 신청서 6/11(목)까지 작성 → 월요일 4시 전까지 성적정리 업로드"}]},{"no":"안건2","title":"상담 달성율(6월), E-MATH : 5월, 중등부 설명회, 2학기 수업 준비 관련","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(6월) : ① 6/12(금) 50%   ② 6/26(금) 100%"},{"type":"text","text":"2) E-MATH(6월) : [범위] 1학기 전범위"},{"type":"text","text":"  - 1주차_6/1(월)~6/5(금) / 2주차_6/8(월)~6/12(금) / 3주차[기간별오답]_6/15(월)~6/19(금) / 4주차[월말평가]_6/22(월)~6/27(토)"},{"type":"text","text":"3) 중등부 설명회 일정 : 6/20(토)_중2/중3, 6/27(토)_중1(+초5,초6)"},{"type":"text","text":"4) 2학기 수업준비 관련 : '2026년 전반기 학생별 진도표' 작성 → 6/12(금)까지 작성 마무리 후 퇴근 전까지 개별제출"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 여름방학 특강관련 사항 → 6/5(금)까지 최종 정리 후  6월 2주차 중으로 여름방학 특강관련 포스터 게시예정"},{"type":"text","text":"   ※ 과정특강 및  회차특강 : 자세한 내용은 '2026년 여름방학 특강일정 종합' 참고"},{"type":"text","text":"4) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-06-16","ampm":"PM","hh":2,"mm":30}},{"id":"20260703","date":"2026-07-03","ampm":"PM","hh":2,"mm":30,"label":"7월1주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"2026년 1학기 기말고사 관련사항, 여름방학 특강 관련사항","blocks":[{"type":"text","text":"1) 결과상담 + 여름방학 특강상담 병행해서 진행   →   특강교재 준비 시작"},{"type":"text","text":"2) 시험지(원본) 오프라인 수거"},{"type":"text","text":"3) (주말) 기출모의고사_7월 1주차 : 신목26, 양정26으로 진행예정. / (토) 14:00~17:20_이용제T/홍재화T, (일) 17:00~22:00_홍재화T"},{"type":"text","text":"4) 여름방학 특강 관련 :"},{"type":"text","text":"5) 기말대비 관련 특이사항 :"}]},{"no":"안건2","title":"상담 달성율(7월), E-MATH : 7월","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(7월) : ① 7/10(금) 40%   ② 7/17(금) 60%   ③ 7/28(화) 100%"},{"type":"text","text":"2) E-MATH(7월) : [범위] 1학기 주요단원(2개) - 일차방정식(활용포함), 좌표평면과 그래프(정비례와 반비례 포함)"},{"type":"text","text":"  - 1주차_7/6(월)~7/10(금) / 2주차[기간별오답]_7/13(월)~7/17(금) / 3주차[월말평가]_7/20(월)~7/25(토)"},{"type":"text","text":"  - 세부사항 : ① 1주차_상/하 두 개의 레벨로 10문항씩 시험지 구성(일차방정식10, 일차방정식활용10, 좌표평면과그래프10, 정비례와반비례10, 종합10)"},{"type":"text","text":"                 ② 2주차_1주차 50문항에 대한 오답진행 → 기간별오답과 동일한 형태로 진행"},{"type":"text","text":"                 ③ 3주차_월말평가 진행"},{"type":"text","text":" → 8월 개학 후 E-MATH를 대신해서 [수행평가/서술형 대비 프로그램]이 진행됩니다."}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-07-10","ampm":"PM","hh":2,"mm":30}},{"id":"20260721","date":"2026-07-21","ampm":"PM","hh":2,"mm":30,"label":"7월4주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애, 예윤지","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"여름방학 특강 관련사항, 인증평가 리뉴얼, 2학기 정기평가 대비","blocks":[{"type":"text","text":"1) 학생별 시간표 공지 및 학원 여름방학 일정 공지"},{"type":"text","text":"2) 학생별 휴가일정 조사"},{"type":"text","text":"3) 인증평가 리뉴얼 작업"},{"type":"text","text":"4) 2학기 중간대비 교재작업 : (1차) ~8/21(금), (2차) ~8/26(수), (발주) 8/27(목)"},{"type":"text","text":"5) 2학기 학사일정 조사 대상학교 추가 :"},{"type":"text","text":"6) 학교별 수행평가 조사 : (월촌)                         (목운)                         (신목)                         (양정)"},{"type":"text","text":"7) 기출시험지 모으기(4개년도) : (월촌)                         (목운)                         (신목)                         (양정)"},{"type":"text","text":"8) 학교 홈페이지 아이디/비번 수집"}]},{"no":"안건2","title":"상담 달성율(7월), E-MATH : 7월, 9-11월 로드맵","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(7월) : ① 7/10(금) 40%   ② 7/17(금) 60%   ③ 7/28(화) 100%"},{"type":"text","text":"2) E-MATH(7월) : [범위] 1학기 주요단원(2개) - 일차방정식(활용포함), 좌표평면과 그래프(정비례와 반비례 포함)"},{"type":"text","text":"  - 1주차_7/6(월)~7/10(금) / 2주차[기간별오답]_7/13(월)~7/17(금) / 3주차[월말평가]_7/20(월)~7/25(토)"},{"type":"text","text":"  - 세부사항 : ① 1주차_상/하 두 개의 레벨로 10문항씩 시험지 구성(일차방정식10, 일차방정식활용10, 좌표평면과그래프10, 정비례와반비례10, 종합10)"},{"type":"text","text":"                 ② 2주차_1주차 50문항에 대한 오답진행 → 기간별오답과 동일한 형태로 진행"},{"type":"text","text":"                 ③ 3주차_월말평가 진행"},{"type":"text","text":" → 8월 개학 후 E-MATH를 대신해서 [수행평가/서술형 대비 프로그램]이 진행됩니다."},{"type":"text","text":"3) 9-11월 로드맵 : (1차) ~8/21(금)까지, (2차) ~8/28(금)까지, (발송) 8/31(월)~9/3(목)"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 교사용자료 : 교사용(또는 학생용)교재 및 PDF파일 개별요청 주세요."},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-07-28","ampm":"PM","hh":2,"mm":30}},{"id":"20260818","date":"2026-08-18","ampm":"PM","hh":2,"mm":30,"label":"8월3주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애, 예윤지","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"여름방학 특강 마무리, 2학기 중간고사 대비, [9월 얼리어답터(예비고1)]","blocks":[{"type":"text","text":"1) 여름방학 특강 마무리 : 회차 진행 확인(보강 마무리 확인)"},{"type":"text","text":"2) 2학기 중간고사 대비 : 세부계획안 → 8/19(수) 배부"},{"type":"text","text":"3) 2학기 중간대비 교재작업 : (1차) ~8/21(금), (2차) ~8/26(수), (발주) 8/27(목)"},{"type":"text","text":"4) 2학기 중간고사 시험일정 및 시험범위 조사(10/6~10/8시험대상) : (1차) ~8/26(수)까지"},{"type":"text","text":"5) 9월 얼리어답터(예비고1) → 지망 예상 고등학교 조사(공수1 1회독 이상 진행한 학생) : ~8/22(토)까지"}]},{"no":"안건2","title":"상담 달성율(8월), 인증평가 리뉴얼, [수행평가/서술형] 대비 프로그램","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(8월) : ① 8/14(금) 40%   ② 8/21(금) 60%   ③ 8/28(금) 100%"},{"type":"text","text":"2) 인증평가 리뉴얼"},{"type":"text","text":"3) 수행평가/서술형 대비 프로그램"},{"type":"text","text":" → 8월 개학 후 E-MATH를 대신해서 [수행평가/서술형 대비 프로그램]이 진행됩니다."},{"type":"text","text":"4) 9-11월 로드맵 : (1차) ~8/21(금)까지, (2차) ~8/28(금)까지, (발송) 8/31(월)~9/3(목)"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 8/31(월) 중등부 전체 휴강"},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-08-25","ampm":"PM","hh":2,"mm":30}},{"id":"20260825","date":"2026-08-25","ampm":"PM","hh":2,"mm":30,"label":"8월4주차","author":"홍재화","attendees":"홍재화, 이경희, 이용제, 고하송, 조성진, 임소리, 김선애, 예윤지","absent":"","place":"","prev":["","",""],"actions":[],"agendas":[{"no":"안건1","title":"여름방학 특강 마무리, 2학기 중간고사 대비, [9월 얼리어답터(예비고1)]","blocks":[{"type":"text","text":"1) 여름방학 특강 마무리 : 회차 진행 확인(보강 마무리 확인)"},{"type":"text","text":"2) 2학기 중간고사 대비 : 세부계획안 확인"},{"type":"text","text":"3) 2학기 중간대비 교재작업 : (발주) 8/25(화)"},{"type":"text","text":"4) 2학기 중간고사 시험일정 및 시험범위 조사(10/6~10/8시험대상) : (1차) ~8/26(수)까지"},{"type":"text","text":"5) 9월 얼리어답터(예비고1) → 지망 예상 고등학교 조사(공수1 1회독 이상 진행한 학생) : ~8/22(토)까지"}]},{"no":"안건2","title":"상담 달성율(8월), 인증평가 리뉴얼, [수행평가/서술형] 대비 프로그램","blocks":[{"type":"text","text":"1) 주차별 상담 달성율(8월) : ① 8/14(금) 40%   ② 8/21(금) 60%   ③ 8/28(금) 100%"},{"type":"text","text":"2) 인증평가 리뉴얼"},{"type":"text","text":"3) 수행평가/서술형 대비 프로그램"},{"type":"text","text":" → 8월 개학 후 E-MATH를 대신해서 [수행평가/서술형 대비 프로그램]이 진행됩니다."},{"type":"text","text":"4) 9-11월 로드맵 : (1차) ~8/21(금)까지, (2차) ~8/28(금)까지, (발송) 8/31(월)~9/3(목)"}]},{"no":"안건3","title":"기타","blocks":[{"type":"text","text":"1) 8/31(월) 중등부 전체 휴강"},{"type":"text","text":"2) 아카 진도입력_매일 / 데일리 리포트 업로드-주간_매주 토요일까지(MyBox)"},{"type":"text","text":"3) 수업 및 학생 특이사항 :"}]}],"next":{"date":"2026-09-01","ampm":"PM","hh":2,"mm":30}}];
+const WD = ["월","화","수","목","금","토","일"];
+const STATUSES = ["완료","진행중","수정중"];
+function stCls(v){
+  const t = stripHtml(v).trim();
+  return t==="완료" ? "st-done" : t==="진행중" ? "st-prog" : t==="수정중" ? "st-edit"
+       : t ? "st-etc" : "st-none";
+}
+const KEY = "mathlib-minutes-v2";
+const UIKEY = "mathlib-ui-v2";
+const MM = 96/25.4;                 /* 1mm in CSS px */
+const PAGE_W = 210*MM, PAGE_H = 296.6*MM, PAD_V = 11*MM, PAD_H = 10*MM;
+
+const PLACES = ["1강의실","2강의실","3강의실","4강의실","5강의실","6강의실","대강의실"];
+const HOURS = Array.from({length:12},(_,i)=>i+1);
+const MINS = [0,5,10,15,20,25,30,35,40,45,50,55];
+
+/* ══════════════ 저장 ══════════════
+   3중으로 남깁니다.
+   ① 실제 파일(File System Access) — 캐시를 지워도 남는 진짜 원본
+   ② IndexedDB — 브라우저 안의 작업본
+   ③ localStorage — 예비본
+   ─────────────────────────────── */
+const DBN="mathlib-db", STN="kv";
+function idbOpen(){
+  return new Promise((res,rej)=>{
+    const r = indexedDB.open(DBN,1);
+    r.onupgradeneeded = ()=>{ if(!r.result.objectStoreNames.contains(STN)) r.result.createObjectStore(STN); };
+    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+  });
+}
+async function idbGet(k){
+  try{ const db=await idbOpen();
+    return await new Promise((res,rej)=>{ const q=db.transaction(STN,"readonly").objectStore(STN).get(k);
+      q.onsuccess=()=>res(q.result??null); q.onerror=()=>rej(q.error); });
+  }catch(e){ return null; }
+}
+async function idbSet(k,v){
+  try{ const db=await idbOpen();
+    await new Promise((res,rej)=>{ const q=db.transaction(STN,"readwrite").objectStore(STN).put(v,k);
+      q.onsuccess=res; q.onerror=()=>rej(q.error); });
+    return true;
+  }catch(e){ return false; }
+}
+const mem = {};
+const store = {
+  async get(k){
+    const a = await idbGet(k); if(a!=null) return a;
+    if(window.storage){ try{ const r=await window.storage.get(k); if(r) return r.value; }catch(e){} }
+    try{ const v=localStorage.getItem(k); if(v!==null) return v; }catch(e){}
+    return mem[k] ?? null;
+  },
+  async set(k,v){
+    mem[k]=v;
+    await idbSet(k,v);
+    if(window.storage){ try{ await window.storage.set(k,v); }catch(e){} }
+    try{ localStorage.setItem(k,v); }catch(e){}
+  }
+};
+
+/* ── 저장 형식 ── */
+function payload(){ return {app:"mathlib-minutes", v:2, updatedAt:new Date().toISOString(), weeks:state.weeks}; }
+function unwrap(x){
+  if(Array.isArray(x)) return {weeks:x, updatedAt:null};
+  if(x && Array.isArray(x.weeks)) return {weeks:x.weeks, updatedAt:x.updatedAt||null};
+  return null;
+}
+
+/* ── 실제 파일 연결 ── */
+const FS_OK = typeof window.showSaveFilePicker === "function";
+const IN_FRAME = (()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
+const IS_FILE = location.protocol === "file:";
+function envReason(){
+  if(IN_FRAME) return "다른 페이지 안에 끼워진 화면(iframe)이라 브라우저가 파일 선택창을 막습니다";
+  if(IS_FILE)  return "PC에서 파일을 직접 연 상태(file:// 주소)라 브라우저가 파일 저장 권한을 주지 않습니다";
+  if(!FS_OK)   return "이 브라우저는 파일 자동저장을 지원하지 않습니다 (Chrome·Edge에서 가능)";
+  return "";
+}
+function pickerFail(e){
+  if(e && (e.name==="AbortError" || e.name==="NotAllowedError")) return;   /* 사용자가 취소 */
+  const why = envReason() || "브라우저가 보안상 파일 선택창을 막았습니다";
+  alert("파일 자동저장을 시작할 수 없습니다.\n\n원인 : " + why +
+        "\n\n대신 아래 두 가지로 데이터를 지킬 수 있습니다.\n" +
+        " · 하루 1회 자동 백업 — 다운로드 폴더에 날짜별 파일이 저장됩니다\n" +
+        " · [사본 내보내기] — 원하는 위치에 직접 저장\n\n" +
+        "이 두 가지는 브라우저 캐시를 지워도 남습니다." +
+        (e? `\n\n(기술 정보: ${e.name})` : ""));
+}
+let fileHandle=null, fileLinked=false, fileErr="";
+let autoBk=true, bkDate=null;
+const BKKEY="mathlib-backup-date", BKONKEY="mathlib-backup-on";
+function downloadBackup(){
+  const blob = new Blob([JSON.stringify(payload(),null,1)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `중등부_주간회의록_백업_${todayISO()}.json`;
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+async function autoBackup(){
+  if(fileLinked || !autoBk) return;
+  const t = todayISO();
+  if(bkDate === t) return;
+  bkDate = t; await store.set(BKKEY, t);
+  downloadBackup(); renderFileInfo();
+  toast("오늘자 백업을 다운로드 폴더에 저장했습니다.");
+}
+const FTYPES=[{description:"회의록 데이터", accept:{"application/json":[".json"]}}];
+
+async function perm(h, ask){
+  if(!h?.queryPermission) return true;
+  const o={mode:"readwrite"};
+  if(await h.queryPermission(o)==="granted") return true;
+  if(!ask) return false;
+  try{ return (await h.requestPermission(o))==="granted"; }catch(e){ return false; }
+}
+async function fileWrite(){
+  if(!fileHandle) return false;
+  try{
+    if(!(await perm(fileHandle,false))){ fileLinked=false; fileErr="권한 필요"; renderFileInfo(); return false; }
+    const ws = await fileHandle.createWritable();
+    await ws.write(JSON.stringify(payload(),null,1));
+    await ws.close();
+    fileLinked=true; fileErr=""; renderFileInfo();
+    return true;
+  }catch(e){ fileLinked=false; fileErr="쓰기 실패"; renderFileInfo(); return false; }
+}
+async function fileRead(){
+  const f = await fileHandle.getFile();
+  return unwrap(JSON.parse(await f.text()));
+}
+async function linkNew(){
+  if(!FS_OK || IN_FRAME || IS_FILE) return pickerFail(null);
+  try{
+    fileHandle = await window.showSaveFilePicker({
+      suggestedName:`중등부_주간회의록.json`, types:FTYPES});
+  }catch(e){ fileHandle=null; return pickerFail(e); }
+  await idbSet("fileHandle", fileHandle);
+  if(await fileWrite()) toast(`${fileHandle.name} 에 자동 저장을 시작합니다.`);
+}
+async function linkOpen(){
+  if(!FS_OK || IN_FRAME || IS_FILE) return pickerFail(null);
+  let h;
+  try{ [h] = await window.showOpenFilePicker({types:FTYPES, multiple:false}); }catch(e){ return pickerFail(e); }
+  fileHandle = h;
+  if(!(await perm(fileHandle,true))) return toast("파일 접근이 허용되지 않았습니다.");
+  let d=null;
+  try{ d = await fileRead(); }catch(e){}
+  if(!d || !d.weeks.length){
+    await idbSet("fileHandle", fileHandle);
+    if(await fileWrite()) toast(`${fileHandle.name} 에 자동 저장을 시작합니다.`);
+    return;
+  }
+  if(confirm(`${fileHandle.name} 의 내용(${d.weeks.length}개 주차)을 불러옵니다.\n지금 화면의 내용은 대체됩니다. 계속할까요?`)){
+    state.weeks = d.weeks; normalize();
+    state.cur = state.weeks[state.weeks.length-1]?.id ?? null;
+    state.sel.clear(); renderList(); renderMain();
+  }
+  await idbSet("fileHandle", fileHandle);
+  await fileWrite();
+  toast(`${fileHandle.name} 에 자동 저장 중입니다.`);
+}
+async function relink(){
+  if(!fileHandle) return;
+  if(!(await perm(fileHandle,true))) return toast("파일 접근이 허용되지 않았습니다.");
+  let d=null; try{ d = await fileRead(); }catch(e){}
+  const local = state.weeks.length;
+  if(d && d.weeks.length && (!lastLocalStamp || !d.updatedAt || d.updatedAt > lastLocalStamp)){
+    if(confirm(`저장 파일이 이 브라우저의 작업본보다 최신입니다.\n파일 내용(${d.weeks.length}개 주차)을 불러올까요?\n[취소]를 누르면 현재 화면(${local}개 주차)을 파일에 덮어씁니다.`)){
+      state.weeks = d.weeks; normalize();
+      state.cur = state.weeks[state.weeks.length-1]?.id ?? null;
+      renderList(); renderMain();
+    }
+  }
+  fileLinked=true; fileErr="";
+  await fileWrite();
+  toast(`${fileHandle.name} 에 다시 연결했습니다.`);
+}
+function renderFileInfo(){
+  const el = $("#fileInfo"); if(!el) return;
+  if(fileHandle && fileLinked){
+    el.className="fileinfo linked";
+    el.innerHTML = `자동 저장 중<b>${esc(fileHandle.name)}</b>`;
+  }else if(fileHandle){
+    el.className="fileinfo warn";
+    el.innerHTML = `연결 끊김 ${fileErr?`(${fileErr})`:""}<b>${esc(fileHandle.name)}</b>
+      <button data-relink="1">다시 연결하기</button>`;
+  }else{
+    const why = envReason();
+    const bk = `<label class="bk"><input type="checkbox" id="bkOn" ${autoBk?"checked":""}>
+        하루 1회 자동 백업</label>
+      <span class="bkinfo">마지막 백업 ${bkDate||"없음"} · 다운로드 폴더</span>
+      <button data-backup="1">지금 백업 받기</button>`;
+    if(why){
+      el.className="fileinfo warn";
+      el.innerHTML = `파일 자동저장 불가<b style="font-weight:400;font-size:11px">${esc(why)}</b>${bk}`;
+    }else{
+      el.className="fileinfo warn";
+      el.innerHTML = `브라우저에만 저장 중<b>캐시를 지우면 사라집니다</b>
+        <button data-linknew="1">저장 파일 만들기</button>${bk}`;
+    }
+  }
+}
+
+let state = { weeks:[], cur:null, editing:false, view:"minutes", filter:"미완료",
+               sel:new Set(), order:"asc" };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const todayISO = () => new Date().toISOString().slice(0,10);
+function fmtDate(iso){
+  const d=new Date(iso+"T00:00:00");
+  if(isNaN(d)) return "";
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${WD[(d.getDay()+6)%7]})`;
+}
+/* 칸 안에 부분 서식(색·크기)을 담기 위해 제한된 HTML만 허용 */
+const OKTAG = {SPAN:1,B:1,I:1,U:1,STRONG:1,EM:1,BR:1};
+function sanitize(html){
+  if(html==null) return "";
+  const t = String(html);
+  if(!/[<&]/.test(t)) return t;
+  const box = document.createElement("div");
+  box.innerHTML = t;
+  const walk = n=>{
+    [...n.childNodes].forEach(c=>{
+      if(c.nodeType===3) return;
+      if(c.nodeType!==1){ c.remove(); return; }
+      if(!OKTAG[c.tagName]){
+        const f=document.createDocumentFragment();
+        while(c.firstChild) f.appendChild(c.firstChild);
+        c.replaceWith(f); return;
+      }
+      const st={color:c.style.color, backgroundColor:c.style.backgroundColor,
+                fontSize:c.style.fontSize, fontWeight:c.style.fontWeight};
+      [...c.attributes].forEach(a=>c.removeAttribute(a.name));
+      Object.entries(st).forEach(([k,v])=>{ if(v) c.style[k]=v; });
+      walk(c);
+    });
+  };
+  walk(box); walk(box);
+  return box.innerHTML;
+}
+function stripHtml(h){
+  if(h==null) return "";
+  const t=String(h);
+  if(!/[<&]/.test(t)) return t;
+  const d=document.createElement("div"); d.innerHTML=t; return d.textContent||"";
+}
+function fmtDT(iso,ap,hh,mm){
+  const d = fmtDate(iso);
+  if(!d) return "";
+  if(!hh && hh!==0) return d;
+  return `${d}  ${ap||"PM"} ${hh}:${String(mm??0).padStart(2,"0")}`;
+}
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on");
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),1900); }
+function getPath(o,p){ return p.split(".").reduce((a,k)=>a?.[k], o); }
+function setPath(o,p,v){ const ks=p.split("."); const last=ks.pop(); ks.reduce((a,k)=>a[k],o)[last]=v; }
+function cur(){ return state.weeks.find(w=>w.id===state.cur); }
+function uid(){ return "w"+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+
+let uiTimer;
+function saveUI(){
+  clearTimeout(uiTimer);
+  uiTimer = setTimeout(()=>store.set(UIKEY, JSON.stringify({
+    cur: state.cur, view: state.view, filter: state.filter, order: state.order,
+    editing: state.editing, scroll: $("#scroll").scrollTop
+  })), 300);
+}
+let saveTimer, lastLocalStamp=null, pushTimer=null, autoSync=true;
+const AUTOKEY="mathlib-autosync";
+function svState(kind, text){
+  const el = $("#saveState"); if(!el) return;
+  el.className = "sv " + (kind||"");
+  el.lastElementChild.textContent = text;
+}
+function hhmm(){ return new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"}); }
+function unsaved(){ return state.weeks.filter(w=>w._dirty).length; }
+function refreshSaveBtn(){
+  const n = fbOn ? unsaved() : 0;
+  $("#btnSave").innerHTML = n ? `저장<span class="dot"></span>` : "저장";
+}
+function svIdle(){
+  const n = unsaved();
+  if(!fbOn) return svState("local", `이 기기에 자동 저장됨 ${hhmm()}`);
+  if(n) return svState("local", `이 기기에 저장됨 · 전송 대기 ${n}건`);
+  svState("synced", `모든 기기에 저장됨 ${hhmm()}`);
+}
+async function goSave(){
+  const p = payload();
+  lastLocalStamp = p.updatedAt;
+  await store.set(KEY, JSON.stringify(p));
+  await fileWrite();
+  autoBackup();
+  refreshSaveBtn();
+  svIdle();
+  schedulePush();
+}
+function schedulePush(){
+  if(!fbOn || !autoSync || !unsaved()) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(quietPush, 2500);
+}
+async function quietPush(){
+  if(!fbOn || fbBusy || !unsaved()) return;
+  fbBusy = true; svState("saving","다른 기기로 보내는 중…");
+  try{ await fbPush(); await store.set(KEY, JSON.stringify(payload()));
+       svState("synced", `모든 기기에 저장됨 ${hhmm()}`); }
+  catch(e){ svState("warn","전송 실패 — [저장]을 눌러 다시 시도"); }
+  finally{ fbBusy=false; refreshSaveBtn(); renderSyncInfo(); }
+}
+function save(now){
+  clearTimeout(saveTimer);
+  if(state.view==="minutes") markDirty(cur());
+  saveUI();
+  if(now) return goSave();
+  saveTimer = setTimeout(goSave, 600);
+}
+
+/* ══════════ 기기 연동 (Firebase Firestore) ══════════
+   · 주차 1개 = 문서 1개 로 저장 → 통째로 덮어쓰는 사고가 없습니다
+   · 실시간 반영 · 오프라인 작성 후 자동 업로드
+   ─────────────────────────────────────────── */
+const FBKEY = "mathlib-fb", COL = "minutes";
+const SDK = "https://www.gstatic.com/firebasejs/10.12.5/";
+const MAILDOM = "@mathlib-minutes.local";
+let fbCfg=null, fbApp=null, db=null, fbM=null, fbU=null, auth=null, fbUser=null,
+    fbOn=false, fbBusy=false, fbStamp=null, fbUnsub=null, pendingDel=[];
+const conflicts = new Map();
+const who = ()=> fbUser ? (fbUser.email||"").split("@")[0] : "";
+
+const wsig = w => { const c={...w}; delete c._u; delete c._dirty; return JSON.stringify(c); };
+function markDirty(w){ if(w) w._dirty = true; }
+
+async function fbConnect(cfg){
+  if(fbApp) { fbCfg = cfg; return fbUser; }
+  const [A,F,U] = await Promise.all([
+    import(SDK+"firebase-app.js"), import(SDK+"firebase-firestore.js"), import(SDK+"firebase-auth.js")]);
+  fbApp = A.initializeApp(cfg, "minutes");
+  db = F.initializeFirestore(fbApp, {localCache: F.persistentLocalCache({})});
+  fbM = F; fbU = U; auth = U.getAuth(fbApp);
+  await U.setPersistence(auth, U.browserLocalPersistence).catch(()=>{});
+  U.getRedirectResult(auth).catch(e=>{
+    if(e.code==="auth/unauthorized-domain")
+      setTimeout(()=>lgErr("Authentication → 설정 → 승인된 도메인에 지금 이 주소를 추가해 주세요."),400);
+  });
+  fbCfg = cfg;
+  return new Promise(res=>{
+    let first = true;
+    U.onAuthStateChanged(auth, u=>{
+      fbUser = u;
+      if(u){ fbOn = true; $("#loginModal").hidden = true; $("#btnLogout").hidden = false;
+             listen(); if(!first) afterLogin(); }
+      else { fbOn = false; if(fbUnsub){ fbUnsub(); fbUnsub=null; }
+             $("#btnLogout").hidden = true; showLogin(); }
+      renderSyncInfo();
+      if(first){ first = false; res(u); }
+    });
+  });
+}
+function showLogin(){
+  if(!fbCfg) return;
+  $("#lgErr").hidden = true;
+  $("#loginModal").hidden = false;
+  setTimeout(()=>$("#lgId").focus(), 50);
+}
+const AUTH_MSG = {
+  "auth/invalid-credential":"아이디 또는 암호가 맞지 않습니다.",
+  "auth/wrong-password":"암호가 맞지 않습니다.",
+  "auth/user-not-found":"등록되지 않은 아이디입니다. 관리자에게 계정 생성을 요청하세요.",
+  "auth/invalid-email":"아이디에는 영문·숫자만 쓸 수 있습니다.",
+  "auth/user-disabled":"사용이 중지된 계정입니다.",
+  "auth/too-many-requests":"시도가 너무 잦습니다. 잠시 뒤 다시 해주세요.",
+  "auth/network-request-failed":"인터넷 연결을 확인해 주세요.",
+  "auth/operation-not-allowed":"Firebase 콘솔에서 [이메일/비밀번호] 로그인을 사용 설정해야 합니다."
+};
+async function doLogin(){
+  const id = $("#lgId").value.trim(), pw = $("#lgPw").value;
+  if(!id || !pw){ return lgErr("아이디와 암호를 모두 입력해 주세요."); }
+  const email = id.includes("@") ? id : id.toLowerCase()+MAILDOM;
+  $("#lgGo").textContent = "확인 중…";
+  try{
+    await fbU.signInWithEmailAndPassword(auth, email, pw);
+    $("#lgPw").value = "";
+    toast(`${id} 님으로 로그인했습니다.`);
+  }catch(e){ lgErr(AUTH_MSG[e.code] || ("로그인하지 못했습니다. ("+e.code+")")); }
+  finally{ $("#lgGo").textContent = "로그인"; }
+}
+function lgErr(m){ const el=$("#lgErr"); el.textContent=m; el.hidden=false; }
+async function doGoogle(){
+  if(!fbU) return lgErr("먼저 [연동 설정]에서 Firebase 설정값을 넣어주세요.");
+  const p = new fbU.GoogleAuthProvider();
+  p.setCustomParameters({prompt:"select_account"});
+  $("#lgGoogle").disabled = true;
+  try{
+    await fbU.signInWithPopup(fbU.getAuth(fbApp), p);
+  }catch(e){
+    const popupIssue = ["auth/popup-blocked","auth/popup-closed-by-user",
+      "auth/cancelled-popup-request","auth/operation-not-supported-in-this-environment"];
+    if(popupIssue.includes(e.code)){
+      try{ await fbU.signInWithRedirect(fbU.getAuth(fbApp), p); return; }catch(e2){}
+      lgErr("이 기기에서는 구글 로그인 창이 열리지 않습니다. 아래 아이디·암호로 로그인해 주세요.");
+    }else if(e.code==="auth/operation-not-allowed"){
+      lgErr("Firebase 콘솔의 Authentication → 로그인 방법에서 [Google]을 사용 설정해야 합니다.");
+    }else if(e.code==="auth/unauthorized-domain"){
+      lgErr("Authentication → 설정 → 승인된 도메인에 지금 이 주소를 추가해 주세요.");
+    }else{
+      lgErr(AUTH_MSG[e.code] || ("로그인하지 못했습니다. ("+e.code+")"));
+    }
+  }finally{ $("#lgGoogle").disabled = false; }
+}
+function listen(){
+  if(fbUnsub) fbUnsub();
+  const {collection, onSnapshot} = fbM;
+  fbUnsub = onSnapshot(collection(db, COL), snap=>{
+    let changed = 0;
+    snap.docChanges().forEach(ch=>{
+      const id = ch.doc.id;
+      const i = state.weeks.findIndex(w=>w.id===id);
+      if(ch.type === "removed"){
+        if(i>=0 && !state.weeks[i]._dirty){ state.weeks.splice(i,1); changed++; }
+        return;
+      }
+      const r = ch.doc.data();
+      if(!r || !r.agendas) return;
+      if(i>=0){
+        if(wsig(state.weeks[i]) === wsig(r)){ conflicts.delete(id); return; }
+        if(state.weeks[i]._dirty){                        /* 내 미저장 수정이 있는 주차 */
+          if(r._by && r._by !== who()) conflicts.set(id, r);
+          changed++; return;
+        }
+        if(state.weeks[i]._u && r._u && r._u <= state.weeks[i]._u) return;
+        state.weeks[i] = r; conflicts.delete(id); changed++;
+      }else{ state.weeks.push(r); changed++; }
+    });
+    if(!changed) return;
+    normalize();
+    if(!state.weeks.some(w=>w.id===state.cur)) state.cur = state.weeks[state.weeks.length-1]?.id ?? null;
+    fbStamp = new Date().toISOString();
+    renderList(); renderMain(); renderSyncInfo();
+    store.set(KEY, JSON.stringify(payload()));
+    if(!document.hasFocus()) return;
+    toast("다른 기기·다른 사람이 수정한 내용을 불러왔습니다.");
+  }, err=>{ fbOn=false; renderSyncInfo();
+    toast("연동이 끊겼습니다 : "+(err.code||err.message)); });
+}
+async function fbPush(){
+  if(!fbOn) return;
+  const {doc, setDoc, deleteDoc, writeBatch, collection} = fbM;
+  const dirty = state.weeks.filter(w=>w._dirty);
+  const now = new Date().toISOString();
+  const batch = writeBatch(db);
+  dirty.forEach(w=>{ w._u = now; w._by = who(); delete w._dirty; conflicts.delete(w.id);
+    batch.set(doc(db, COL, w.id), JSON.parse(JSON.stringify(w))); });
+  pendingDel.forEach(id=>batch.delete(doc(db, COL, id)));
+  const big = dirty.find(x=>JSON.stringify(x).length > 950000);
+  if(big) throw new Error(`[${stripHtml(big.label)||big.date}] 주차의 그림 용량이 너무 큽니다. 그림을 줄여 주세요.`);
+  if(dirty.length || pendingDel.length) await batch.commit();
+  pendingDel = [];
+  fbStamp = now;
+  await store.set("mathlib-del", "[]");
+}
+async function fbUploadAll(){
+  const {doc, writeBatch} = fbM;
+  const now = new Date().toISOString();
+  const batch = writeBatch(db);
+  state.weeks.forEach(w=>{ w._u = now; w._by = who(); delete w._dirty;
+    batch.set(doc(db, COL, w.id), JSON.parse(JSON.stringify(w))); });
+  await batch.commit();
+  fbStamp = now;
+}
+function renderFootStat(){
+  const el = $("#footStat"); if(!el) return;
+  if(fbOn){
+    el.className = "fstat";
+    el.innerHTML = `<i></i>${esc(who())} · ${autoSync?"실시간 자동 저장":"저장 눌러 전송"}`;
+  }else{
+    el.className = "fstat off";
+    el.innerHTML = `<i></i>이 기기에만 저장 중`;
+  }
+}
+function renderSyncInfo(){
+  renderFootStat();
+  const el=$("#syncInfo"); if(!el) return;
+  if(fbOn){
+    el.className="fileinfo linked";
+    el.innerHTML = `${esc(who())} 님으로 접속 중<b style="font-weight:400;font-size:11px">함께 쓰는 분들 화면에 반영됩니다</b>
+      <label class="bk"><input type="checkbox" id="asOn" ${autoSync?"checked":""}>실시간 자동 저장</label>
+      <span class="bkinfo">마지막 동기화 ${fbStamp? new Date(fbStamp).toLocaleString("ko-KR"):"없음"}</span>
+      <button data-syncset="1">연동 설정</button>`;
+  }else{
+    el.className="fileinfo";
+    el.innerHTML = `기기 연동 꺼짐<b style="font-weight:400;font-size:11px">이 기기에만 저장됩니다</b>
+      <button data-syncset="1">PC·아이패드·폰 연동하기</button>`;
+  }
+}
+async function afterLogin(){
+  try{
+    const {collection, getDocs} = fbM;
+    const snap = await getDocs(collection(db, COL));
+    if(snap.empty){
+      await fbUploadAll();
+      toast(`저장소가 비어 있어 이 기기의 ${state.weeks.length}개 주차를 올렸습니다.`);
+    }
+    renderSyncInfo(); await save(true);
+  }catch(e){
+    alert("저장소를 읽지 못했습니다.\n\n"+(e.code||e.message)+
+      "\n\n보안 규칙을 게시했는지, 구글 로그인을 쓰신다면 규칙의 허용 계정 목록에 이 계정이 들어 있는지 확인해 주세요.");
+  }
+}
+async function saveNow(){
+  clearTimeout(pushTimer);
+  if(state.view==="minutes") markDirty(cur());
+  await save(true);
+  if(!fbOn){ svState("local", `이 기기에 저장됨 ${hhmm()}`); return toast("저장했습니다."); }
+  if(fbBusy) return;
+  fbBusy=true; $("#btnSave").textContent="저장 중…"; svState("saving","다른 기기로 보내는 중…");
+  try{
+    await fbPush(); await store.set(KEY, JSON.stringify(payload()));
+    svState("synced", `모든 기기에 저장됨 ${hhmm()}`);
+    toast("저장하고 모든 기기에 반영했습니다.");
+  }catch(e){
+    svState("warn","전송 실패 — 잠시 뒤 다시 [저장]");
+    toast("이 기기에는 저장됐습니다. 연동 실패 : "+(e.code||e.message));
+  }finally{ fbBusy=false; refreshSaveBtn(); renderSyncInfo(); }
+}
+
+
+/* ── 목록 ── */
+function renderList(){
+  const q = $("#q").value.trim().toLowerCase();
+  const hit = w => !q || stripHtml(w.label+" "+w.date+" "+w.attendees+" "+JSON.stringify(w.agendas)).toLowerCase().includes(q);
+  let rows = state.weeks.filter(hit);
+  if(state.order === "desc") rows = rows.slice().reverse();
+  $("#railCount").textContent = `${state.weeks.length}개 주차` + (q?` · ${rows.length}건 검색`:"");
+  let html="", month="";
+  if(!rows.length) html = `<div style="padding:22px 10px;color:#7fa29f;font-size:12.5px">검색 결과가 없습니다.</div>`;
+  for(const w of rows){
+    const m = w.date.slice(0,7);
+    if(m!==month){ month=m; html += `<div class="mgroup">${m.replace("-","년 ")}월</div>`; }
+    html += `<div class="witem" data-id="${w.id}" aria-current="${w.id===state.cur}">
+      <input type="checkbox" data-pick="${w.id}" ${state.sel.has(w.id)?"checked":""} aria-label="${esc(w.label)} 인쇄 선택">
+      <div class="wmain"><div class="wtitle">${esc(stripHtml(w.label))||"(제목 없음)"}</div>
+        <div class="wsub">${fmtDate(w.date)}</div></div></div>`;
+  }
+  $("#list").innerHTML = html;
+  $("#btnOrder").textContent = state.order === "desc" ? "최신순" : "과거순";
+  scrollListToCurrent();
+  $("#btnPrint").textContent = state.sel.size ? `선택 ${state.sel.size}건 인쇄` : "이 주차 인쇄";
+  $("#btnShare").textContent = state.sel.size ? `선택 ${state.sel.size}건 이미지` : "이미지로 보내기";
+}
+
+function scrollListToCurrent(){
+  const L = $("#list");
+  const el = L.querySelector('.witem[aria-current="true"]');
+  if(!el) return;
+  const top = el.offsetTop - (L.clientHeight - el.offsetHeight)/2;
+  L.scrollTop = Math.max(0, Math.min(top, L.scrollHeight - L.clientHeight));
+}
+
+/* ── 회의록 한 장 ── */
+function sheetHTML(w, live){
+  const E = (path, lb, cls)=>{
+    if(!live) lb = "";                       /* 인쇄본에는 안내 글자를 넣지 않음 */
+    const v = getPath(w,path) ?? "";
+    const f = w.fmt && w.fmt[path];
+    const st = f ? ` style="${f.size?`font-size:${f.size}pt;`:""}${f.color?`color:${f.color};`:""}"` : "";
+    return `<span class="${cls||""}" data-edit="${path}" data-lb="${esc(lb||"")}"${st}>${sanitize(v)}</span>`;
+  };
+  const SB = (path)=> E(path,"상태","pill "+stCls(getPath(w,path)))
+      + (live?`<button class="stpick edit-only" data-stpick="${path}" title="상태 고르기">▾</button>`:"");
+  const edit = live && state.editing;
+  /* 일시 : 보기·인쇄는 글자, 편집은 달력 + AM/PM + 시 + 분 */
+  const dt = (base)=>{
+    const g = k => getPath(w, base? `${base}.${k}` : k);
+    if(!edit) return esc(fmtDT(g("date"), g("ampm"), g("hh"), g("mm")));
+    const p = k => base? `${base}.${k}` : k;
+    return `<input class="fi d" type="date" data-field="${p("date")}" value="${esc(g("date")||"")}">
+      <select class="fi" data-field="${p("ampm")}">
+        ${["AM","PM"].map(x=>`<option ${x===g("ampm")?"selected":""}>${x}</option>`).join("")}</select>
+      <select class="fi n" data-field="${p("hh")}">
+        ${HOURS.map(x=>`<option value="${x}" ${x===g("hh")?"selected":""}>${x}</option>`).join("")}</select>
+      <span class="cl">:</span>
+      <select class="fi n" data-field="${p("mm")}">
+        ${MINS.concat(MINS.includes(g("mm"))?[]:[g("mm")]).sort((a,b)=>a-b)
+          .map(x=>`<option value="${x}" ${x===g("mm")?"selected":""}>${String(x).padStart(2,"0")}</option>`).join("")}</select>`;
+  };
+  const placeF = ()=> edit
+    ? `<select class="fi w" data-field="place"><option value="">—</option>
+        ${PLACES.map(x=>`<option ${x===w.place?"selected":""}>${x}</option>`).join("")}</select>`
+    : esc(w.place||"");
+  const late = a => a.due && /^\d{4}-/.test(a.due) && a.due < todayISO() && a.status!=="완료";
+
+  let acts = w.actions.map((a,i)=>`<tr class="${a.status==="완료"?"done":""} ${late(a)?"late":""}">
+      <td class="c" style="width:24px">${i+1}</td>
+      <td>${E(`actions.${i}.task`,"실행항목")}</td>
+      <td class="c" style="width:64px">${E(`actions.${i}.owner`,"담당")}</td>
+      <td class="c" style="width:66px">${E(`actions.${i}.due`,"기한")}</td>
+      <td class="c stc" style="width:84px">${SB(`actions.${i}.status`)}</td>
+      ${live?`<td class="c edit-only" style="width:20px;border:0"><button class="rowdel" data-delact="${i}" title="행 삭제">×</button></td>`:""}
+    </tr>`).join("");
+
+  const agendas = w.agendas.map((ag,ai)=>{
+    const blocks = ag.blocks.map((b,bi)=>{
+      const P = `agendas.${ai}.blocks.${bi}`;
+      const del = live?`<button class="rowdel edit-only" data-delblock="${ai}.${bi}" title="삭제">×</button>`:"";
+
+      if(b.type==="table"){
+        const tools = live?`<div class="tbtools edit-only">
+            <button class="mini" data-tb="row+|${ai}|${bi}">행＋</button>
+            <button class="mini" data-tb="row-|${ai}|${bi}">행－</button>
+            <button class="mini" data-tb="col+|${ai}|${bi}">열＋</button>
+            <button class="mini" data-tb="col-|${ai}|${bi}">열－</button>
+            <button class="mini" data-delblock="${ai}.${bi}">표 삭제</button>
+          </div>`:"";
+        return `<div class="blk">${tools}<table class="sub">${b.rows.map((r,ri)=>`<tr>${
+          r.map((c,ci)=>`<td colspan="${c.span||1}">${E(`${P}.rows.${ri}.${ci}.v`)}</td>`).join("")
+        }</tr>`).join("")}</table></div>`;
+      }
+
+      if(b.type==="img"){
+        const tools = live?`<div class="tbtools edit-only">
+            <button class="mini" data-im="40|${ai}|${bi}">작게</button>
+            <button class="mini" data-im="70|${ai}|${bi}">보통</button>
+            <button class="mini" data-im="100|${ai}|${bi}">크게</button>
+            <button class="mini" data-delblock="${ai}.${bi}">그림 삭제</button>
+          </div>`:"";
+        return `<div class="blk imgblk">${tools}
+          <img src="${esc(b.src||"")}" alt="${esc(b.cap||"첨부 그림")}" style="width:${b.w||70}%">
+          <div class="cap">${E(`${P}.cap`,"그림 설명 (선택)")}</div></div>`;
+      }
+
+      return `<div class="txt">
+        <div class="tno">${E(`${P}.no`,"번호")}</div>
+        <div class="tbody">${E(`${P}.text`,"내용")}</div>${del}</div>`;
+    }).join("");
+    return `<div class="ag-head">
+        <div class="ag-no">${E(`agendas.${ai}.no`,"안건")}</div>
+        <div class="ag-title"><span style="flex:1">${E(`agendas.${ai}.title`,"주요내용 · 안건명을 적으세요")}</span>
+          ${live?`<span class="tools edit-only">
+            <button class="mini" data-addline="${ai}">＋ 줄</button>
+            <button class="mini" data-addtable="${ai}">＋ 표</button>
+            <button class="mini" data-addimg="${ai}">＋ 그림</button>
+            <button class="mini" data-delag="${ai}">안건 삭제</button></span>`:""}</div>
+      </div><div class="ag-body">${blocks}</div>`;
+  }).join("");
+
+  return `<div class="sheet" data-week="${w.id}"><div class="page" style="font-size:${w.base||10}pt">
+    <h2>수학도서관 중등부 주간회의록 &nbsp;|&nbsp; ${E("label")}</h2>
+    <div class="grid">
+      <div class="row r3">
+        <div class="lab">일시</div><div class="val">${dt("")}</div>
+        <div class="lab">장소</div><div class="val">${placeF()}</div>
+        <div class="lab">작성자</div><div class="val">${E("author")}</div>
+      </div>
+      <div class="row r2">
+        <div class="lab">참석자</div><div class="val">${E("attendees")}</div>
+        <div class="lab">불참</div><div class="val">${E("absent")}</div>
+      </div>
+    </div>
+
+    <div class="sec">■ 전주 실행항목 점검 <span class="hint">지난주 넘어온 항목의 처리 결과</span>
+      ${live?`<span class="tools edit-only"><button class="mini" id="addPrev">＋ 줄</button></span>`:""}</div>
+    <div class="box">
+      ${w.prev.map((_,i)=>`<div class="pline">
+        <div class="pno">${i+1}</div>
+        <div class="pval">${E(`prev.${i}.text`,"지난주 결정사항")}</div>
+        <div class="pst">${SB(`prev.${i}.st`)}</div>
+        ${live?`<button class="rowdel edit-only" data-delprev="${i}" title="줄 삭제">×</button>`:""}
+      </div>`).join("")}
+    </div>
+
+    <div class="sec">■ 금주 결정사항 및 실행항목 <span class="hint">담당자·기한을 반드시 적습니다</span>
+      ${live?`<span class="tools edit-only"><button class="mini" id="addAct">＋ 항목</button></span>`:""}</div>
+    <table class="act">
+      <tr><th style="width:24px">No</th><th>실행항목 / 결정사항</th><th style="width:64px">담당자</th>
+      <th style="width:66px">기한</th><th style="width:84px">결과</th>
+      ${live?'<th class="edit-only" style="width:20px;border:0;background:none"></th>':""}</tr>
+      ${acts}
+    </table>
+
+    <div class="sec">■ 안건 및 논의사항
+      ${live?`<span class="tools edit-only"><button class="mini" id="addAg">＋ 안건</button></span>`:""}</div>
+    <div class="ag">${agendas || '<div class="line" style="color:#9aa">안건이 없습니다.</div>'}</div>
+
+    <div class="sec">■ 차기 회의</div>
+    <div class="grid" style="border-top:1px solid var(--line)">
+      <div class="row r1"><div class="lab">일시</div><div class="val">${dt("next")}</div></div>
+    </div>
+  </div></div>`;
+}
+
+/* ── 입력 연결 ── */
+function hydrate(root, w){
+  root.querySelectorAll("[data-edit]").forEach(el=>{
+    const p = el.dataset.edit;
+    if(!state.editing) return;
+    el.addEventListener("blur", ()=>{ setPath(w,p,sanitize(el.innerHTML)); });
+    el.addEventListener("focus",()=>{
+      root.querySelectorAll("[data-edit].sel").forEach(x=>x.classList.remove("sel"));
+      el.classList.add("sel"); state.focusPath = p; state.focusEl = el; updateFmtBar();
+    });
+    el.setAttribute("contenteditable","true");
+    el.addEventListener("paste",ev=>{ ev.preventDefault();
+      document.execCommand("insertText",false,(ev.clipboardData||window.clipboardData).getData("text")); });
+    el.addEventListener("keydown",ev=>{ if(ev.key==="Enter"){ ev.preventDefault(); el.blur(); } });
+    el.addEventListener("input",()=>{
+      if(!el.textContent.trim() && !el.querySelector("span[style]")) el.innerHTML="";
+      setPath(w,p,el.innerHTML); svState("typing","입력 중…"); save(); fitSoon();
+    });
+    el.addEventListener("blur",()=>{
+      if(p==="date"||p.endsWith(".due")||p.endsWith(".status")) renderMain();
+    });
+  });
+}
+
+/* ── 글자 크기 · 색상 ── */
+const COLORS = [["검정 (기본)","#1A1A1A"],["파랑","#1257E8"],["빨강","#E0152A"],
+                ["초록","#0E9048"],["주황","#EA6A00"]];
+const INK = "#1A1A1A";
+const BASE_MIN=6, BASE_MAX=18, FS_MIN=5, FS_MAX=36;
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const num=v=>Math.round(v);
+
+function fieldName(p){
+  if(!p) return "";
+  const F={label:"제목(주차명)",date:"일시",time:"회의시간",place:"장소",author:"작성자",
+           attendees:"참석자",absent:"불참"};
+  if(F[p]) return F[p];
+  let m;
+  if((m=p.match(/^prev\.(\d+)\.text$/))) return `전주 점검 ${+m[1]+1}줄`;
+  if((m=p.match(/^prev\.(\d+)\.st$/))) return `전주 점검 ${+m[1]+1}줄 결과`;
+  if((m=p.match(/^actions\.(\d+)\.(\w+)$/))){
+    const c={task:"실행항목",owner:"담당자",due:"기한",status:"결과"};
+    return `실행항목 ${+m[1]+1} · ${c[m[2]]||m[2]}`;
+  }
+  if((m=p.match(/^agendas\.(\d+)\.no$/))) return `안건 ${+m[1]+1} 번호`;
+  if((m=p.match(/^agendas\.(\d+)\.title$/))) return `안건 ${+m[1]+1} 제목`;
+  if((m=p.match(/^agendas\.(\d+)\.blocks\.(\d+)\.text$/))) return `안건 ${+m[1]+1} · ${+m[2]+1}줄`;
+  if((m=p.match(/^agendas\.(\d+)\.blocks\.(\d+)\.no$/))) return `안건 ${+m[1]+1} · ${+m[2]+1}줄 번호`;
+  if((m=p.match(/^agendas\.(\d+)\.blocks\.(\d+)\.cap$/))) return `안건 ${+m[1]+1} · 그림 설명`;
+  if((m=p.match(/^agendas\.(\d+)\.blocks\.(\d+)\.rows/))) return `안건 ${+m[1]+1} · 표 칸`;
+  return p;
+}
+function fieldEl(p){ return document.querySelector(`.scroll [data-edit="${p}"]`); }
+function effSize(w,p){
+  const f = w.fmt && w.fmt[p];
+  if(f?.size) return f.size;
+  const el = fieldEl(p);
+  if(!el) return null;
+  return num(parseFloat(getComputedStyle(el).fontSize) / (96/72));   /* px → pt */
+}
+function updateFmtBar(){
+  const w = cur(); if(!w) return;
+  $("#baseNum").value = num(w.base||10);
+  const p = state.focusPath;
+  const has = !!(p && fieldEl(p));
+  const selText = state.focusEl && !(window.getSelection()?.isCollapsed ?? true)
+    && state.focusEl.contains(window.getSelection().anchorNode);
+  $("#selName").textContent = !has ? "— 칸을 눌러 선택"
+    : (selText ? "선택한 글자에 적용" : fieldName(p));
+  $("#selName").style.color = selText ? "var(--alert)" : "";
+  ["fsMinus","fsPlus","fsNum","fmtReset"].forEach(id=>$("#"+id).disabled = !has);
+  $("#fsNum").value = has ? (effSize(w,p) ?? "") : "";
+  const cc = has ? (w.fmt?.[p]?.color || INK) : null;
+  $("#swatches").querySelectorAll(".sw").forEach(b=>
+    b.setAttribute("aria-pressed", String(!!cc && b.dataset.color.toLowerCase()===cc.toLowerCase())));
+}
+function wrapSelection(style){
+  const host = state.focusEl;
+  const sel = window.getSelection();
+  if(!host || !sel || !sel.rangeCount || sel.isCollapsed) return false;
+  const r = sel.getRangeAt(0);
+  if(!host.contains(r.commonAncestorContainer)) return false;
+  const span = document.createElement("span");
+  Object.assign(span.style, style);
+  try{ r.surroundContents(span); }
+  catch(e){ span.appendChild(r.extractContents()); r.insertNode(span); }
+  sel.removeAllRanges();
+  return span;
+}
+function applyFmt(patch){
+  const w = cur(), p = state.focusPath;
+  if(!w || !p || !fieldEl(p)) return toast("먼저 바꿀 칸을 눌러 선택하세요.");
+  /* 글자를 드래그해 선택한 상태라면 그 부분에만 적용 */
+  if(state.focusEl && !window.getSelection().isCollapsed){
+    const st = {};
+    if(patch.color) st.color = patch.color;
+    if(patch.size) st.fontSize = patch.size+"pt";
+    const reset = patch.color === null;
+    if(reset || Object.keys(st).length){
+      const span = wrapSelection(st);
+      if(span){
+        if(reset){ span.style.color = "";
+                   span.querySelectorAll("*").forEach(x=>{ if(x.style) x.style.color=""; }); }
+        setPath(w, p, sanitize(state.focusEl.innerHTML));
+        save(); fitSoon();
+        return toast(reset ? "선택한 부분의 색을 지웠습니다." : "선택한 부분에만 적용했습니다.");
+      }
+    }
+  }
+  w.fmt ||= {};
+  const f = Object.assign(w.fmt[p] || {}, patch);
+  if(!f.size) delete f.size;
+  if(!f.color || f.color.toLowerCase()===INK.toLowerCase()) delete f.color;
+  if(Object.keys(f).length) w.fmt[p]=f; else delete w.fmt[p];
+  const el = fieldEl(p);
+  el.style.fontSize = f.size ? f.size+"pt" : "";
+  el.style.color = f.color || "";
+  save(); fitSoon(); updateFmtBar();
+}
+function setBase(v){
+  const w = cur(); if(!w) return;
+  w.base = clamp(num(v), BASE_MIN, BASE_MAX);
+  const page = document.querySelector(".scroll .page");
+  if(page) page.style.fontSize = w.base+"pt";
+  save(); fitSoon(); updateFmtBar();
+}
+$("#swatches").innerHTML = COLORS.map(([n,c])=>
+  `<button class="sw" data-color="${c}" style="background:${c}" title="${n}" aria-label="${n}" aria-pressed="false"></button>`).join("");
+$("#fmtbar").addEventListener("mousedown",e=>{ if(e.target.closest("button")) e.preventDefault(); });
+$("#fmtbar").addEventListener("click",e=>{
+  const t = e.target.closest("button"); if(!t) return;
+  const w = cur(); if(!w) return;
+  if(t.dataset.base!==undefined) return setBase((w.base||10)+parseFloat(t.dataset.base));
+  if(t.dataset.fs!==undefined){
+    const s0 = effSize(w,state.focusPath); if(s0==null) return toast("먼저 바꿀 칸을 눌러 선택하세요.");
+    return applyFmt({size: clamp(num(s0+parseFloat(t.dataset.fs)), FS_MIN, FS_MAX)});
+  }
+  if(t.dataset.color!==undefined)
+    return applyFmt({color: t.dataset.color===INK ? null : t.dataset.color});
+  if(t.id==="fmtReset") return applyFmt({size:null,color:null});
+  if(t.id==="fmtResetAll"){
+    if(!confirm("이 주차의 글자 크기·색상을 모두 기본값으로 되돌립니다.")) return;
+    delete w.fmt; delete w.base; renderMain(); save(true); toast("서식을 초기화했습니다.");
+  }
+});
+document.addEventListener("selectionchange", ()=>{ if(state.editing) updateFmtBar(); });
+$("#baseNum").addEventListener("change",e=>setBase(parseFloat(e.target.value)||10));
+$("#fsNum").addEventListener("change",e=>{
+  const v = parseFloat(e.target.value);
+  applyFmt({size: isNaN(v) ? null : clamp(num(v), FS_MIN, FS_MAX)});
+});
+
+/* ── A4 한 장에 맞추기 (엑셀의 ‘한 페이지에 맞추기’와 같은 동작) ── */
+function fitSheet(sheet){
+  const page = sheet.querySelector(".page");
+  if(!page) return 1;
+  const avail = PAGE_H - PAD_V*2;
+  const set = k => { page.style.transform = k<1 ? `scale(${k})` : "none";
+                     page.style.width = k<1 ? (100/k)+"%" : "100%"; };
+  set(1);
+  let k = 1;
+  const h0 = page.scrollHeight;
+  if(h0 > avail){
+    k = avail/h0;                       /* 폭이 넓어지며 줄바꿈이 줄어드니 반드시 들어감 */
+    for(let i=0;i<5;i++){
+      set(k);
+      const h = page.scrollHeight*k;
+      if(h > avail){ k *= avail/h*0.995; continue; }
+      if(avail-h < avail*0.015) break;  /* 충분히 꽉 찼으면 끝 */
+      const up = Math.min(1, k*(avail/h)*0.995);
+      if(up-k < 0.004) break;
+      k = up;
+    }
+    set(k);
+    let guard=0;
+    while(page.scrollHeight*k > avail && guard++<60){ k*=0.985; set(k); }
+  }
+  set(k);
+  return k;
+}
+function fitStage(){
+  document.querySelectorAll(".scroll .stage").forEach(st=>{
+    const sheet = st.querySelector(".sheet");
+    if(!sheet) return;
+    const room = $("#scroll").clientWidth - 40;
+    const z = Math.max(.3, Math.min(1, room/PAGE_W));
+    sheet.style.transform = `scale(${z})`;
+    st.style.width = (PAGE_W*z)+"px";
+    st.style.height = (PAGE_H*z)+"px";
+    st.dataset.zoom = z;
+  });
+}
+let fitTimer;
+function fitSoon(){ clearTimeout(fitTimer); fitTimer=setTimeout(fitAll,180); }
+function fitAll(){
+  document.querySelectorAll(".scroll .sheet, #printArea .sheet").forEach(sh=>{
+    const z = sh.style.transform;             /* 화면 배율 잠시 해제하고 본문 배율 계산 */
+    sh.style.transform = "none";
+    const k = fitSheet(sh);
+    sh.style.transform = z;
+    if(sh.closest(".scroll")) $("#fitInfo").textContent = k<0.995 ? `본문 배율 ${Math.round(k*100)}%` : "";
+  });
+  fitStage();
+}
+
+function renderMain(){
+  document.body.classList.toggle("editing", state.editing);
+  if(state.view==="tracker"){ renderTracker(); $("#fitInfo").textContent=""; return; }
+  const w = cur();
+  const s = $("#scroll");
+  if(!w){ s.innerHTML = `<div class="empty">왼쪽에서 주차를 고르거나 <b>새 주차 추가</b>를 누르세요.</div>`;
+    $("#fitInfo").textContent=""; return; }
+  const cf = conflicts.get(w.id);
+  s.innerHTML = (cf ? `<div class="tip"><span><b>${esc(cf._by||"다른 사람")}</b> 님이 이 주차를 수정했습니다.
+      지금 화면에는 아직 저장하지 않은 내 수정이 있어 그대로 두었습니다.</span>
+      <span class="adopts">
+        <button class="ad" data-cfkeep="1">내 수정 유지</button>
+        <button class="ad" data-cftake="1">상대 내용 가져오기</button></span></div>` : "")
+    + `<div class="stage">${sheetHTML(w,true)}</div>`;
+  hydrate(s, w);
+  fitAll();
+  state.focusPath = null;
+  updateFmtBar();
+  $("#btnEdit").textContent = state.editing ? "편집 끝내기" : "편집";
+  $("#btnEdit").classList.toggle("solid", state.editing);
+}
+
+/* ── 실행항목 ── */
+function allActions(){
+  const out=[];
+  state.weeks.forEach(w=>w.actions.forEach((a,i)=>out.push({...a,_w:w,_i:i})));
+  return out;
+}
+function renderTracker(){
+  const all = allActions().map(a=>({...a, task:stripHtml(a.task), owner:stripHtml(a.owner),
+    due:stripHtml(a.due), status:stripHtml(a.status)})).filter(a=>a.task||a.owner);
+  const late = a => a.due && /^\d{4}-/.test(a.due) && a.due<todayISO() && a.status!=="완료";
+  const open = a => a.status!=="완료";
+  const F = state.filter;
+  const rows = all.filter(a => F==="전체"?true : F==="기한초과"?late(a) : F==="완료"?a.status==="완료" : open(a));
+  const stat = (n,l,bad)=>`<div class="stat ${bad?"bad":""}"><b>${n}</b><span>${l}</span></div>`;
+  $("#scroll").innerHTML = `<div class="panel">
+    <div class="panel-head"><h3>실행항목</h3>
+      <p>모든 주차의 결정사항을 한곳에 모았습니다. 상태를 바꾸면 해당 주차 회의록에도 그대로 반영됩니다.</p></div>
+    <div class="stats">${stat(all.length,"전체")}${stat(all.filter(a=>a.status==="진행중"||a.status==="수정중").length,"진행중")}
+      ${stat(all.filter(a=>a.status==="완료").length,"완료")}${stat(all.filter(late).length,"기한초과",1)}</div>
+    <div class="filters">${["미완료","기한초과","완료","전체"].map(f=>
+      `<button class="chip" data-f="${f}" aria-pressed="${f===F}">${f}</button>`).join("")}</div>
+    ${rows.length? `<table class="trk"><tr><th style="width:104px">주차</th><th>실행항목</th>
+        <th style="width:80px">담당자</th><th style="width:92px">기한</th><th style="width:96px">상태</th></tr>
+      ${rows.map(a=>`<tr class="${a.status==="완료"?"done":""} ${late(a)?"late":""}">
+        <td><button class="wk" data-go="${a._w.id}">${esc(stripHtml(a._w.label))}</button></td>
+        <td>${esc(a.task)||"<span style='color:#aab'>내용 없음</span>"}</td>
+        <td>${esc(a.owner)}</td><td>${esc(a.due)}</td>
+        <td><select data-st="${a._w.id}|${a._i}" style="font:inherit;padding:2px 4px;border:1px solid var(--line);border-radius:5px">
+          ${["",...STATUSES].map(s=>`<option ${s===a.status?"selected":""}>${s}</option>`).join("")}</select></td>
+      </tr>`).join("")}</table>`
+      : `<div class="empty">${F==="미완료"?"미완료 항목이 없습니다.":"해당하는 항목이 없습니다."}</div>`}
+  </div>`;
+}
+
+/* ── 주차 만들기 / 복제 / 삭제 / 인쇄 ── */
+function newWeek(){
+  const base = state.weeks[state.weeks.length-1];
+  const d = base ? new Date(base.date+"T00:00:00") : new Date();
+  if(base) d.setDate(d.getDate()+7);
+  const iso = d.toISOString().slice(0,10);
+  const nd = new Date(d); nd.setDate(nd.getDate()+7);
+  const carry = (base?.actions || [])
+    .filter(a=>stripHtml(a.task).trim())
+    .map(a=>({
+      text: stripHtml(a.task)
+        + (a.owner ? ` (${stripHtml(a.owner)}${a.due?`, ~${stripHtml(a.due)}`:""})`
+                   : (a.due ? ` (~${stripHtml(a.due)})` : "")),
+      st: stripHtml(a.status||"")
+    }));
+  const titles = base?.agendas?.length
+    ? base.agendas.map(a=>a.no)
+    : ["안건1","안건2","안건3"];
+  const w = {
+    id: uid(), date: iso,
+    ampm: base?.ampm || "PM", hh: base?.hh ?? 2, mm: base?.mm ?? 30,
+    label: `${d.getMonth()+1}월 ${Math.ceil(d.getDate()/7)}주차`,
+    author: base?.author || "", attendees: base?.attendees || "",
+    absent: "", place: base?.place || "",
+    prev: carry.length ? carry.concat(
+            Array.from({length:Math.max(0,3-carry.length)},()=>({text:"",st:""})))
+          : [0,1,2].map(()=>({text:"",st:""})),
+    actions: [0,1,2].map(()=>({task:"",owner:"",due:"",status:""})),
+    agendas: titles.map(no=>({ no, title:"",
+      blocks:[0,1,2].map((_,j)=>({type:"text",no:`${j+1})`,text:""})) })),
+    next: {date: nd.toISOString().slice(0,10),
+           ampm: base?.ampm || "PM", hh: base?.hh ?? 2, mm: base?.mm ?? 30}
+  };
+  w._dirty = true;
+  state.weeks.push(w);
+  state.weeks.sort((a,b)=>a.date.localeCompare(b.date));
+  state.cur = w.id; state.view="minutes"; state.editing=true;
+  setTab(); renderList(); renderMain(); save(true);
+  toast("새 주차를 만들었습니다. 일시·장소부터 확인하세요.");
+}
+function duplicate(){
+  const w = cur(); if(!w) return;
+  const c = JSON.parse(JSON.stringify(w));
+  c.id = uid(); c.label = w.label + " (사본)"; delete c._u; c._dirty = true;
+  state.weeks.push(c); state.weeks.sort((a,b)=>a.date.localeCompare(b.date));
+  state.cur=c.id; renderList(); renderMain(); save(true); toast("복제했습니다.");
+}
+function removeWeek(){
+  const w = cur(); if(!w) return;
+  if(!confirm(`[${stripHtml(w.label)||w.date}] 회의록을 삭제합니다. 되돌릴 수 없습니다.`)) return;
+  const i = state.weeks.indexOf(w);
+  state.weeks.splice(i,1); state.sel.delete(w.id);
+  pendingDel.push(w.id); store.set("mathlib-del", JSON.stringify(pendingDel));
+  state.cur = (state.weeks[i]||state.weeks[i-1])?.id ?? null;
+  renderList(); renderMain(); save(true); toast("삭제했습니다.");
+}
+function doPrint(){
+  const ids = state.sel.size ? [...state.sel] : (state.cur?[state.cur]:[]);
+  if(!ids.length) return toast("인쇄할 주차가 없습니다.");
+  const ws = state.weeks.filter(w=>ids.includes(w.id));
+  const area = $("#printArea");
+  area.innerHTML = ws.map(w=>sheetHTML(w,false)).join("");
+  area.style.display="block";
+  area.querySelectorAll(".sheet").forEach(fitSheet);
+  area.style.display="";
+  document.body.classList.add("multi");
+  const done = ()=>{ document.body.classList.remove("multi"); area.innerHTML="";
+    window.removeEventListener("afterprint",done); };
+  window.addEventListener("afterprint",done);
+  setTimeout(()=>window.print(),50);
+}
+/* ══════════ 회의록을 이미지로 만들어 공유 ══════════ */
+const H2C = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+let h2cPromise = null, shareFiles = [], shareUrl = null;
+function loadH2C(){
+  if(window.html2canvas) return Promise.resolve(window.html2canvas);
+  return h2cPromise ||= new Promise((res,rej)=>{
+    const t = document.createElement("script");
+    t.src = H2C; t.crossOrigin = "anonymous";
+    t.onload = ()=> window.html2canvas ? res(window.html2canvas) : rej(new Error("load"));
+    t.onerror = ()=>{ h2cPromise = null; rej(new Error("net")); };
+    document.head.appendChild(t);
+  });
+}
+function shotName(w){
+  const t = stripHtml(w.label).replace(/[\\/:*?"<>|]/g,"").trim() || w.date;
+  return `중등부회의록_${t}.png`;
+}
+async function makeShot(w, h2c){
+  const host = $("#capHost");
+  host.innerHTML = sheetHTML(w, false);
+  const sheet = host.querySelector(".sheet");
+  sheet.style.boxShadow = "none";
+  fitSheet(sheet);
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  const canvas = await h2c(sheet, {
+    backgroundColor:"#ffffff", scale:2, useCORS:true, logging:false,
+    width: sheet.offsetWidth, height: sheet.offsetHeight,
+    windowWidth: sheet.offsetWidth, windowHeight: sheet.offsetHeight
+  });
+  host.innerHTML = "";
+  const blob = await new Promise(r=>canvas.toBlob(r, "image/png"));
+  return new File([blob], shotName(w), {type:"image/png"});
+}
+async function doShare(){
+  const ids = state.sel.size ? [...state.sel] : (state.cur ? [state.cur] : []);
+  if(!ids.length) return toast("보낼 주차가 없습니다.");
+  const ws = state.weeks.filter(w=>ids.includes(w.id));
+
+  shareFiles = []; if(shareUrl){ URL.revokeObjectURL(shareUrl); shareUrl = null; }
+  $("#shareTitle").textContent = ws.length>1 ? `이미지로 보내기 (${ws.length}장)` : "이미지로 보내기";
+  $("#shareMsg").textContent = "이미지를 만들고 있습니다…";
+  $("#shareShot").innerHTML = `<div class="ph">잠시만 기다려 주세요</div>`;
+  ["shareCopy","shareDown","shareGo"].forEach(id=>$("#"+id).hidden = true);
+  $("#shareModal").hidden = false;
+
+  let h2c;
+  try{ h2c = await loadH2C(); }
+  catch(e){
+    $("#shareMsg").textContent =
+      "이미지 변환 기능을 불러오지 못했습니다. 인터넷에 연결된 상태에서 한 번만 실행하면 그 뒤로는 오프라인에서도 됩니다.";
+    $("#shareShot").innerHTML = `<div class="ph">불러오기 실패</div>`;
+    return;
+  }
+  try{
+    for(const w of ws) shareFiles.push(await makeShot(w, h2c));
+  }catch(e){
+    $("#shareMsg").textContent = "이미지를 만들지 못했습니다. ("+(e.message||e)+")";
+    return;
+  }
+  shareUrl = URL.createObjectURL(shareFiles[0]);
+  $("#shareShot").innerHTML = `<img src="${shareUrl}" alt="회의록 미리보기">`;
+
+  const canShare = !!(navigator.canShare && navigator.canShare({files:shareFiles}));
+  $("#shareGo").hidden = !canShare;
+  $("#shareDown").hidden = false;
+  $("#shareCopy").hidden = !(navigator.clipboard && window.ClipboardItem) || ws.length>1;
+  $("#shareMsg").textContent = canShare
+    ? "[공유하기]를 누르면 카카오톡·메시지 목록이 뜹니다."
+    : "PC에서는 [복사] 후 카톡 대화창에 붙여넣거나, [저장] 후 파일로 첨부하세요.";
+}
+$("#btnShare") && ($("#btnShare").onclick = doShare);
+$("#shareClose") && ($("#shareClose").onclick = ()=>{ $("#shareModal").hidden = true; });
+$("#shareGo") && ($("#shareGo").onclick = async ()=>{
+  try{ await navigator.share({files:shareFiles, title:"중등부 주간회의록"}); }
+  catch(e){ if(e.name!=="AbortError") toast("공유하지 못했습니다. [저장]을 이용해 주세요."); }
+});
+$("#shareDown") && ($("#shareDown").onclick = ()=>{
+  shareFiles.forEach((f,i)=>{
+    const u = URL.createObjectURL(f);
+    const a = document.createElement("a"); a.href = u; a.download = f.name;
+    setTimeout(()=>{ a.click(); URL.revokeObjectURL(u); }, i*250);
+  });
+  toast(`이미지 ${shareFiles.length}장을 저장했습니다.`);
+});
+$("#shareCopy") && ($("#shareCopy").onclick = async ()=>{
+  try{
+    await navigator.clipboard.write([new ClipboardItem({"image/png": shareFiles[0]})]);
+    toast("복사했습니다. 카톡 대화창에서 붙여넣기(Ctrl+V) 하세요.");
+  }catch(e){ toast("복사하지 못했습니다. [저장]을 이용해 주세요."); }
+});
+
+/* 그림 삽입 : 용량을 줄여 저장 */
+function pickImage(ai){
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = "image/*";
+  inp.onchange = async ()=>{
+    const f = inp.files && inp.files[0]; if(!f) return;
+    try{
+      const src = await shrinkImage(f, 900, 0.72);
+      const w = cur(); if(!w) return;
+      w.agendas[ai].blocks.push({type:"img", src, w:70, cap:""});
+      renderMain(); save();
+      const kb = Math.round(src.length*0.75/1024);
+      toast(`그림을 넣었습니다. (약 ${kb}KB)`);
+      if(JSON.stringify(w).length > 700000)
+        alert("이 주차에 그림이 많아 용량이 큽니다.\n연동 저장이 실패할 수 있으니 그림을 줄이거나 나눠 주세요.");
+    }catch(e){ toast("그림을 넣지 못했습니다."); }
+  };
+  inp.click();
+}
+function shrinkImage(file, maxW, q){
+  return new Promise((res,rej)=>{
+    const fr = new FileReader();
+    fr.onload = ()=>{
+      const im = new Image();
+      im.onload = ()=>{
+        const sc = Math.min(1, maxW/im.width);
+        const c = document.createElement("canvas");
+        c.width = Math.round(im.width*sc); c.height = Math.round(im.height*sc);
+        const g = c.getContext("2d");
+        g.fillStyle = "#fff"; g.fillRect(0,0,c.width,c.height);
+        g.drawImage(im,0,0,c.width,c.height);
+        res(c.toDataURL("image/jpeg", q));
+      };
+      im.onerror = rej; im.src = fr.result;
+    };
+    fr.onerror = rej; fr.readAsDataURL(file);
+  });
+}
+
+function setTab(){
+  $("#tabMinutes").setAttribute("aria-selected", state.view==="minutes");
+  $("#tabTracker").setAttribute("aria-selected", state.view==="tracker");
+  ["btnEdit","btnDup","btnDel","btnShare"].forEach(id=>$("#"+id).disabled = state.view!=="minutes");
+}
+
+/* ── 이벤트 ── */
+$("#list").addEventListener("click",e=>{
+  const pick = e.target.closest("[data-pick]");
+  if(pick){ const id=pick.dataset.pick; pick.checked? state.sel.add(id):state.sel.delete(id); renderList(); return; }
+  const it = e.target.closest(".witem"); if(!it) return;
+  state.cur = it.dataset.id; state.view="minutes"; setTab(); renderList(); renderMain(); saveUI();
+  if(innerWidth<=900) $("#rail").classList.remove("open");
+});
+$("#q").addEventListener("input", renderList);
+$("#btnOrder").onclick = ()=>{
+  state.order = state.order === "desc" ? "asc" : "desc";
+  renderList(); saveUI();
+  toast(state.order === "desc" ? "최신 주차가 맨 위로 옵니다." : "오래된 주차가 맨 위로 옵니다.");
+};
+$("#tabMinutes").onclick = ()=>{ state.view="minutes"; setTab(); renderMain(); saveUI(); };
+$("#tabTracker").onclick = ()=>{ state.view="tracker"; state.editing=false; setTab(); renderMain(); saveUI(); };
+$("#btnEdit").onclick = ()=>{ state.editing=!state.editing; renderMain(); saveUI();
+  toast(state.editing?"칸을 눌러 바로 고칠 수 있습니다.":"편집을 마쳤습니다."); };
+$("#btnPrint").onclick = doPrint;
+$("#btnDup").onclick = duplicate;
+$("#btnDel").onclick = removeWeek;
+$("#btnNew").onclick = newWeek;
+$("#railToggle").onclick = ()=>$("#rail").classList.toggle("open");
+
+$("#scroll").addEventListener("click",e=>{
+  const w = cur(), t = e.target;
+  if(t.id==="addAct"&&w){ w.actions.push({task:"",owner:"",due:"",status:""}); renderMain(); save(); return; }
+  if(t.id==="addPrev"&&w){ w.prev.push({text:"",st:""}); renderMain(); save(); return; }
+  if(t.dataset.delprev!==undefined&&w){
+    if(w.prev.length<=1) return;
+    w.prev.splice(+t.dataset.delprev,1); renderMain(); save(); return; }
+  if(t.id==="addAg"&&w){ w.agendas.push({no:"안건"+(w.agendas.length+1),title:"",
+    blocks:[{type:"text",no:"1)",text:""}]}); renderMain(); save(); return; }
+  if(t.dataset.delact!==undefined&&w){ w.actions.splice(+t.dataset.delact,1); renderMain(); save(); return; }
+  if(t.dataset.addline!==undefined&&w){ const ag=w.agendas[+t.dataset.addline];
+    const nums = ag.blocks.filter(b=>b.type!=="text"?false:/^\s*\(?\d/.test(b.no||"")).length;
+    ag.blocks.push({type:"text",no:`${nums+1})`,text:""}); renderMain(); save(); return; }
+  if(t.dataset.addtable!==undefined&&w){
+    const ag=w.agendas[+t.dataset.addtable];
+    ag.blocks.push({type:"table", rows:[0,1,2].map(()=>[0,1,2].map(()=>({span:1,v:""})))});
+    renderMain(); save(); return; }
+  if(t.dataset.addimg!==undefined&&w){ pickImage(+t.dataset.addimg); return; }
+  if(t.dataset.tb&&w){
+    const [op,ai,bi] = t.dataset.tb.split("|");
+    const b = w.agendas[+ai].blocks[+bi]; const R=b.rows;
+    const cols = R[0] ? R[0].length : 3;
+    if(op==="row+") R.push(Array.from({length:cols},()=>({span:1,v:""})));
+    if(op==="row-" && R.length>1) R.pop();
+    if(op==="col+") R.forEach(r=>r.push({span:1,v:""}));
+    if(op==="col-" && cols>1) R.forEach(r=>r.pop());
+    renderMain(); save(); return; }
+  if(t.dataset.im&&w){
+    const [pc,ai,bi] = t.dataset.im.split("|");
+    w.agendas[+ai].blocks[+bi].w = +pc; renderMain(); save(); return; }
+  if(t.dataset.delag!==undefined&&w){ if(confirm("이 안건을 삭제할까요?")){ w.agendas.splice(+t.dataset.delag,1); renderMain(); save(); } return; }
+  if(t.dataset.delblock!==undefined&&w){ const [a,b]=t.dataset.delblock.split(".").map(Number);
+    w.agendas[a].blocks.splice(b,1); renderMain(); save(); return; }
+  if(t.dataset.cfkeep&&w){ conflicts.delete(w.id); renderMain(); return; }
+  if(t.dataset.cftake&&w){
+    const r = conflicts.get(w.id); conflicts.delete(w.id);
+    const i = state.weeks.indexOf(w);
+    state.weeks[i] = r; normalize(); renderList(); renderMain(); save(true);
+    toast("상대 내용을 가져왔습니다."); return;
+  }
+  if(t.dataset.f){ state.filter=t.dataset.f; renderTracker(); return; }
+  if(t.dataset.go){ state.cur=t.dataset.go; state.view="minutes"; setTab(); renderList(); renderMain(); return; }
+});
+let stTargetPath = null;
+$("#scroll").addEventListener("mousedown",e=>{
+  const b = e.target.closest("[data-stpick]"); if(!b) return;
+  e.preventDefault();
+  stTargetPath = b.dataset.stpick;
+  const m = $("#stMenu"); m.hidden = false;
+  const r = b.getBoundingClientRect();
+  const w = 116, h = 152;
+  m.style.left = Math.min(r.left, innerWidth - w - 12) + "px";
+  m.style.top  = (r.bottom + h > innerHeight ? r.top - h : r.bottom + 4) + "px";
+});
+$("#stMenu").addEventListener("click",e=>{
+  const b = e.target.closest("[data-stv]"); if(!b) return;
+  const w = cur();
+  if(w && stTargetPath){ setPath(w, stTargetPath, b.dataset.stv); markDirty(w); renderMain(); save(); }
+  $("#stMenu").hidden = true;
+});
+document.addEventListener("mousedown",e=>{
+  if(!e.target.closest("#stMenu") && !e.target.closest("[data-stpick]")) $("#stMenu").hidden = true;
+});
+$("#scroll").addEventListener("change",e=>{
+  const fld = e.target.dataset.field;
+  if(fld){
+    const w = cur(); if(!w) return;
+    let v = e.target.value;
+    if(/\.(hh|mm)$/.test(fld) || fld==="hh" || fld==="mm") v = parseInt(v,10)||0;
+    setPath(w, fld, v);
+    if(fld==="date"){ state.weeks.sort((a,b)=>a.date.localeCompare(b.date)); renderList(); }
+    save(); fitSoon(); return;
+  }
+  const st = e.target.dataset.st; if(!st) return;
+  const [id,i] = st.split("|");
+  const tw = state.weeks.find(w=>w.id===id);
+  tw.actions[+i].status = e.target.value; markDirty(tw);
+  renderTracker(); save();
+});
+
+$("#btnExport").onclick = ()=>{
+  const blob = new Blob([JSON.stringify(payload(),null,1)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `중등부_주간회의록_${todayISO()}.json`;
+  a.click(); URL.revokeObjectURL(a.href); toast("파일로 내보냈습니다.");
+};
+$("#btnSave").onclick = saveNow;
+$("#lgGo").onclick = doLogin;
+$("#lgGoogle").onclick = doGoogle;
+$("#lgSettings").onclick = ()=>{ $("#loginModal").hidden = true; openSync(); };
+["lgId","lgPw"].forEach(id=>$("#"+id).addEventListener("keydown",e=>{ if(e.key==="Enter") doLogin(); }));
+$("#btnLogout").onclick = async ()=>{
+  const d = state.weeks.filter(w=>w._dirty).length;
+  if(d && !confirm(`저장하지 않은 수정이 ${d}건 있습니다. 그래도 로그아웃할까요?`)) return;
+  try{ await fbU.signOut(auth); toast("로그아웃했습니다."); }catch(e){}
+};
+$("#syncInfo").addEventListener("click",e=>{
+  if(e.target.closest("[data-syncset]")) openSync();
+});
+$("#syncInfo").addEventListener("change",e=>{
+  if(e.target.id!=="asOn") return;
+  autoSync = e.target.checked; store.set(AUTOKEY, autoSync?"1":"0");
+  renderFootStat();
+  if(autoSync){ toast("고치면 2~3초 뒤 자동으로 전송합니다."); schedulePush(); }
+  else toast("이제 [저장]을 눌러야 다른 기기로 넘어갑니다.");
+});
+function openSync(){
+  $("#syncCfgIn").value = fbCfg ? JSON.stringify(fbCfg,null,1).replace(/^\{\n|\n\}$/g,"") : "";
+  $("#syncModal").hidden = false; $("#syncCfgIn").focus();
+}
+function parseCfg(txt){
+  let t = txt.trim().replace(/^const\s+\w+\s*=\s*/,"").replace(/;$/,"").trim();
+  if(!t.startsWith("{")) t = "{"+t+"}";
+  t = t.replace(/,\s*\}/g,"}").replace(/([{,]\s*)([A-Za-z_]\w*)\s*:/g,'$1"$2":').replace(/'/g,'"');
+  const o = JSON.parse(t);
+  if(!o.apiKey || !o.projectId) throw new Error("apiKey 또는 projectId 가 없습니다");
+  return o;
+}
+$("#syncCancel").onclick = ()=>{ $("#syncModal").hidden = true; };
+$("#syncOff").onclick = async ()=>{
+  if(fbUnsub) fbUnsub();
+  fbOn=false; fbCfg=null; await store.set(FBKEY,"");
+  $("#syncModal").hidden=true; renderSyncInfo(); toast("기기 연동을 해제했습니다.");
+};
+$("#syncSave").onclick = async ()=>{
+  let cfg;
+  try{ cfg = parseCfg($("#syncCfgIn").value); }
+  catch(e){ return alert("설정값을 읽지 못했습니다.\n\nFirebase 콘솔의 firebaseConfig 중괄호 { } 안쪽을 그대로 복사해 붙여넣어 주세요.\n\n("+e.message+")"); }
+  $("#syncSave").textContent="연결 중…";
+  try{
+    await store.set(FBKEY, JSON.stringify(cfg));
+    const u = await fbConnect(cfg);
+    $("#syncModal").hidden = true;
+    if(!u){ showLogin(); return; }          /* 로그인 화면으로 */
+    await afterLogin();
+  }catch(e){
+    fbOn=false;
+    alert("연결하지 못했습니다.\n\n"+(e.code||e.message)+
+      "\n\n· Firestore 데이터베이스를 만들었는지\n· 보안 규칙을 안내대로 게시했는지\n· 인증 > 로그인 방법에서 [이메일/비밀번호]를 사용 설정했는지\n확인해 주세요.");
+    renderSyncInfo();
+  }finally{ $("#syncSave").textContent="연결하고 불러오기"; }
+};
+
+/* 앱 설치 */
+let installEvt=null;
+addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); installEvt=e; $("#btnInstall").hidden=false; });
+$("#btnInstall").onclick = async ()=>{
+  if(!installEvt) return;
+  installEvt.prompt(); await installEvt.userChoice; installEvt=null; $("#btnInstall").hidden=true;
+};
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+
+$("#btnMore").onclick = ()=>{
+  const box = $("#moreBox"), on = box.hidden;
+  box.hidden = !on;
+  $("#btnMore").setAttribute("aria-expanded", String(on));
+  $("#btnMore").textContent = on ? "설정 ▴" : "설정 ▾";
+};
+$("#btnFileNew").onclick = linkNew;
+$("#btnFileOpen").onclick = linkOpen;
+$("#fileInfo").addEventListener("click",e=>{
+  const t=e.target.closest("button"); if(!t) return;
+  if(t.dataset.relink) relink();
+  if(t.dataset.linknew) linkNew();
+  if(t.dataset.backup){ bkDate=todayISO(); store.set(BKKEY,bkDate); downloadBackup(); renderFileInfo(); }
+});
+$("#fileInfo").addEventListener("change",e=>{
+  if(e.target.id!=="bkOn") return;
+  autoBk = e.target.checked; store.set(BKONKEY, autoBk?"1":"0");
+  toast(autoBk?"하루 1회 자동 백업을 켰습니다.":"자동 백업을 껐습니다.");
+});
+$("#btnImport").onclick = ()=>$("#fileIn").click();
+$("#fileIn").onchange = e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const d = unwrap(JSON.parse(r.result));
+      if(!d || !d.weeks.length || !d.weeks[0].agendas) throw 0;
+      if(!confirm("현재 내용을 불러온 파일로 바꿉니다. 계속할까요?")) return;
+      state.weeks = d.weeks; normalize();
+      state.cur = state.weeks[state.weeks.length-1].id; state.sel.clear();
+      renderList(); renderMain(); save(true); toast(`${d.weeks.length}개 주차를 불러왔습니다.`);
+    }catch(err){ toast("이 파일은 회의록 형식이 아닙니다. 내보내기로 만든 .json 파일을 골라주세요."); }
+  };
+  r.readAsText(f); e.target.value="";
+};
+addEventListener("keydown",e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==="p"){ e.preventDefault(); doPrint(); }
+  if((e.metaKey||e.ctrlKey)&&e.key==="s"){ e.preventDefault(); saveNow(); }
+});
+let rz; addEventListener("resize",()=>{ clearTimeout(rz); rz=setTimeout(fitAll,120); });
+$("#scroll").addEventListener("scroll", saveUI, {passive:true});
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden) save(true); });
+addEventListener("beforeunload", ()=>{ try{ localStorage.setItem(UIKEY, JSON.stringify({
+  cur:state.cur, view:state.view, filter:state.filter, editing:state.editing, scroll:$("#scroll").scrollTop })); }catch(e){} });
+
+/* ── 시작 ── */
+function normalize(){
+  const pt = s=>{ const m=/(AM|PM)\s*(\d{1,2}):(\d{2})/.exec(s||""); 
+                  return m? {ampm:m[1],hh:+m[2],mm:+m[3]} : {ampm:"PM",hh:2,mm:30}; };
+  state.weeks.forEach(w=>{
+    w.actions ||= []; w.agendas ||= [];
+    w.prev = (Array.isArray(w.prev) ? w.prev : []).map(x=>
+      (x && typeof x === "object") ? {text:x.text||"", st:x.st||""} : {text:x||"", st:""});
+    while(w.prev.length < 3) w.prev.push({text:"",st:""});
+    w.actions.forEach(a=>{ delete a.note;
+      if(a.status==="미착수"||a.status==="보류"||a.status==="취소") a.status=""; });
+    while(w.actions.length < 3) w.actions.push({task:"",owner:"",due:"",status:""});
+    delete w.fresh; delete w.ph;
+    if(!w.id) w.id = uid();
+    w.agendas.forEach(a=>{
+      delete a.phTitle;
+      (a.blocks||[]).forEach(b=>{
+        delete b.ph;
+        if(b.type==="table" || b.type==="img") return;
+        b.type = "text";
+        if(b.no === undefined){
+          const t = String(b.text||"");
+          const m = /^(\s*)(\(?\d{1,2}[).]|[\u2460-\u2473]|[가-하]\)|[A-Za-z]\))\s*/.exec(t);
+          if(m){ b.no = m[2]; b.text = t.slice(m[0].length); }
+          else { b.no = ""; }
+        }
+      });
+    });
+    if(w.ampm===undefined){ Object.assign(w, pt(w.time)); }
+    delete w.time;
+    if(!PLACES.includes(w.place)) w.place = "";
+    const n = w.next || {};
+    if(!n.date || n.when!==undefined){
+      let dd=null;
+      const m = /(\d{1,2})\s*\/\s*(\d{1,2})/.exec(n.when||"");
+      const base = new Date(w.date+"T00:00:00");
+      if(m){ const yr = base.getFullYear() + ((+m[1]) < base.getMonth()-5 ? 1 : 0);
+             const c = new Date(yr, +m[1]-1, +m[2]);
+             if(!isNaN(c)) dd = c.toISOString().slice(0,10); }
+      if(!dd){ const c=new Date(base); c.setDate(c.getDate()+7); dd=c.toISOString().slice(0,10); }
+      const t = n.when ? pt(n.when) : {ampm:w.ampm,hh:w.hh,mm:w.mm};
+      w.next = {date:dd, ...t};
+    }
+    w.next.ampm ||= w.ampm; w.next.hh ??= w.hh; w.next.mm ??= w.mm;
+  });
+  state.weeks.sort((a,b)=>a.date.localeCompare(b.date));
+}
+(async function(){
+  try{ if(navigator.storage?.persist) await navigator.storage.persist(); }catch(e){}   /* 브라우저 자동 정리 방지 */
+
+  const saved = await store.get(KEY);
+  let data = null;
+  if(saved){ try{ data = unwrap(JSON.parse(saved)); }catch(e){} }
+  if(data) lastLocalStamp = data.updatedAt;
+
+  try{ fbCfg = JSON.parse(await store.get(FBKEY)||"null"); }catch(e){}
+  try{ pendingDel = JSON.parse(await store.get("mathlib-del")||"[]"); }catch(e){}
+  autoSync = (await store.get(AUTOKEY)) !== "0";
+  bkDate = await store.get(BKKEY);
+  autoBk = (await store.get(BKONKEY)) !== "0";
+
+  /* 연결해 둔 저장 파일이 있으면 그쪽을 우선 */
+  try{ fileHandle = await idbGet("fileHandle"); }catch(e){}
+  if(fileHandle && await perm(fileHandle,false)){
+    try{
+      const d = await fileRead();
+      if(d && d.weeks.length){
+        if(!data || !d.updatedAt || !data.updatedAt || d.updatedAt >= data.updatedAt) data = d;
+      }
+      fileLinked = true;
+    }catch(e){ fileErr="읽기 실패"; }
+  }
+  renderFileInfo();
+
+  state.weeks = (data && data.weeks.length) ? data.weeks : JSON.parse(JSON.stringify(SEED));
+  normalize();
+  let ui = null;
+  try{ ui = JSON.parse(await store.get(UIKEY)); }catch(e){}
+  /* 열 때는 항상 날짜가 가장 늦은(마지막) 주차부터 */
+  state.cur = state.weeks[state.weeks.length-1]?.id ?? null;
+  if(ui){ state.view = ui.view==="tracker" ? "tracker" : "minutes";
+          state.filter = ui.filter || state.filter;
+          state.order = ui.order === "desc" ? "desc" : "asc"; }
+  state.editing = false;
+  setTab(); renderList(); renderMain();
+  refreshSaveBtn(); svIdle(); renderFootStat();
+  if(document.fonts?.ready) document.fonts.ready.then(fitAll);
+  if(fileLinked) fileWrite();
+  renderSyncInfo();
+  if(fbCfg) fbConnect(fbCfg).then(u=>{ if(u) afterLogin(); }).catch(e=>{
+    fbOn=false; renderSyncInfo(); toast("연동 서버에 연결하지 못했습니다. 이 기기에는 정상 저장됩니다."); });
+})();
+</script>
+</body>
+</html>
