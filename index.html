@@ -203,7 +203,12 @@ table.act tr.late td{background:var(--alert-soft);color:var(--alert);font-weight
 .imgblk img{display:inline-block;max-width:100%;border:1px solid var(--line);border-radius:3px}
 .imgblk .cap{font-size:.86em;color:#6d7d7c;margin-top:2px}
 table.sub{width:100%;border-collapse:collapse;table-layout:fixed;border-bottom:1px solid var(--line2)}
-table.sub td{border:1px solid var(--line);padding:2px 3px;font-size:.88em;text-align:center;background:#f8fbfa}
+table.sub td{border:1px solid var(--line);padding:2px 5px;font-size:.88em;text-align:center;
+  background:#f8fbfa;height:calc(1.36em + 6px);vertical-align:middle}
+table.sub.al-left td{text-align:left}
+table.sub.al-right td{text-align:right}
+.tbtools .sep{width:1px;background:#c9d5d3;margin:0 3px}
+.tbtools .mini.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 
 .editing [data-edit]{background:var(--edit);border-radius:2px}
 .editing td [data-edit],.editing .pval [data-edit],.editing .tno [data-edit],.editing .tbody [data-edit],
@@ -212,9 +217,13 @@ table.sub td{border:1px solid var(--line);padding:2px 3px;font-size:.88em;text-a
 .editing [data-edit]:empty:before{content:attr(data-lb);color:#bdb391;font-size:.9em}
 .editing [data-lb=""]:empty:before{content:""}
 /* 진한 바탕(제목·안건번호) 위에서는 편집 중 글씨를 어둡게 뒤집는다 */
+/* 진한 바탕(제목·안건번호)은 편집 중에도 인쇄와 똑같이 보여준다 */
 .editing .page h2 [data-edit],.editing .ag-no [data-edit]{
-  background:var(--edit);color:var(--ink);padding:0 7px;border-radius:3px;
-  box-shadow:0 0 0 1px rgba(255,255,255,.5)}
+  background:transparent;color:#fff;padding:0 6px;border-radius:3px;
+  outline:1px dashed rgba(255,255,255,.65);outline-offset:1px}
+.editing .page h2 [data-edit]:empty:before,.editing .ag-no [data-edit]:empty:before{color:rgba(255,255,255,.55)}
+.editing .page h2 [data-edit]:empty,.editing .ag-no [data-edit]:empty{outline-color:rgba(255,255,255,.65)}
+.editing .page h2 [data-edit].sel,.editing .ag-no [data-edit].sel{box-shadow:0 0 0 2px #fff;outline:none}
 [contenteditable]{outline:none}
 [contenteditable]:focus{box-shadow:inset 0 0 0 2px #7fb5b1}
 body:not(.editing) .edit-only{display:none!important}
@@ -378,6 +387,7 @@ body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
       </div>
       <div class="more" id="moreBox" hidden>
         <div class="fileinfo" id="syncInfo"></div>
+        <button id="btnUploadAll" hidden>전체 다시 올리기</button>
         <button id="btnLogout" hidden>로그아웃</button>
         <div class="fileinfo" id="fileInfo"></div>
         <div class="two"><button id="btnFileNew">저장 파일 만들기</button>
@@ -801,7 +811,7 @@ async function quietPush(){
   fbBusy = true; svState("saving","다른 기기로 보내는 중…");
   try{ await fbPush(); await store.set(KEY, JSON.stringify(payload()));
        svState("synced", `모든 기기에 저장됨 ${hhmm()}`); }
-  catch(e){ svState("warn","전송 실패 — [저장]을 눌러 다시 시도"); }
+  catch(e){ svState("warn","전송 실패 — "+fsReason(e)); }
   finally{ fbBusy=false; refreshSaveBtn(); renderSyncInfo(); }
 }
 function save(now){
@@ -844,10 +854,10 @@ async function fbConnect(cfg){
     let first = true;
     U.onAuthStateChanged(auth, u=>{
       fbUser = u;
-      if(u){ fbOn = true; $("#loginModal").hidden = true; $("#btnLogout").hidden = false;
+      if(u){ fbOn = true; $("#loginModal").hidden = true; $("#btnLogout").hidden = false; $("#btnUploadAll").hidden = false;
              listen(); if(!first) afterLogin(); }
       else { fbOn = false; if(fbUnsub){ fbUnsub(); fbUnsub=null; }
-             $("#btnLogout").hidden = true; showLogin(); }
+             $("#btnLogout").hidden = true; $("#btnUploadAll").hidden = true; showLogin(); }
       renderSyncInfo();
       if(first){ first = false; res(u); }
     });
@@ -916,7 +926,7 @@ function listen(){
         if(i>=0 && !state.weeks[i]._dirty){ state.weeks.splice(i,1); changed++; }
         return;
       }
-      const r = ch.doc.data();
+      const r = fromFs(ch.doc.data());
       if(!r || !r.agendas) return;
       if(i>=0){
         if(wsig(state.weeks[i]) === wsig(r)){ conflicts.delete(id); return; }
@@ -939,18 +949,46 @@ function listen(){
   }, err=>{ fbOn=false; renderSyncInfo();
     toast("연동이 끊겼습니다 : "+(err.code||err.message)); });
 }
+function toFs(w){
+  const c = JSON.parse(JSON.stringify(w));
+  delete c._dirty;
+  (c.agendas||[]).forEach(a=>(a.blocks||[]).forEach(b=>{
+    if(b.type==="table" && Array.isArray(b.rows) && Array.isArray(b.rows[0]))
+      b.rows = b.rows.map(r=>({c:r}));
+  }));
+  return c;
+}
+function fromFs(r){
+  if(!r) return r;
+  (r.agendas||[]).forEach(a=>(a.blocks||[]).forEach(b=>{
+    if(b.type==="table" && Array.isArray(b.rows) && b.rows[0] && !Array.isArray(b.rows[0]) && b.rows[0].c)
+      b.rows = b.rows.map(x=>x.c||[]);
+  }));
+  return r;
+}
+function fsReason(e){
+  const m = String(e && (e.message||e.code) || "");
+  if(/Nested arrays|invalid data/i.test(m)) return "저장할 수 없는 형식이 들어 있습니다";
+  if(/permission-denied/i.test(m)) return "권한이 없습니다 (로그인·규칙 확인)";
+  if(/unavailable|network|offline/i.test(m)) return "인터넷 연결을 확인해 주세요";
+  if(/unauthenticated/i.test(m)) return "로그인이 풀렸습니다";
+  return m.length>60 ? m.slice(0,60)+"…" : m;
+}
 async function fbPush(){
   if(!fbOn) return;
   const {doc, setDoc, deleteDoc, writeBatch, collection} = fbM;
   const dirty = state.weeks.filter(w=>w._dirty);
   const now = new Date().toISOString();
-  const batch = writeBatch(db);
-  dirty.forEach(w=>{ w._u = now; w._by = who(); delete w._dirty; conflicts.delete(w.id);
-    batch.set(doc(db, COL, w.id), JSON.parse(JSON.stringify(w))); });
-  pendingDel.forEach(id=>batch.delete(doc(db, COL, id)));
   const big = dirty.find(x=>JSON.stringify(x).length > 950000);
   if(big) throw new Error(`[${stripHtml(big.label)||big.date}] 주차의 그림 용량이 너무 큽니다. 그림을 줄여 주세요.`);
+  const batch = writeBatch(db);
+  dirty.forEach(w=>{
+    const out = toFs(w); out._u = now; out._by = who();
+    batch.set(doc(db, COL, w.id), out);
+  });
+  pendingDel.forEach(id=>batch.delete(doc(db, COL, id)));
   if(dirty.length || pendingDel.length) await batch.commit();
+  dirty.forEach(w=>{ w._u = now; w._by = who(); delete w._dirty; conflicts.delete(w.id); });
   pendingDel = [];
   fbStamp = now;
   await store.set("mathlib-del", "[]");
@@ -959,9 +997,12 @@ async function fbUploadAll(){
   const {doc, writeBatch} = fbM;
   const now = new Date().toISOString();
   const batch = writeBatch(db);
-  state.weeks.forEach(w=>{ w._u = now; w._by = who(); delete w._dirty;
-    batch.set(doc(db, COL, w.id), JSON.parse(JSON.stringify(w))); });
+  state.weeks.forEach(w=>{
+    const out = toFs(w); out._u = now; out._by = who();
+    batch.set(doc(db, COL, w.id), out);
+  });
   await batch.commit();
+  state.weeks.forEach(w=>{ w._u = now; w._by = who(); delete w._dirty; });
   fbStamp = now;
 }
 function renderFootStat(){
@@ -996,6 +1037,17 @@ async function afterLogin(){
     if(snap.empty){
       await fbUploadAll();
       toast(`저장소가 비어 있어 이 기기의 ${state.weeks.length}개 주차를 올렸습니다.`);
+    }else{
+      const remote = new Set(snap.docs.map(d=>d.id));
+      const missing = state.weeks.filter(w=>!remote.has(w.id));
+      if(missing.length){
+        missing.forEach(w=>w._dirty = true);
+        toast(`저장소에 없던 ${missing.length}개 주차를 올립니다.`);
+        clearTimeout(pushTimer);
+        try{ await fbPush(); svState("synced", `모든 기기에 저장됨 ${hhmm()}`); }
+        catch(e){ svState("warn","전송 실패 — "+fsReason(e)); }
+        refreshSaveBtn();
+      }
     }
     renderSyncInfo(); await save(true);
   }catch(e){
@@ -1015,8 +1067,8 @@ async function saveNow(){
     svState("synced", `모든 기기에 저장됨 ${hhmm()}`);
     toast("저장하고 모든 기기에 반영했습니다.");
   }catch(e){
-    svState("warn","전송 실패 — 잠시 뒤 다시 [저장]");
-    toast("이 기기에는 저장됐습니다. 연동 실패 : "+(e.code||e.message));
+    svState("warn","전송 실패 — "+fsReason(e));
+    toast("이 기기에는 안전하게 저장됐습니다. 전송 실패 : "+fsReason(e));
   }finally{ fbBusy=false; refreshSaveBtn(); renderSyncInfo(); }
 }
 
@@ -1059,8 +1111,11 @@ function sheetHTML(w, live){
     if(!live) lb = "";                       /* 인쇄본에는 안내 글자를 넣지 않음 */
     const v = getPath(w,path) ?? "";
     const f = w.fmt && w.fmt[path];
-    const st = f ? ` style="${f.size?`font-size:${f.size}pt;`:""}${f.color?`color:${f.color};`:""}"` : "";
-    return `<span class="${cls||""}" data-edit="${path}" data-lb="${esc(lb||"")}"${st}>${sanitize(v)}</span>`;
+    const dark = isDarkPath(path);
+    const fc = f && f.color && (!dark || DARK_OK.has(rgbKey(f.color))) ? f.color : "";
+    const st = f ? ` style="${f.size?`font-size:${f.size}pt;`:""}${fc?`color:${fc};`:""}"` : "";
+    const html = dark ? keepLight(sanitize(v)) : sanitize(v);
+    return `<span class="${cls||""}" data-edit="${path}" data-lb="${esc(lb||"")}"${st}>${html}</span>`;
   };
   const SB = (path)=> E(path,"상태","pill "+stCls(getPath(w,path)))
       + (live?`<button class="stpick edit-only" data-stpick="${path}" title="상태 고르기">▾</button>`:"");
@@ -1101,14 +1156,21 @@ function sheetHTML(w, live){
       const del = live?`<button class="rowdel edit-only" data-delblock="${ai}.${bi}" title="삭제">×</button>`:"";
 
       if(b.type==="table"){
+        const al = b.align || "center";
+        const on = a => al===a ? " on" : "";
         const tools = live?`<div class="tbtools edit-only">
             <button class="mini" data-tb="row+|${ai}|${bi}">행＋</button>
             <button class="mini" data-tb="row-|${ai}|${bi}">행－</button>
             <button class="mini" data-tb="col+|${ai}|${bi}">열＋</button>
             <button class="mini" data-tb="col-|${ai}|${bi}">열－</button>
+            <span class="sep"></span>
+            <button class="mini${on("left")}" data-tal="left|${ai}|${bi}" title="왼쪽 정렬">◀ 왼쪽</button>
+            <button class="mini${on("center")}" data-tal="center|${ai}|${bi}" title="가운데 정렬">가운데</button>
+            <button class="mini${on("right")}" data-tal="right|${ai}|${bi}" title="오른쪽 정렬">오른쪽 ▶</button>
+            <span class="sep"></span>
             <button class="mini" data-delblock="${ai}.${bi}">표 삭제</button>
           </div>`:"";
-        return `<div class="blk">${tools}<table class="sub">${b.rows.map((r,ri)=>`<tr>${
+        return `<div class="blk">${tools}<table class="sub al-${al}">${b.rows.map((r,ri)=>`<tr>${
           r.map((c,ci)=>`<td colspan="${c.span||1}">${E(`${P}.rows.${ri}.${ci}.v`)}</td>`).join("")
         }</tr>`).join("")}</table></div>`;
       }
@@ -1210,6 +1272,26 @@ function hydrate(root, w){
 }
 
 /* ── 글자 크기 · 색상 ── */
+const DARK_COLORS = [["흰색 (기본)","#FFFFFF"],["노랑","#FFD84D"],["하늘","#8FD3FF"]];
+function isDarkPath(p){ return p==="label" || /^agendas\.\d+\.no$/.test(p||""); }
+function rgbKey(c){
+  if(!c) return "";
+  c = String(c).trim().toLowerCase();
+  let m = /^#([0-9a-f]{6})$/.exec(c);
+  if(m){ const n=parseInt(m[1],16); return [(n>>16)&255,(n>>8)&255,n&255].join(","); }
+  m = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(c);
+  return m ? [m[1],m[2],m[3]].join(",") : c;
+}
+const DARK_OK = new Set(DARK_COLORS.map(x=>rgbKey(x[1])));
+/* 진한 칸에 어두운 색이 들어 있으면 떼어낸다 (예전에 칠한 주황 등) */
+function keepLight(html){
+  if(!html || !/color/i.test(html)) return html;
+  const d = document.createElement("div"); d.innerHTML = html;
+  d.querySelectorAll("[style]").forEach(el=>{
+    if(el.style.color && !DARK_OK.has(rgbKey(el.style.color))) el.style.color = "";
+  });
+  return d.innerHTML;
+}
 const COLORS = [["검정 (기본)","#1A1A1A"],["파랑","#1257E8"],["빨강","#E0152A"],
                 ["초록","#0E9048"],["주황","#EA6A00"]];
 const INK = "#1A1A1A";
@@ -1257,7 +1339,9 @@ function updateFmtBar(){
   $("#selName").style.color = selText ? "var(--alert)" : "";
   ["fsMinus","fsPlus","fsNum","fmtReset"].forEach(id=>$("#"+id).disabled = !has);
   $("#fsNum").value = has ? (effSize(w,p) ?? "") : "";
-  const cc = has ? (w.fmt?.[p]?.color || INK) : null;
+  const dark = has && isDarkPath(p);
+  if(swMode !== dark) renderSwatches(dark);
+  const cc = has ? (w.fmt?.[p]?.color || (dark ? "#FFFFFF" : INK)) : null;
   $("#swatches").querySelectorAll(".sw").forEach(b=>
     b.setAttribute("aria-pressed", String(!!cc && b.dataset.color.toLowerCase()===cc.toLowerCase())));
 }
@@ -1311,8 +1395,14 @@ function setBase(v){
   if(page) page.style.fontSize = w.base+"pt";
   save(); fitSoon(); updateFmtBar();
 }
-$("#swatches").innerHTML = COLORS.map(([n,c])=>
-  `<button class="sw" data-color="${c}" style="background:${c}" title="${n}" aria-label="${n}" aria-pressed="false"></button>`).join("");
+let swMode = null;
+function renderSwatches(dark){
+  const list = dark ? DARK_COLORS : COLORS;
+  $("#swatches").innerHTML = list.map(([n,c])=>
+    `<button class="sw" data-color="${c}" style="background:${c}${c==="#FFFFFF"?";box-shadow:0 0 0 1px #9aa6a4":""}" title="${n}" aria-label="${n}" aria-pressed="false"></button>`).join("");
+  swMode = dark;
+}
+renderSwatches(false);
 $("#fmtbar").addEventListener("mousedown",e=>{ if(e.target.closest("button")) e.preventDefault(); });
 $("#fmtbar").addEventListener("click",e=>{
   const t = e.target.closest("button"); if(!t) return;
@@ -1322,8 +1412,10 @@ $("#fmtbar").addEventListener("click",e=>{
     const s0 = effSize(w,state.focusPath); if(s0==null) return toast("먼저 바꿀 칸을 눌러 선택하세요.");
     return applyFmt({size: clamp(num(s0+parseFloat(t.dataset.fs)), FS_MIN, FS_MAX)});
   }
-  if(t.dataset.color!==undefined)
-    return applyFmt({color: t.dataset.color===INK ? null : t.dataset.color});
+  if(t.dataset.color!==undefined){
+    const def = isDarkPath(state.focusPath) ? "#FFFFFF" : INK;
+    return applyFmt({color: t.dataset.color===def ? null : t.dataset.color});
+  }
   if(t.id==="fmtReset") return applyFmt({size:null,color:null});
   if(t.id==="fmtResetAll"){
     if(!confirm("이 주차의 글자 크기·색상을 모두 기본값으로 되돌립니다.")) return;
@@ -1704,6 +1796,9 @@ $("#scroll").addEventListener("click",e=>{
     if(op==="col+") R.forEach(r=>r.push({span:1,v:""}));
     if(op==="col-" && cols>1) R.forEach(r=>r.pop());
     renderMain(); save(); return; }
+  if(t.dataset.tal&&w){
+    const [al,ai,bi] = t.dataset.tal.split("|");
+    w.agendas[+ai].blocks[+bi].align = al; markDirty(w); renderMain(); save(); return; }
   if(t.dataset.im&&w){
     const [pc,ai,bi] = t.dataset.im.split("|");
     w.agendas[+ai].blocks[+bi].w = +pc; renderMain(); save(); return; }
@@ -1769,6 +1864,17 @@ $("#lgGo").onclick = doLogin;
 $("#lgGoogle").onclick = doGoogle;
 $("#lgSettings").onclick = ()=>{ $("#loginModal").hidden = true; openSync(); };
 ["lgId","lgPw"].forEach(id=>$("#"+id).addEventListener("keydown",e=>{ if(e.key==="Enter") doLogin(); }));
+$("#btnUploadAll").onclick = async ()=>{
+  if(!fbOn) return toast("먼저 연동을 켜고 로그인해 주세요.");
+  if(!confirm(`이 기기의 ${state.weeks.length}개 주차를 저장소에 전부 다시 올립니다.\n다른 기기에서 방금 고친 내용이 있다면 먼저 그 기기에서 저장을 눌러주세요.\n\n진행할까요?`)) return;
+  svState("saving","전체 올리는 중…");
+  try{
+    await fbUploadAll(); await store.set(KEY, JSON.stringify(payload()));
+    svState("synced", `모든 기기에 저장됨 ${hhmm()}`);
+    toast(`${state.weeks.length}개 주차를 모두 올렸습니다.`);
+  }catch(e){ svState("warn","전송 실패 — "+fsReason(e)); toast("올리지 못했습니다 : "+fsReason(e)); }
+  refreshSaveBtn(); renderSyncInfo();
+};
 $("#btnLogout").onclick = async ()=>{
   const d = state.weeks.filter(w=>w._dirty).length;
   if(d && !confirm(`저장하지 않은 수정이 ${d}건 있습니다. 그래도 로그아웃할까요?`)) return;
