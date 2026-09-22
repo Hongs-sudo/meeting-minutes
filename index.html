@@ -513,6 +513,16 @@ function stCls(v){
        : t ? "st-etc" : "st-none";
 }
 const KEY = "mathlib-minutes-v2";
+const APP_VER = "09.22";
+/* 이 앱의 Firebase 주소표 — 공개용 값이며 보안은 로그인과 보안 규칙이 담당합니다 */
+const DEFAULT_FB = {
+  apiKey: "AIzaSyAnfqK1Ij6SQBssAW_GtMg47wNNRpDvHUo",
+  authDomain: "sudo-proceedings.firebaseapp.com",
+  projectId: "sudo-proceedings",
+  storageBucket: "sudo-proceedings.firebasestorage.app",
+  messagingSenderId: "956438024943",
+  appId: "1:956438024943:web:13e0772bfcad8544e5411a"
+};
 const UIKEY = "mathlib-ui-v2";
 const MM = 96/25.4;                 /* 1mm in CSS px */
 const PAGE_W = 210*MM, PAGE_H = 296.6*MM, PAD_V = 11*MM, PAD_H = 10*MM;
@@ -1079,7 +1089,7 @@ function renderList(){
   const hit = w => !q || stripHtml(w.label+" "+w.date+" "+w.attendees+" "+JSON.stringify(w.agendas)).toLowerCase().includes(q);
   let rows = state.weeks.filter(hit);
   if(state.order === "desc") rows = rows.slice().reverse();
-  $("#railCount").textContent = `${state.weeks.length}개 주차` + (q?` · ${rows.length}건 검색`:"");
+  $("#railCount").textContent = `${state.weeks.length}개 주차` + (q?` · ${rows.length}건 검색`:"") + ` · 버전 ${APP_VER}`;
   let html="", month="";
   if(!rows.length) html = `<div style="padding:22px 10px;color:#7fa29f;font-size:12.5px">검색 결과가 없습니다.</div>`;
   for(const w of rows){
@@ -1891,7 +1901,7 @@ $("#syncInfo").addEventListener("change",e=>{
   else toast("이제 [저장]을 눌러야 다른 기기로 넘어갑니다.");
 });
 function openSync(){
-  $("#syncCfgIn").value = fbCfg ? JSON.stringify(fbCfg,null,1).replace(/^\{\n|\n\}$/g,"") : "";
+  $("#syncCfgIn").value = JSON.stringify(fbCfg||DEFAULT_FB,null,1).replace(/^\{\n|\n\}$/g,"");
   $("#syncModal").hidden = false; $("#syncCfgIn").focus();
 }
 function parseCfg(txt){
@@ -1905,7 +1915,7 @@ function parseCfg(txt){
 $("#syncCancel").onclick = ()=>{ $("#syncModal").hidden = true; };
 $("#syncOff").onclick = async ()=>{
   if(fbUnsub) fbUnsub();
-  fbOn=false; fbCfg=null; await store.set(FBKEY,"");
+  fbOn=false; fbCfg=null; await store.set(FBKEY,"off");
   $("#syncModal").hidden=true; renderSyncInfo(); toast("기기 연동을 해제했습니다.");
 };
 $("#syncSave").onclick = async ()=>{
@@ -2038,7 +2048,11 @@ function normalize(){
   if(saved){ try{ data = unwrap(JSON.parse(saved)); }catch(e){} }
   if(data) lastLocalStamp = data.updatedAt;
 
-  try{ fbCfg = JSON.parse(await store.get(FBKEY)||"null"); }catch(e){}
+  try{
+    const raw = await store.get(FBKEY);
+    if(raw === "off") fbCfg = null;
+    else fbCfg = (raw && JSON.parse(raw)) || DEFAULT_FB;
+  }catch(e){ fbCfg = DEFAULT_FB; }
   try{ pendingDel = JSON.parse(await store.get("mathlib-del")||"[]"); }catch(e){}
   autoSync = (await store.get(AUTOKEY)) !== "0";
   bkDate = await store.get(BKKEY);
