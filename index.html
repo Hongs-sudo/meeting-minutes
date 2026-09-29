@@ -514,7 +514,7 @@ function stCls(v){
        : t ? "st-etc" : "st-none";
 }
 const KEY = "mathlib-minutes-v2";
-const APP_VER = "09.29";
+const APP_VER = "09.29b";
 /* 이 앱의 Firebase 주소표 — 공개용 값이며 보안은 로그인과 보안 규칙이 담당합니다 */
 const DEFAULT_FB = {
   apiKey: "AIzaSyAnfqK1Ij6SQBssAW_GtMg47wNNRpDvHUo",
@@ -1181,8 +1181,9 @@ function sheetHTML(w, live){
             <span class="sep"></span>
             <button class="mini" data-delblock="${ai}.${bi}">표 삭제</button>
           </div>`:"";
-        return `<div class="blk">${tools}<table class="sub al-${al}">${b.rows.map((r,ri)=>`<tr>${
-          r.map((c,ci)=>`<td colspan="${c.span||1}">${E(`${P}.rows.${ri}.${ci}.v`)}</td>`).join("")
+        const RS = Array.isArray(b.rows) ? b.rows : [];
+        return `<div class="blk">${tools}<table class="sub al-${al}">${RS.map((r,ri)=>`<tr>${
+          (Array.isArray(r)?r:[]).map((c,ci)=>`<td colspan="${(c&&c.span)||1}">${E(`${P}.rows.${ri}.${ci}.v`)}</td>`).join("")
         }</tr>`).join("")}</table></div>`;
       }
 
@@ -1501,13 +1502,23 @@ function renderMain(){
   if(!w){ s.innerHTML = `<div class="empty">왼쪽에서 주차를 고르거나 <b>새 주차 추가</b>를 누르세요.</div>`;
     $("#fitInfo").textContent=""; return; }
   const cf = conflicts.get(w.id);
-  s.innerHTML = (cf ? `<div class="tip"><span><b>${esc(cf._by||"다른 사람")}</b> 님이 이 주차를 수정했습니다.
-      지금 화면에는 아직 저장하지 않은 내 수정이 있어 그대로 두었습니다.</span>
-      <span class="adopts">
-        <button class="ad" data-cfkeep="1">내 수정 유지</button>
-        <button class="ad" data-cftake="1">상대 내용 가져오기</button></span></div>` : "")
-    + `<div class="stage">${sheetHTML(w,true)}</div>`;
-  hydrate(s, w);
+  try{
+    s.innerHTML = (cf ? `<div class="tip"><span><b>${esc(cf._by||"다른 사람")}</b> 님이 이 주차를 수정했습니다.
+        지금 화면에는 아직 저장하지 않은 내 수정이 있어 그대로 두었습니다.</span>
+        <span class="adopts">
+          <button class="ad" data-cfkeep="1">내 수정 유지</button>
+          <button class="ad" data-cftake="1">상대 내용 가져오기</button></span></div>` : "")
+      + `<div class="stage">${sheetHTML(w,true)}</div>`;
+    hydrate(s, w);
+  }catch(err){
+    s.innerHTML = `<div class="empty" style="max-width:520px;line-height:1.7">
+      <b>이 주차를 화면에 그리지 못했습니다.</b><br>
+      내용은 그대로 남아 있습니다. 다른 주차는 정상으로 열립니다.<br>
+      <span style="font-size:12px;color:var(--faint)">${esc(String(err&&err.message||err))}</span><br><br>
+      <button class="btn" onclick="location.reload()">새로고침</button></div>`;
+    $("#fitInfo").textContent = "";
+    return;
+  }
   fitAll();
   state.focusPath = null;
   updateFmtBar();
@@ -2113,7 +2124,24 @@ function normalize(){
       delete a.phTitle;
       (a.blocks||[]).forEach(b=>{
         delete b.ph;
-        if(b.type==="table" || b.type==="img") return;
+        if(b.type==="table"){
+          /* 저장소를 거치며 모양이 바뀐 표를 원래대로 (구버전 호환) */
+          let R = b.rows;
+          if(!Array.isArray(R)) R = (R && typeof R==="object") ? Object.values(R) : [];
+          R = R.map(r=>{
+            if(Array.isArray(r)) return r;
+            if(r && Array.isArray(r.c)) return r.c;
+            if(r && typeof r==="object") return Object.values(r);
+            return [];
+          }).map(r=>r.map(c=>
+            (c && typeof c==="object") ? {span:c.span||1, v:c.v||""} : {span:1, v:String(c==null?"":c)}
+          ));
+          if(!R.length) R = [[{span:1,v:""}]];
+          b.rows = R;
+          if(["left","center","right"].indexOf(b.align)<0) b.align = "center";
+          return;
+        }
+        if(b.type==="img") return;
         b.type = "text";
         if(b.no === undefined){
           const t = String(b.text||"");
