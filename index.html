@@ -442,6 +442,7 @@ body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
     <div class="shot" id="shareShot"></div>
     <div class="acts">
       <button class="btn" id="shareClose">닫기</button>
+      <button class="btn" id="shareRetry" hidden>변환기능 다시 받기</button>
       <span style="flex:1"></span>
       <button class="btn" id="shareCopy" hidden>복사</button>
       <button class="btn" id="shareDown" hidden>저장</button>
@@ -513,7 +514,7 @@ function stCls(v){
        : t ? "st-etc" : "st-none";
 }
 const KEY = "mathlib-minutes-v2";
-const APP_VER = "09.22";
+const APP_VER = "09.29";
 /* 이 앱의 Firebase 주소표 — 공개용 값이며 보안은 로그인과 보안 규칙이 담당합니다 */
 const DEFAULT_FB = {
   apiKey: "AIzaSyAnfqK1Ij6SQBssAW_GtMg47wNNRpDvHUo",
@@ -1620,17 +1621,93 @@ function doPrint(){
   setTimeout(()=>window.print(),50);
 }
 /* ══════════ 회의록을 이미지로 만들어 공유 ══════════ */
-const H2C = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
-let h2cPromise = null, shareFiles = [], shareUrl = null;
-function loadH2C(){
-  if(window.html2canvas) return Promise.resolve(window.html2canvas);
-  return h2cPromise ||= new Promise((res,rej)=>{
+/* ① 같은 폴더에 넣어둔 파일 → ② 여러 배포처 순서로 시도 */
+const H2C_SRC = [
+  "./html2canvas.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+  "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",
+  "https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"
+];
+let h2cPromise = null, shareFiles = [], shareUrl = null, lastH2cErr = "";
+function loadOne(src){
+  return new Promise((res,rej)=>{
     const t = document.createElement("script");
-    t.src = H2C; t.crossOrigin = "anonymous";
-    t.onload = ()=> window.html2canvas ? res(window.html2canvas) : rej(new Error("load"));
-    t.onerror = ()=>{ h2cPromise = null; rej(new Error("net")); };
+    t.src = src; t.async = true;
+    const done = ok=>{ t.remove(); ok ? res(window.html2canvas) : rej(new Error(src)); };
+    t.onload = ()=> done(!!window.html2canvas);
+    t.onerror = ()=> done(false);
+    setTimeout(()=>{ if(!window.html2canvas) done(false); }, 12000);
     document.head.appendChild(t);
   });
+}
+function loadH2C(){
+  if(window.html2canvas) return Promise.resolve(window.html2canvas);
+  return h2cPromise ||= (async ()=>{
+    const tried = [];
+    for(const src of H2C_SRC){
+      try{ const f = await loadOne(src); if(f) return f; }
+      catch(e){ tried.push(src.replace(/^https:\/\//,"").split("/")[0]); }
+    }
+    h2cPromise = null;
+    lastH2cErr = tried.join(", ");
+    throw new Error("all-failed");
+  })();
+}
+
+/* ── 예비 수단 : 외부 파일 없이 브라우저 기능만으로 그리기 ── */
+const CSS_KEEP = ("font-family,font-size,font-weight,font-style,color,background-color,line-height,"+
+  "letter-spacing,text-align,text-decoration,vertical-align,white-space,word-break,overflow-wrap,"+
+  "display,box-sizing,width,height,min-height,max-width,padding-top,padding-right,padding-bottom,"+
+  "padding-left,margin-top,margin-right,margin-bottom,margin-left,border-top-width,border-right-width,"+
+  "border-bottom-width,border-left-width,border-top-style,border-right-style,border-bottom-style,"+
+  "border-left-style,border-top-color,border-right-color,border-bottom-color,border-left-color,"+
+  "border-radius,border-collapse,border-spacing,table-layout,grid-template-columns,gap,flex,"+
+  "flex-direction,justify-content,align-items,position,left,top,transform,transform-origin,"+
+  "overflow,opacity,visibility").split(",");
+function inlineStyles(src, dst){
+  const cs = getComputedStyle(src);
+  let out = "";
+  for(const p of CSS_KEEP){ const v = cs.getPropertyValue(p); if(v) out += p+":"+v+";"; }
+  dst.setAttribute("style", out);
+  const a = src.children, b = dst.children;
+  for(let i=0;i<a.length && i<b.length;i++) inlineStyles(a[i], b[i]);
+}
+function looksBlank(cv){
+  try{
+    const g = cv.getContext("2d");
+    const step = Math.max(1, Math.floor(cv.width/40));
+    for(let y=Math.floor(cv.height*0.05); y<cv.height*0.95; y+=Math.max(1,Math.floor(cv.height/40)))
+      for(let x=0; x<cv.width; x+=step){
+        const d = g.getImageData(x,y,1,1).data;
+        if(d[3]>10 && (d[0]<240 || d[1]<240 || d[2]<240)) return false;
+      }
+    return true;
+  }catch(e){ return false; }
+}
+async function nativeCanvas(sheet){
+  const W = sheet.offsetWidth, H = sheet.offsetHeight, S = 2;
+  const clone = sheet.cloneNode(true);
+  inlineStyles(sheet, clone);
+  clone.style.margin = "0"; clone.style.boxShadow = "none";
+  clone.style.width = W+"px"; clone.style.height = H+"px";
+  const xml = new XMLSerializer().serializeToString(clone);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">`
+    + `<foreignObject x="0" y="0" width="${W}" height="${H}">`
+    + `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${W}px;height:${H}px;background:#fff">`
+    + xml + `</div></foreignObject></svg>`;
+  const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  const img = await new Promise((res,rej)=>{
+    const im = new Image();
+    im.onload = ()=>res(im); im.onerror = ()=>rej(new Error("svg"));
+    im.src = url;
+  });
+  const cv = document.createElement("canvas");
+  cv.width = W*S; cv.height = H*S;
+  const g = cv.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0,0,cv.width,cv.height);
+  g.drawImage(img, 0, 0, cv.width, cv.height);
+  if(looksBlank(cv)) throw new Error("blank");
+  return cv;
 }
 function shotName(w){
   const t = stripHtml(w.label).replace(/[\\/:*?"<>|]/g,"").trim() || w.date;
@@ -1643,11 +1720,12 @@ async function makeShot(w, h2c){
   sheet.style.boxShadow = "none";
   fitSheet(sheet);
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-  const canvas = await h2c(sheet, {
-    backgroundColor:"#ffffff", scale:2, useCORS:true, logging:false,
-    width: sheet.offsetWidth, height: sheet.offsetHeight,
-    windowWidth: sheet.offsetWidth, windowHeight: sheet.offsetHeight
-  });
+  const canvas = h2c
+    ? await h2c(sheet, {
+        backgroundColor:"#ffffff", scale:2, useCORS:true, logging:false,
+        width: sheet.offsetWidth, height: sheet.offsetHeight,
+        windowWidth: sheet.offsetWidth, windowHeight: sheet.offsetHeight })
+    : await nativeCanvas(sheet);
   host.innerHTML = "";
   const blob = await new Promise(r=>canvas.toBlob(r, "image/png"));
   return new File([blob], shotName(w), {type:"image/png"});
@@ -1664,18 +1742,26 @@ async function doShare(){
   ["shareCopy","shareDown","shareGo"].forEach(id=>$("#"+id).hidden = true);
   $("#shareModal").hidden = false;
 
-  let h2c;
+  let h2c = null, viaNative = false;
   try{ h2c = await loadH2C(); }
-  catch(e){
-    $("#shareMsg").textContent =
-      "이미지 변환 기능을 불러오지 못했습니다. 인터넷에 연결된 상태에서 한 번만 실행하면 그 뒤로는 오프라인에서도 됩니다.";
-    $("#shareShot").innerHTML = `<div class="ph">불러오기 실패</div>`;
-    return;
-  }
+  catch(e){ viaNative = true; }
+
   try{
+    if(viaNative) $("#shareMsg").textContent = "간이 방식으로 이미지를 만드는 중입니다…";
     for(const w of ws) shareFiles.push(await makeShot(w, h2c));
   }catch(e){
-    $("#shareMsg").textContent = "이미지를 만들지 못했습니다. ("+(e.message||e)+")";
+    const why = String(e && e.message || e);
+    if(viaNative){
+      $("#shareMsg").innerHTML =
+        "이미지를 만들지 못했습니다. 이 기기·네트워크에서 <b>변환 기능 파일(cdnjs·jsdelivr·unpkg)</b>을 받지 못했고, "
+        + "브라우저 자체 변환도 실패했습니다.<br>당장은 <b>[이 주차 인쇄]</b> → 대상을 "
+        + "<b>PDF로 저장</b> 으로 파일을 만들어 보내실 수 있습니다."
+        + (lastH2cErr ? `<br><span style="color:var(--faint)">차단된 곳 : ${esc(lastH2cErr)}</span>` : "");
+    }else{
+      $("#shareMsg").textContent = "이미지를 만들지 못했습니다. ("+why+")";
+    }
+    $("#shareShot").innerHTML = `<div class="ph">만들기 실패</div>`;
+    $("#shareRetry").hidden = false;
     return;
   }
   shareUrl = URL.createObjectURL(shareFiles[0]);
@@ -1685,12 +1771,28 @@ async function doShare(){
   $("#shareGo").hidden = !canShare;
   $("#shareDown").hidden = false;
   $("#shareCopy").hidden = !(navigator.clipboard && window.ClipboardItem) || ws.length>1;
-  $("#shareMsg").textContent = canShare
+  const base = canShare
     ? "[공유하기]를 누르면 카카오톡·메시지 목록이 뜹니다."
     : "PC에서는 [복사] 후 카톡 대화창에 붙여넣거나, [저장] 후 파일로 첨부하세요.";
+  $("#shareMsg").textContent = viaNative ? "간이 방식으로 만들었습니다. " + base : base;
+  $("#shareRetry").hidden = !viaNative;
 }
 $("#btnShare") && ($("#btnShare").onclick = doShare);
 $("#shareClose") && ($("#shareClose").onclick = ()=>{ $("#shareModal").hidden = true; });
+$("#shareRetry") && ($("#shareRetry").onclick = async ()=>{
+  $("#shareRetry").disabled = true;
+  try{
+    if(window.caches){
+      for(const k of await caches.keys()){
+        const c = await caches.open(k);
+        for(const r of await c.keys()) if(r.url.indexOf("html2canvas")>-1) await c.delete(r);
+      }
+    }
+  }catch(e){}
+  h2cPromise = null; delete window.html2canvas; lastH2cErr = "";
+  $("#shareRetry").disabled = false;
+  doShare();
+});
 $("#shareGo") && ($("#shareGo").onclick = async ()=>{
   try{ await navigator.share({files:shareFiles, title:"중등부 주간회의록"}); }
   catch(e){ if(e.name!=="AbortError") toast("공유하지 못했습니다. [저장]을 이용해 주세요."); }
