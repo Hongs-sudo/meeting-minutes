@@ -372,6 +372,11 @@ table.cal td.today{background:#fff7e0;box-shadow:inset 0 0 0 1.4pt #c7962c}
 .calpage .ae{border-left:1.2pt solid #6B2FC9;padding-left:1.1mm;color:#6B2FC9;
   font-size:.88em;line-height:1.25;word-break:keep-all}
 .calpage .ae.meet{font-weight:600}
+.calpage .ae{display:flex;align-items:flex-start;gap:2px}
+.calpage .ae>span{flex:1;min-width:0}
+.aeget{flex:none;border:1px solid #cdb6f0;background:#f4ecff;color:#6B2FC9;border-radius:3px;
+  font-size:.82em;line-height:1.1;padding:0 3px;cursor:pointer;font-weight:700}
+.aeget:hover{background:#6B2FC9;color:#fff;border-color:#6B2FC9}
 .calpage .plan{display:flex;gap:4mm;height:28mm;margin-top:2mm;flex:none}
 .calpage .box{border:.5pt solid #cbc8c1;border-top:1.2pt solid var(--brand);
   padding:1.4mm 2mm;display:flex;flex-direction:column;border-radius:0}
@@ -472,6 +477,7 @@ table.cal td.today{background:#fff7e0;box-shadow:inset 0 0 0 1.4pt #c7962c}
       <button class="btn" id="btnDup">복제</button>
       <button class="btn danger" id="btnDel">삭제</button>
       <button class="btn" id="btnAuto" hidden>회의일정 표시 ✓</button>
+      <button class="btn" id="btnAdopt" hidden>회의일정 가져오기</button>
       <span class="grow"></span>
       <span class="mode" id="fitInfo"></span>
       <span class="sv" id="saveState"><i></i><span>불러오는 중…</span></span>
@@ -577,7 +583,7 @@ function stCls(v){
        : t ? "st-etc" : "st-none";
 }
 const KEY = "mathlib-minutes-v2";
-const APP_VER = "10.28";
+const APP_VER = "10.28b";
 /* 이 앱의 Firebase 주소표 — 공개용 값이며 보안은 로그인과 보안 규칙이 담당합니다 */
 const DEFAULT_FB = {
   apiKey: "AIzaSyAnfqK1Ij6SQBssAW_GtMg47wNNRpDvHUo",
@@ -2154,13 +2160,76 @@ function autoCalEvents(){
   return map;
 }
 
+/* ── 회의록 일정을 캘린더 칸으로 가져오기 (가져오면 자유롭게 고칠 수 있습니다) ── */
+const calRich = v => /<(span|div|br|b|i|u|strong|em)\b/i.test(String(v||"")) ? sanitize(v) : esc(v);
+function calAdopt(m, date, txt){
+  const d = calDoc(m);
+  const base = calRich(calVal(m, "sched", date)).replace(/\s+$/,"");
+  d.sched[date] = base ? base + "\n" + esc(txt) : esc(txt);
+  d.adopted ||= {}; d.adopted[date] ||= [];
+  if(!d.adopted[date].includes(txt)) d.adopted[date].push(txt);
+  d._dirty = true;
+}
+function calPending(m){
+  if(!state.calAuto) return 0;
+  const auto = autoCalEvents(), d = state.cal[m] || {}, ad = d.adopted || {};
+  let n = 0;
+  Object.keys(auto).forEach(k=>{
+    if(!k.startsWith(m+"-")) return;
+    auto[k].forEach(x=>{ if(!(ad[k]||[]).includes(x.txt)) n++; });
+  });
+  return n;
+}
+function calAdoptMonth(m){
+  const auto = autoCalEvents(); let n = 0;
+  Object.keys(auto).forEach(k=>{
+    if(!k.startsWith(m+"-")) return;
+    auto[k].forEach(x=>{
+      const ad = (state.cal[m] && state.cal[m].adopted && state.cal[m].adopted[k]) || [];
+      if(ad.includes(x.txt)) return;
+      calAdopt(m, k, x.txt); n++;
+    });
+  });
+  return n;
+}
+function calUnadoptMonth(m){
+  const d = state.cal[m]; if(!d || !d.adopted) return 0;
+  let n = 0;
+  Object.keys(d.adopted).forEach(k=>{
+    let v = d.sched[k];
+    (d.adopted[k]||[]).forEach(t=>{
+      if(v === undefined) return;
+      const lines = String(v).split("\n");
+      const i = lines.findIndex(L => stripHtml(L).trim() === t);
+      if(i >= 0){ lines.splice(i,1); v = lines.join("\n"); n++; }
+    });
+    if(v !== undefined){
+      if(!stripHtml(v).trim() && !/<span[^>]*style/i.test(v)) delete d.sched[k];
+      else d.sched[k] = v;
+    }
+  });
+  delete d.adopted; d._dirty = true;
+  return n;
+}
+function focusCal(m, date){
+  const el = document.querySelector(`.scroll [data-edit="CAL|${m}|sched|${date}"]`);
+  if(!el) return;
+  el.focus();
+  try{
+    const r = document.createRange(); r.selectNodeContents(el); r.collapse(false);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  }catch(e){}
+  el.scrollIntoView({block:"nearest"});
+}
+
 /* ── 한 달 그리기 ── */
 function calSheetHTML(m, live){
   const [Y, MO] = m.split("-").map(Number);
   const base = state.cal[m] && state.cal[m].base ? state.cal[m].base : 9;
   const todayISO = (()=>{ const d=new Date(); return isoOf(d); })();
+  const adopted = (state.cal[m] && state.cal[m].adopted) || {};
   const E = (kind, key, lb)=>{
-    const v = sanitize(calVal(m, kind, key));
+    const v = calRich(calVal(m, kind, key));
     return live
       ? `<span class="cedit" data-edit="CAL|${m}|${kind}|${key}" data-lb="${esc(lb||"")}">${v}</span>`
       : (v || "");
@@ -2184,8 +2253,10 @@ function calSheetHTML(m, live){
       if(own){
         body += `<div class="sched">${E("sched", key, "")}</div>`;
         const list = auto[key] || [];
-        if(list.length) body += `<div class="autoev">${
-          list.map(x=>`<div class="ae ${x.kind}">${esc(x.txt)}</div>`).join("")}</div>`;
+        const show = list.filter(x => !(adopted[key]||[]).includes(x.txt));
+        if(show.length) body += `<div class="autoev">${show.map(x=>
+          `<div class="ae ${x.kind}">${live?`<button class="aeget edit-only" data-ae="${esc(key)}|${esc(x.txt)}" title="이 일정을 고칠 수 있게 가져옵니다">＋</button>`:""}<span>${esc(x.txt)}</span></div>`
+        ).join("")}</div>`;
         body += `<div class="note">${E("note", key, "")}</div>`;
       }
       body += "</div></td>";
@@ -2291,7 +2362,7 @@ async function calPush(){
     batch.set(doc(db, CAL_COL, k), {
       sched: d.sched||{}, notes: d.notes||{},
       plan: d.plan===undefined?null:d.plan, todo: d.todo===undefined?null:d.todo,
-      base: d.base||null, _u: now, _by: who()
+      adopted: d.adopted||null, base: d.base||null, _u: now, _by: who()
     });
   });
   svState("saving","달력을 보내는 중…");
@@ -2320,7 +2391,7 @@ function calListen(){
       state.cal[k] = {
         sched: r.sched||{}, notes: r.notes||{},
         plan: r.plan===null?undefined:r.plan, todo: r.todo===null?undefined:r.todo,
-        base: r.base||undefined, _u: r._u
+        adopted: r.adopted||undefined, base: r.base||undefined, _u: r._u
       };
       changed++;
     });
@@ -2340,7 +2411,7 @@ async function calUploadMissing(){
       const d = state.cal[k];
       if(!d) return;
       const has = Object.keys(d.sched||{}).length || Object.keys(d.notes||{}).length
-               || d.plan !== undefined || d.todo !== undefined;
+               || d.plan !== undefined || d.todo !== undefined || d.adopted;
       if(has && !remote.has(k)){ d._dirty = true; n++; }
     });
     if(n){ await calPush(); toast(`저장소에 없던 달력 ${n}개월을 올렸습니다.`); }
@@ -2358,6 +2429,7 @@ function calImport(obj){
       Object.assign(d.sched, s.sched||{}); Object.assign(d.notes, s.notes||{});
       if(s.plan !== undefined) d.plan = s.plan;
       if(s.todo !== undefined) d.todo = s.todo;
+      if(s.adopted) d.adopted = Object.assign(d.adopted||{}, s.adopted);
       d._dirty = true; n++;
     });
     return n;
@@ -2388,6 +2460,14 @@ function setTab(){
   $("#btnNew").hidden = ca;
   $("#btnAuto").hidden = !ca;
   $("#btnAuto").textContent = state.calAuto ? "회의일정 표시 ✓" : "회의일정 표시";
+  const ab = $("#btnAdopt");
+  ab.hidden = !ca;
+  if(ca){
+    const n = calPending(state.calMonth);
+    const has = !!(state.cal[state.calMonth] && state.cal[state.calMonth].adopted);
+    ab.textContent = n ? `회의일정 가져오기 ${n}` : (has ? "가져온 일정 되돌리기" : "회의일정 가져오기");
+    ab.disabled = !n && !has;
+  }
   $("#q").placeholder = ca ? "달력에서 찾기" : "주차·안건·내용 검색";
   $("#btnOrder").hidden = ca;
 }
@@ -2421,8 +2501,22 @@ $("#tabCal").onclick = ()=>{
   if(monthList().indexOf(state.calMonth)<0) state.calMonth = monthList()[monthList().length-1];
   setTab(); renderList(); renderMain(); saveUI();
 };
+$("#btnAdopt").onclick = ()=>{
+  const m = state.calMonth;
+  if(calPending(m)){
+    const n = calAdoptMonth(m);
+    if(!state.editing){ state.editing = true; }
+    renderCal(); setTab(); saveCalSoon();
+    toast(`회의일정 ${n}건을 달력으로 가져왔습니다. 이제 자유롭게 고치실 수 있습니다.`);
+  }else{
+    if(!confirm("가져왔던 회의일정을 달력에서 빼고, 다시 회의록을 따라가도록 되돌립니다.\n\n글을 고치신 줄은 그대로 남습니다. 계속할까요?")) return;
+    calUnadoptMonth(m);
+    renderCal(); setTab(); saveCalSoon();
+    toast("되돌렸습니다.");
+  }
+};
 $("#btnAuto").onclick = ()=>{
-  state.calAuto = !state.calAuto; setTab(); renderCal(); saveUI();
+  state.calAuto = !state.calAuto; renderCal(); setTab(); saveUI();
   toast(state.calAuto ? "회의록의 일정을 함께 표시합니다." : "직접 적은 일정만 표시합니다.");
 };
 $("#tabTracker").onclick = ()=>{ state.view="tracker"; state.editing=false; setTab(); renderList(); renderMain(); saveUI(); };
@@ -2436,6 +2530,15 @@ $("#btnNew").onclick = newWeek;
 $("#railToggle").onclick = ()=>$("#rail").classList.toggle("open");
 
 $("#scroll").addEventListener("click",e=>{
+  const ae = e.target.closest("[data-ae]");
+  if(ae && state.view==="cal"){
+    const i = ae.dataset.ae.indexOf("|");
+    const date = ae.dataset.ae.slice(0,i), txt = ae.dataset.ae.slice(i+1);
+    calAdopt(state.calMonth, date, txt);
+    renderCal(); setTab(); saveCalSoon();
+    focusCal(state.calMonth, date);
+    return;
+  }
   const w = cur(), t = e.target;
   if(t.id==="addAct"&&w){ w.actions.push({task:"",owner:"",due:"",status:""}); renderMain(); save(); return; }
   if(t.id==="addPrev"&&w){ w.prev.push({text:"",st:""}); renderMain(); save(); return; }
