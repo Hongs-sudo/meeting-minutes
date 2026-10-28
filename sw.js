@@ -1,5 +1,5 @@
 /* 중등부 주간회의록 — 오프라인 캐시 */
-const CACHE = "mathlib-minutes-v6";
+const CACHE = "mathlib-minutes-v7";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
                 "./icon-192.png", "./icon-512.png", "./icon-maskable.png"];
 

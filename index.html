@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="중등부 회의록">
+<style id="pagestyle">@page{size:A4 portrait;margin:0}</style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
@@ -336,9 +337,59 @@ body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
 @media (min-width:901px){#railToggle{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
+/* ───────── 월간 캘린더 ───────── */
+.calsheet{position:absolute;top:0;left:0;transform-origin:top left;
+  width:297mm;height:210mm;padding:7mm 8mm;background:#fff;overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.13),0 14px 36px rgba(20,48,46,.16)}
+.editing .calsheet{box-shadow:0 1px 2px rgba(0,0,0,.13),0 14px 36px rgba(20,48,46,.16),0 0 0 3px #cbe0de}
+.calpage{display:flex;flex-direction:column;height:100%;color:#1A1A1A;line-height:1.3}
+.calpage .mhead{display:flex;align-items:baseline;gap:10px;
+  border-bottom:1.6pt solid var(--brand);padding-bottom:2mm;flex:none}
+.calpage .yr{font-size:10pt;color:#5c6570}
+.calpage .no{font-size:26pt;font-weight:300;line-height:.95}
+.calpage .no b{font-weight:600;color:var(--brand)}
+.calpage .ttl{font-size:10.5pt;color:var(--brand)}
+.calpage .org{margin-left:auto;font-size:8.5pt;color:#5c6570}
+table.cal{width:100%;border-collapse:collapse;table-layout:fixed;flex:1;margin-top:1mm}
+table.cal th{font-size:8.5pt;font-weight:700;padding:1.3mm 0;text-align:center;
+  border-bottom:.6pt solid #cbc8c1;letter-spacing:.05em;color:#14302e}
+table.cal th.sun,table.cal td.sun .dnum{color:#b32d24}
+table.cal th.sat,table.cal td.sat .dnum{color:#1c4f95}
+table.cal td{border:.5pt solid #d7d3cb;vertical-align:top;padding:0;position:relative;height:1px}
+table.cal td.off{background:#f4f3f0}
+table.cal td.off .dnum{color:#b6b2aa}
+table.cal td.hol .dnum{color:#b32d24}
+table.cal td.today{background:#fff7e0;box-shadow:inset 0 0 0 1.4pt #c7962c}
+.calpage .cellin{position:absolute;inset:0;padding:1mm 1.2mm;overflow:hidden}
+.calpage .dnum{font-size:10.5pt;font-weight:700;line-height:1.1;display:flex;align-items:baseline;gap:3px}
+.calpage .dnum .hname{font-size:6.5pt;font-weight:500;color:#b32d24}
+.calpage .sched{margin-top:.5mm;border-left:1.2pt solid #9db4c8;padding-left:1.1mm;
+  white-space:pre-wrap;word-break:keep-all;min-height:2.6mm}
+.calpage .sched:has(.cedit:empty){border-left-color:transparent}
+.calpage .sched:empty{border-left-color:transparent;min-height:1.4mm}
+.calpage .note{margin-top:.4mm;white-space:pre-wrap;word-break:break-word}
+.calpage .autoev{margin-top:.5mm}
+.calpage .ae{border-left:1.2pt solid #6B2FC9;padding-left:1.1mm;color:#6B2FC9;
+  font-size:.88em;line-height:1.25;word-break:keep-all}
+.calpage .ae.meet{font-weight:600}
+.calpage .plan{display:flex;gap:4mm;height:28mm;margin-top:2mm;flex:none}
+.calpage .box{border:.5pt solid #cbc8c1;border-top:1.2pt solid var(--brand);
+  padding:1.4mm 2mm;display:flex;flex-direction:column;border-radius:0}
+.calpage .box h3{margin:0 0 1mm;font-size:8pt;font-weight:700;color:var(--brand)}
+.calpage .box .body{font-size:7.8pt;line-height:1.45;white-space:pre-wrap;flex:1;
+  word-break:break-word;overflow:hidden}
+.calpage .plan .memo{flex:1.55}
+.calpage .plan .todo{flex:1}
+.cellin.over::after{content:"";position:absolute;right:0;bottom:0;
+  border-width:0 0 3.2mm 3.2mm;border-style:solid;border-color:transparent transparent #e0000033 transparent}
+.editing .cedit{background:var(--edit);border-radius:2px;display:block;min-height:1.1em}
+.editing .cedit:empty:before{content:attr(data-lb);color:#bdb391;font-size:.9em}
+.editing .cedit.sel{box-shadow:inset 0 0 0 2px #4f8f8b}
+.editing .calpage .box .body .cedit{min-height:100%}
+#capHost.cal{width:297mm;height:210mm}
+
 /* ───────── print : 화면과 동일 ───────── */
 @media print{
-  @page{size:A4 portrait;margin:0}
   html,body{height:auto;background:#fff}
   .rail,.bar,.fmtbar,.tip,.toast,.modal,#capHost{display:none!important}
   .app{display:block}
@@ -346,6 +397,14 @@ body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
   .stage{position:static;width:auto!important;height:auto!important}
   .sheet{position:static;box-shadow:none!important;transform:none!important;
     width:var(--pagew);height:var(--pageh);break-inside:avoid}
+  .calsheet{width:297mm!important;height:210mm!important}
+  .calstage{width:auto!important;height:auto!important}
+  .editing .cedit{background:none!important;box-shadow:none!important}
+  .cedit:empty:before{content:none!important}
+  table.cal th,table.cal td.off,table.cal td.hol .dnum,.calpage .ae,.calpage .no b,
+  .calpage .box h3{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  table.cal td.today{background:none!important;box-shadow:none!important}
+  .cellin.over::after{display:none!important}
   .sec .hint,.edit-only{display:none!important}
   [data-edit]:before,[data-edit]:after{content:none!important}
   [data-edit],.editing [data-edit]{outline:none!important;box-shadow:none!important;
@@ -372,6 +431,7 @@ body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
     </div>
     <div class="rail-tabs" role="tablist">
       <button role="tab" id="tabMinutes" aria-selected="true">회의록</button>
+      <button role="tab" id="tabCal" aria-selected="false">캘린더</button>
       <button role="tab" id="tabTracker" aria-selected="false">실행항목</button>
     </div>
     <div class="search">
@@ -394,6 +454,8 @@ body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
           <button id="btnFileOpen">저장 파일 열기</button></div>
         <div class="two"><button id="btnExport">사본 내보내기</button>
           <button id="btnImport">사본 불러오기</button></div>
+        <button id="btnCalImport">예전 캘린더 내용 불러오기</button>
+        <input type="file" id="calFileIn" accept=".json,application/json" hidden>
         <button id="btnInstall" hidden>이 기기에 앱으로 설치</button>
       </div>
       <input type="file" id="fileIn" accept=".json,application/json" hidden>
@@ -409,6 +471,7 @@ body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
       <button class="btn" id="btnShare">이미지로 보내기</button>
       <button class="btn" id="btnDup">복제</button>
       <button class="btn danger" id="btnDel">삭제</button>
+      <button class="btn" id="btnAuto" hidden>회의일정 표시 ✓</button>
       <span class="grow"></span>
       <span class="mode" id="fitInfo"></span>
       <span class="sv" id="saveState"><i></i><span>불러오는 중…</span></span>
@@ -514,7 +577,7 @@ function stCls(v){
        : t ? "st-etc" : "st-none";
 }
 const KEY = "mathlib-minutes-v2";
-const APP_VER = "09.29b";
+const APP_VER = "10.28";
 /* 이 앱의 Firebase 주소표 — 공개용 값이며 보안은 로그인과 보안 규칙이 담당합니다 */
 const DEFAULT_FB = {
   apiKey: "AIzaSyAnfqK1Ij6SQBssAW_GtMg47wNNRpDvHUo",
@@ -719,7 +782,8 @@ function renderFileInfo(){
 }
 
 let state = { weeks:[], cur:null, editing:false, view:"minutes", filter:"미완료",
-               sel:new Set(), order:"asc" };
+               sel:new Set(), order:"asc",
+               cal:{}, calMonth:"", calSel:new Set(), calAuto:true };
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -780,6 +844,7 @@ function saveUI(){
   clearTimeout(uiTimer);
   uiTimer = setTimeout(()=>store.set(UIKEY, JSON.stringify({
     cur: state.cur, view: state.view, filter: state.filter, order: state.order,
+    calMonth: state.calMonth, calAuto: state.calAuto,
     editing: state.editing, scroll: $("#scroll").scrollTop
   })), 300);
 }
@@ -791,7 +856,7 @@ function svState(kind, text){
   el.lastElementChild.textContent = text;
 }
 function hhmm(){ return new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"}); }
-function unsaved(){ return state.weeks.filter(w=>w._dirty).length; }
+function unsaved(){ return state.weeks.filter(w=>w._dirty).length + calDirtyCount(); }
 function refreshSaveBtn(){
   const n = fbOn ? unsaved() : 0;
   $("#btnSave").innerHTML = n ? `저장<span class="dot"></span>` : "저장";
@@ -866,7 +931,7 @@ async function fbConnect(cfg){
     U.onAuthStateChanged(auth, u=>{
       fbUser = u;
       if(u){ fbOn = true; $("#loginModal").hidden = true; $("#btnLogout").hidden = false; $("#btnUploadAll").hidden = false;
-             listen(); if(!first) afterLogin(); }
+             listen(); calListen(); if(!first) afterLogin(); }
       else { fbOn = false; if(fbUnsub){ fbUnsub(); fbUnsub=null; }
              $("#btnLogout").hidden = true; $("#btnUploadAll").hidden = true; showLogin(); }
       renderSyncInfo();
@@ -1060,6 +1125,7 @@ async function afterLogin(){
         refreshSaveBtn();
       }
     }
+    await calUploadMissing();
     renderSyncInfo(); await save(true);
   }catch(e){
     alert("저장소를 읽지 못했습니다.\n\n"+(e.code||e.message)+
@@ -1067,9 +1133,11 @@ async function afterLogin(){
   }
 }
 async function saveNow(){
-  clearTimeout(pushTimer);
+  clearTimeout(pushTimer); clearTimeout(calTimer); clearTimeout(calPushTimer);
   if(state.view==="minutes") markDirty(cur());
+  await saveCalNowQuiet();
   await save(true);
+  if(fbOn){ try{ await calPush(); }catch(e){} }
   if(!fbOn){ svState("local", `이 기기에 저장됨 ${hhmm()}`); return toast("저장했습니다."); }
   if(fbBusy) return;
   fbBusy=true; $("#btnSave").textContent="저장 중…"; svState("saving","다른 기기로 보내는 중…");
@@ -1085,7 +1153,40 @@ async function saveNow(){
 
 
 /* ── 목록 ── */
+function renderCalList(){
+  const q = $("#q").value.trim().toLowerCase();
+  let ms = monthList();
+  if(q){
+    ms = ms.filter(m=>{
+      const d = state.cal[m] || {};
+      const blob = m + " " + JSON.stringify(d.sched||{}) + JSON.stringify(d.notes||{})
+                 + (d.plan||"") + (d.todo||"")
+                 + Object.keys(CAL_SEED.events).filter(k=>k.startsWith(m)).map(k=>CAL_SEED.events[k]).join(" ")
+                 + (CAL_SEED.memos[m]||"");
+      return stripHtml(blob).toLowerCase().includes(q);
+    });
+  }
+  $("#railCount").textContent = `${monthList().length}개월`
+    + (q?` · ${ms.length}건 검색`:"") + ` · 버전 ${APP_VER}`;
+  let html = "", yr = "";
+  if(!ms.length) html = `<div style="padding:22px 10px;color:#7fa29f;font-size:12.5px">검색 결과가 없습니다.</div>`;
+  for(const m of ms){
+    const [y, mo] = m.split("-");
+    if(y !== yr){ yr = y; html += `<div class="mgroup">${y}년</div>`; }
+    const d = state.cal[m] || {};
+    const n = Object.keys(d.sched||{}).length + Object.keys(d.notes||{}).length;
+    html += `<div class="witem" data-mid="${m}" aria-current="${m===state.calMonth}">
+      <input type="checkbox" data-cpick="${m}" ${state.calSel.has(m)?"checked":""} aria-label="${m} 인쇄 선택">
+      <div class="wmain"><div class="wtitle">${+mo}월</div>
+        <div class="wsub">${n?`직접 적은 일정 ${n}건`:"&nbsp;"}</div></div></div>`;
+  }
+  $("#list").innerHTML = html;
+  scrollListToCurrent();
+  $("#btnPrint").textContent = state.calSel.size ? `선택 ${state.calSel.size}개월 인쇄` : "이 달 인쇄";
+  $("#btnShare").textContent = state.calSel.size ? `선택 ${state.calSel.size}개월 이미지` : "이미지로 보내기";
+}
 function renderList(){
+  if(state.view === "cal") return renderCalList();
   const q = $("#q").value.trim().toLowerCase();
   const hit = w => !q || stripHtml(w.label+" "+w.date+" "+w.attendees+" "+JSON.stringify(w.agendas)).toLowerCase().includes(q);
   let rows = state.weeks.filter(hit);
@@ -1333,13 +1434,45 @@ function fieldName(p){
 }
 function fieldEl(p){ return document.querySelector(`.scroll [data-edit="${p}"]`); }
 function effSize(w,p){
-  const f = w.fmt && w.fmt[p];
+  const f = w && w.fmt && w.fmt[p];
   if(f?.size) return f.size;
   const el = fieldEl(p);
   if(!el) return null;
   return num(parseFloat(getComputedStyle(el).fontSize) / (96/72));   /* px → pt */
 }
+function applyCalSel(patch){
+  const host = state.focusEl;
+  if(!host || !host.classList.contains("cedit")) return toast("먼저 고칠 칸을 눌러 주세요.");
+  const sel = window.getSelection();
+  if(!sel || sel.isCollapsed) return toast("바꿀 글자를 드래그해 선택한 뒤 눌러 주세요.");
+  const st = {};
+  if(patch.color) st.color = patch.color;
+  if(patch.size) st.fontSize = patch.size+"pt";
+  const span = wrapSelection(st);
+  if(!span) return;
+  if(patch.color === null){ span.style.color = "";
+    span.querySelectorAll("*").forEach(x=>{ if(x.style) x.style.color=""; }); }
+  if(patch.size === null){ span.style.fontSize = "";
+    span.querySelectorAll("*").forEach(x=>{ if(x.style) x.style.fontSize=""; }); }
+  const parts = host.dataset.edit.split("|");
+  calSet(parts[1], parts[2], parts[3], sanitize(host.innerHTML));
+  saveCalSoon();
+}
 function updateFmtBar(){
+  if(state.view === "cal"){
+    const d = state.cal[state.calMonth] || {};
+    $("#baseNum").value = num(d.base || 9);
+    const live = state.focusEl && state.focusEl.classList.contains("cedit");
+    const selText = live && !(window.getSelection()?.isCollapsed ?? true);
+    $("#selName").textContent = !live ? "— 칸을 눌러 선택"
+      : (selText ? "선택한 글자에 적용" : "글자를 드래그해 선택");
+    $("#selName").style.color = selText ? "var(--alert)" : "";
+    ["fsMinus","fsPlus","fsNum","fmtReset"].forEach(id=>$("#"+id).disabled = !live);
+    $("#fsNum").value = live ? (effSize(null, state.focusPath) ?? "") : "";
+    if(swMode !== false) renderSwatches(false);
+    $("#swatches").querySelectorAll(".sw").forEach(b=>b.setAttribute("aria-pressed","false"));
+    return;
+  }
   const w = cur(); if(!w) return;
   $("#baseNum").value = num(w.base||10);
   const p = state.focusPath;
@@ -1419,6 +1552,25 @@ $("#fmtbar").addEventListener("mousedown",e=>{ if(e.target.closest("button")) e.
 $("#fmtbar").addEventListener("click",e=>{
   const t = e.target.closest("button"); if(!t) return;
   const w = cur(); if(!w) return;
+  if(state.view === "cal"){
+    const d = calDoc(state.calMonth);
+    if(t.dataset.base!==undefined){
+      d.base = clamp(num((d.base||9) + parseFloat(t.dataset.base)), 5, 16);
+      d._dirty = true; renderCal(); saveCalSoon(); return;
+    }
+    if(t.dataset.fs!==undefined){
+      const s0 = effSize(null, state.focusPath) || (d.base||9);
+      return applyCalSel({size: clamp(num(s0 + parseFloat(t.dataset.fs)), FS_MIN, FS_MAX)});
+    }
+    if(t.dataset.color!==undefined)
+      return applyCalSel({color: t.dataset.color===INK ? null : t.dataset.color});
+    if(t.id==="fmtReset") return applyCalSel({color:null, size:null});
+    if(t.id==="fmtResetAll"){
+      if(!confirm("이 달의 글자 크기를 기본값으로 되돌립니다. (적어둔 내용은 그대로입니다)")) return;
+      delete d.base; d._dirty = true; renderCal(); saveCalSoon(); toast("글자 크기를 되돌렸습니다."); return;
+    }
+    return;
+  }
   if(t.dataset.base!==undefined) return setBase((w.base||10)+parseFloat(t.dataset.base));
   if(t.dataset.fs!==undefined){
     const s0 = effSize(w,state.focusPath); if(s0==null) return toast("먼저 바꿀 칸을 눌러 선택하세요.");
@@ -1471,8 +1623,9 @@ function fitSheet(sheet){
 }
 function fitStage(){
   document.querySelectorAll(".scroll .stage").forEach(st=>{
+    if(st.classList.contains("calstage")) return;
     const sheet = st.querySelector(".sheet");
-    if(!sheet) return;
+    if(!sheet || sheet.classList.contains("calsheet")) return;
     const room = $("#scroll").clientWidth - 40;
     const z = Math.max(.3, Math.min(1, room/PAGE_W));
     sheet.style.transform = `scale(${z})`;
@@ -1485,6 +1638,7 @@ let fitTimer;
 function fitSoon(){ clearTimeout(fitTimer); fitTimer=setTimeout(fitAll,180); }
 function fitAll(){
   document.querySelectorAll(".scroll .sheet, #printArea .sheet").forEach(sh=>{
+    if(sh.classList.contains("calsheet")) return;
     const z = sh.style.transform;             /* 화면 배율 잠시 해제하고 본문 배율 계산 */
     sh.style.transform = "none";
     const k = fitSheet(sh);
@@ -1496,6 +1650,7 @@ function fitAll(){
 
 function renderMain(){
   document.body.classList.toggle("editing", state.editing);
+  if(state.view==="cal"){ renderCal(); return; }
   if(state.view==="tracker"){ renderTracker(); $("#fitInfo").textContent=""; return; }
   const w = cur();
   const s = $("#scroll");
@@ -1616,7 +1771,26 @@ function removeWeek(){
   state.cur = (state.weeks[i]||state.weeks[i-1])?.id ?? null;
   renderList(); renderMain(); save(true); toast("삭제했습니다.");
 }
+function setPaper(land){
+  const el = document.getElementById("pagestyle");
+  if(el) el.textContent = `@page{size:A4 ${land?"landscape":"portrait"};margin:0}`;
+}
+function doPrintCal(){
+  const ms = state.calSel.size ? monthList().filter(m=>state.calSel.has(m))
+                               : (state.calMonth ? [state.calMonth] : []);
+  if(!ms.length) return toast("인쇄할 달이 없습니다.");
+  const area = $("#printArea");
+  area.innerHTML = ms.map(m=>calSheetHTML(m, false)).join("");
+  setPaper(true);
+  document.body.classList.add("multi");
+  const done = ()=>{ document.body.classList.remove("multi"); area.innerHTML="";
+    setPaper(false); window.removeEventListener("afterprint",done); };
+  window.addEventListener("afterprint",done);
+  setTimeout(()=>window.print(),60);
+}
 function doPrint(){
+  if(state.view === "cal") return doPrintCal();
+  setPaper(false);
   const ids = state.sel.size ? [...state.sel] : (state.cur?[state.cur]:[]);
   if(!ids.length) return toast("인쇄할 주차가 없습니다.");
   const ws = state.weeks.filter(w=>ids.includes(w.id));
@@ -1724,6 +1898,23 @@ function shotName(w){
   const t = stripHtml(w.label).replace(/[\\/:*?"<>|]/g,"").trim() || w.date;
   return `중등부회의록_${t}.png`;
 }
+async function makeCalShot(m, h2c){
+  const host = $("#capHost");
+  host.classList.add("cal");
+  host.innerHTML = calSheetHTML(m, false);
+  const sheet = host.querySelector(".calsheet");
+  sheet.style.boxShadow = "none"; sheet.style.position = "static"; sheet.style.transform = "none";
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  const canvas = h2c
+    ? await h2c(sheet, {backgroundColor:"#ffffff", scale:2, useCORS:true, logging:false,
+        width: sheet.offsetWidth, height: sheet.offsetHeight,
+        windowWidth: sheet.offsetWidth, windowHeight: sheet.offsetHeight})
+    : await nativeCanvas(sheet);
+  host.innerHTML = ""; host.classList.remove("cal");
+  const blob = await new Promise(r=>canvas.toBlob(r, "image/png"));
+  const [Y,MO] = m.split("-");
+  return new File([blob], `중등부월간일정_${Y}년${+MO}월.png`, {type:"image/png"});
+}
 async function makeShot(w, h2c){
   const host = $("#capHost");
   host.innerHTML = sheetHTML(w, false);
@@ -1742,12 +1933,21 @@ async function makeShot(w, h2c){
   return new File([blob], shotName(w), {type:"image/png"});
 }
 async function doShare(){
-  const ids = state.sel.size ? [...state.sel] : (state.cur ? [state.cur] : []);
-  if(!ids.length) return toast("보낼 주차가 없습니다.");
-  const ws = state.weeks.filter(w=>ids.includes(w.id));
+  const isCal = state.view === "cal";
+  let ws;
+  if(isCal){
+    ws = state.calSel.size ? monthList().filter(m=>state.calSel.has(m))
+                           : (state.calMonth ? [state.calMonth] : []);
+    if(!ws.length) return toast("보낼 달이 없습니다.");
+  }else{
+    const ids = state.sel.size ? [...state.sel] : (state.cur ? [state.cur] : []);
+    if(!ids.length) return toast("보낼 주차가 없습니다.");
+    ws = state.weeks.filter(w=>ids.includes(w.id));
+  }
 
   shareFiles = []; if(shareUrl){ URL.revokeObjectURL(shareUrl); shareUrl = null; }
   $("#shareTitle").textContent = ws.length>1 ? `이미지로 보내기 (${ws.length}장)` : "이미지로 보내기";
+  $("#capHost").classList.toggle("cal", isCal);
   $("#shareMsg").textContent = "이미지를 만들고 있습니다…";
   $("#shareShot").innerHTML = `<div class="ph">잠시만 기다려 주세요</div>`;
   ["shareCopy","shareDown","shareGo"].forEach(id=>$("#"+id).hidden = true);
@@ -1759,7 +1959,7 @@ async function doShare(){
 
   try{
     if(viaNative) $("#shareMsg").textContent = "간이 방식으로 이미지를 만드는 중입니다…";
-    for(const w of ws) shareFiles.push(await makeShot(w, h2c));
+    for(const w of ws) shareFiles.push(isCal ? await makeCalShot(w, h2c) : await makeShot(w, h2c));
   }catch(e){
     const why = String(e && e.message || e);
     if(viaNative){
@@ -1862,14 +2062,346 @@ function shrinkImage(file, maxW, q){
   });
 }
 
+const CAL_SEED={events:{"2025-02-07":"상담율 20%","2025-02-14":"상담율 50%","2025-02-21":"상담율 70%","2025-02-28":"상담율 100%","2025-12-02":"중등부회의\n(PM3:20~)","2025-12-09":"중등부회의\n(PM10:10~)","2025-12-16":"※ 중등부 회식","2025-12-18":"※ 월말평가 출제","2025-12-20":"★ 예비중3 설명회\n(PM5:30~)","2025-12-23":"중등부회의\n(PM2:30~)","2025-12-29":"E-MATH 1월 1주차","2026-01-02":"중등부회의\n(PM3:00~)","2026-01-05":"E-MATH 1월 2주차","2026-01-07":"중등부회의\n(PM3:00~)","2026-01-12":"※ 겨울방학특강 시작!\nE-MATH 1월 기간별오답","2026-01-26":"E-MATH 2월 1주차","2026-02-02":"E-MATH 2월 2주차","2026-01-30":"★ 보강Day ★","2026-01-31":"★ 보강Day ★","2026-02-09":"E-MATH 2월 3주차","2026-02-13":"3-5월 로드맵 작성(1차)","2026-02-16":"E-MATH 2월 기간별오답","2026-02-25":"3-5월 로드맵 마무리","2026-02-27":"※ 겨울방학특강 종료!","2026-03-02":"대체공휴일\n(설연휴 회차보강-월)","2026-03-03":"(설연휴 회차보강-화)","2026-03-06":"3-5월로드맵 발송","2026-03-19":"내신대비교재 배부 시작","2026-03-23":"중간고사대비 시작(1차)\n(선유,목운중 등)","2026-03-28":"(주말) 기출모의고사\n→ 3월 4주차\n(양정25/24)","2026-03-30":"중간고사대비 시작(2차)\n(월촌,신목,양정중 등)","2026-04-04":"(주말) 기출모의고사\n→ 4월 1주차\n(월촌25/24)","2026-04-11":"(주말) 기출모의고사\n→ 4월 2주차\n(신목25/24)","2026-04-18":"(주말) 기출모의고사\n→ 4월 3주차\n(목운25/24)","2026-04-22":"선유중 중간고사(22-23)\n※ 선유중 수학시험","2026-04-23":"목운중 중간고사(22-23)\n※ 목운중 수학시험","2026-04-25":"(주말) 기출모의고사\n→ 4월 4주차\n(양정25/24)","2026-04-27":"※ 당산중 수학시험","2026-04-29":"월촌중, 신목중, 양정중,\n신목중 중간고사(29-30)\n※ 신목중 수학시험","2026-04-30":"※ 양정,월촌,경인중\n수학시험","2026-05-18":"※ 기말대비 내신특별반\n→ 5/18(월)~30(토)","2026-05-20":"※ 6-8월 로드맵\n→ 1차 제출","2026-05-27":"※ 6-8월 로드맵\n→ 2차 제출(마무리)","2026-05-29":"★5월 보강데이★\n미리보는 기말고사(1차)","2026-05-30":"★5월 보강데이★\n미리보는 기말고사(2차)","2026-06-01":"기말대비 시작(1차)\n- 신목/양정\n6-8월 로드맵 발송","2026-06-02":"6-8월 로드맵 발송","2026-06-08":"기말대비 시작(2차)\n- 목운/월촌","2026-06-13":"(주말) 기출모의고사\n1주차-1","2026-06-14":"(주말) 기출모의고사\n1주차-2","2026-06-20":"(주말) 기출모의고사\n2주차-1","2026-06-21":"(주말) 기출모의고사\n2주차-2","2026-06-27":"(주말) 기출모의고사\n3주차-1","2026-06-28":"(주말) 기출모의고사\n3주차-2","2026-06-29":"★6월 보강데이★","2026-06-30":"★6월 보강데이★","2026-07-04":"(주말) 기출모의고사\n4주차-1 → 개별진행","2026-07-05":"(주말) 기출모의고사\n4주차-2 → 개별진행","2026-07-09":"1학기 기말고사\n종료","2026-07-20":"신목중 방학식","2026-07-22":"월촌중,양정중,목운중\n방학식","2026-07-23":"여름방특 시작~!","2026-08-12":"월촌중 개학식","2026-08-14":"신목중 개학식","2026-08-17":"여름방특 종료~!","2026-08-18":"2학기 개강~!!","2026-08-19":"목운중 개학식","2026-08-20":"양정중 개학식","2026-08-21":"9-11월 로드맵(1차)","2026-08-28":"9-11월 로드맵(2차)","2026-08-31":"★8월 보강데이★","2026-09-28":"2학기 중간/기말대비(2)\nStart~!!\n월촌3/목운3/신목1,2,3/\n양정1,2,3","2026-10-06":"월촌1,2중간\n(10/6~7)","2026-10-07":"목운2중간\n(10/7~8)","2026-10-27":"양정1,2중간/3기말\n월촌3/신목1,2,3기말\n(10/27~29)","2026-10-28":"목운3기말\n(10/28~30)","2026-09-01":"2학기 중간대비(1)\nStart~!!\n월촌1,2/목운2"},memos:{"2026-01":"※ E-MATH(1월) : 1주차_12/29~1/2 / 2주차_1/5~1/9 / 3주차(기간별오답)_1/12~1/16 / 4주차(월말평가)_1/19~24\n※ E-MATH(2월) : 1주차_1/26~30 / 2주차_2/2~6 / 3주차(기간별오답)_2/9~20 / 4주차(월말평가)_2/23~28","2026-02":"※ E-MATH(2월) : 1주차_1/26~30, 2주차_2/2~6, 3주차(기간별오답)_2/9~20, 4주차(월말평가)_2/23~28\n※ 3-5월 로드맵 : (1차) ~2/13(금) 업로드 및 제출(출력물) / (2차) ~2/25(수) 수정마무리 / (발송) ~3/4(수)까지\n※ 미리보는 1학기 게릴라진단평가 : 2/20(금)~2/24(화)\n- 대상 : 예비중2, 예비중3     - 범위 : 각 학년 1학기 전범위(중간-1차/기말-2차)","2026-03":"※ E-MATH(3월) : 1주차_3/2~6, 2주차_3/9~13, 3주차(기간별오답)_3/16~21, 4주차(월말평가)_3/23~28\n※ 미리보는 1학기 중간고사 : [대상] 중2~3   [일정] 3/16(월)~21(토)\n※ 1학기 중간고사대비 시작 : 1차_3/23(월)~, 2차_3/30(월)~","2026-04":"※ E-MATH(4월) : 1주차_4/6~4/10, 2주차_4/13~17, 3주차(기간별오답)_4/20~24, 4주차(월말평가)_4/27~5/2\n※ 1학기 중간고사 학교 시행기간 : 4/22(수)~4/30(목)","2026-05":"※ E-MATH(5월) : 1주차_5/4~8, 2주차_5/11~15, 3주차(기간별오답)_5/18~22, 4주차(월말평가)_5/25~30\n※ 5월 보강데이 : 5/29(금), 5/30(토) → 정규시간표로 미리보는 기말고사(목운25,24) 진행\n※ 1학기 기말대비(4주) 시작일정 : 6/1(월)~_신목(6/29-7/1), 양정(6/30-7/2), 6/8(월)~_월촌(7/7-9), 목운(7/6-8)\n※ '6-8월 로드맵' 작성 : (1차) ~5/20(수), (2차) ~5/27(수) → 6/1(월)~6/2(화) 발송","2026-06":"※ E-MATH(6월) : 1주차_6/1~5, 2주차_6/8~12, 3주차(기간별오답)_6/15~19, 4주차(월말평가)_6/22~27\n※ 6월 보강데이 : 토요일 횟수 부족 → 토요일수업 보강 진행\n※ 1학기 기말대비(4주) 시작일정 : 6/1(월)~_신목(6/29-7/1), 양정(6/30-7/2), 6/8(월)~_월촌(7/7-9), 목운(7/6-8)\n※ '6-8월 로드맵' 발송 : 6/1(월)~6/2(화)","2026-07":"※ E-MATH(7월) : 1주차_7/6~10, 2주차(기간별오답)_7/13~17, 3주차(월말평가)_7/20~25\n※ 1학기 기말고사 : ~7/9(목) 종료, 결과상담 ~7/15(수)까지 마무리\n※ 여름방학특강 : 상담 및 인원확정 ~7/15(수)까지 → 방특교재 마무리 ~7/16(목)까지\n※ 학원 여름방학 : 7/29(수)~8/2(일)","2026-08":"※ 수행/서술형대비 프로그램(PAW-MATH) : 8월 개학 이후, 8/24(월)부터 진행 예정\n※ 2학기 1,2학년 중간(3학년기말)고사일정 → 9/7(월)~ 내신대비 시작!\n- 10/6~(월촌중2_6~7일/목운중2_7~8일)        10/28~30_목운중2, 10/27~29_월촌중3\n- 10/27~(양정중1,2,3/신목중1,2,3_1,2학년-27~28, 3학년-27~29)"},holidays:{"2025-01-01":"신정","2025-01-28":"설연휴","2025-01-29":"설날","2025-01-30":"설연휴","2025-03-01":"삼일절","2025-03-03":"대체휴일","2025-05-05":"어린이날·부처님오신날","2025-05-06":"대체휴일","2025-06-03":"임시공휴일","2025-06-06":"현충일","2025-08-15":"광복절","2025-10-03":"개천절","2025-10-05":"추석연휴","2025-10-06":"추석","2025-10-07":"추석연휴","2025-10-08":"대체휴일","2025-10-09":"한글날","2025-12-25":"성탄절","2026-01-01":"신정","2026-02-16":"설연휴","2026-02-17":"설날","2026-02-18":"설연휴","2026-03-01":"삼일절","2026-03-02":"대체휴일","2026-05-05":"어린이날","2026-05-24":"부처님오신날","2026-05-25":"대체휴일","2026-06-06":"현충일","2026-08-15":"광복절","2026-08-17":"대체휴일","2026-09-24":"추석연휴","2026-09-25":"추석","2026-09-26":"추석연휴","2026-10-03":"개천절","2026-10-05":"대체휴일","2026-10-09":"한글날","2026-12-25":"성탄절","2027-01-01":"신정","2027-02-06":"설연휴","2027-02-07":"설날","2027-02-08":"설연휴","2027-02-09":"대체휴일","2027-03-01":"삼일절","2027-05-05":"어린이날","2027-05-13":"부처님오신날","2027-06-06":"현충일","2027-08-15":"광복절","2027-08-16":"대체휴일","2027-09-14":"추석연휴","2027-09-15":"추석","2027-09-16":"추석연휴","2027-10-03":"개천절","2027-10-04":"대체휴일","2027-10-09":"한글날","2027-10-11":"대체휴일","2027-12-25":"성탄절","2027-12-27":"대체휴일","2028-01-01":"신정","2028-01-26":"설연휴","2028-01-27":"설날","2028-01-28":"설연휴","2028-03-01":"삼일절","2028-05-02":"부처님오신날","2028-05-05":"어린이날","2028-06-06":"현충일","2028-08-15":"광복절","2028-10-02":"추석연휴","2028-10-03":"추석·개천절","2028-10-04":"추석연휴","2028-10-05":"대체휴일","2028-10-09":"한글날","2028-12-25":"성탄절"}};
+/* ══════════════ 월별 계획 캘린더 ══════════════
+   · 회의록 자료(minutes)에는 전혀 손대지 않습니다.
+   · 캘린더는 calendar 컬렉션에 "월마다 문서 1개"로 따로 저장합니다.
+   ─────────────────────────────────────────── */
+const CAL_COL = "calendar", CAL_FIRST = "2025-02", CAL_LAST = "2028-12";
+const WDS = ["일","월","화","수","목","금","토"];
+const p2 = n => String(n).padStart(2,"0");
+const isoOf = d => d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());
+const mIdx = k => { const a=k.split("-"); return (+a[0])*12 + (+a[1]) - 1; };
+function monthList(){
+  const out=[]; for(let i=mIdx(CAL_FIRST); i<=mIdx(CAL_LAST); i++)
+    out.push(Math.floor(i/12)+"-"+p2(i%12+1));
+  return out;
+}
+function calDoc(m){
+  let d = state.cal[m];
+  if(!d) d = state.cal[m] = {sched:{}, notes:{}};
+  d.sched ||= {}; d.notes ||= {};
+  return d;
+}
+function calVal(m, kind, key){
+  const d = state.cal[m];
+  if(kind==="sched"){ const v = d && d.sched ? d.sched[key] : undefined;
+    return v !== undefined ? v : (CAL_SEED.events[key] || ""); }
+  if(kind==="note"){ const v = d && d.notes ? d.notes[key] : undefined; return v !== undefined ? v : ""; }
+  if(kind==="plan"){ const v = d ? d.plan : undefined; return v !== undefined ? v : (CAL_SEED.memos[m] || ""); }
+  if(kind==="todo"){ const v = d ? d.todo : undefined; return v !== undefined ? v : ""; }
+  return "";
+}
+function calSet(m, kind, key, html){
+  const d = calDoc(m);
+  if(kind==="sched") d.sched[key] = html;
+  else if(kind==="note") d.notes[key] = html;
+  else if(kind==="plan") d.plan = html;
+  else if(kind==="todo") d.todo = html;
+  d._dirty = true;
+}
+function calDirtyCount(){ return Object.values(state.cal).filter(d=>d && d._dirty).length; }
+
+/* ── 회의록에서 자동으로 끌어오는 일정 (읽기 전용 · 캘린더 자료에 쓰지 않음) ── */
+function scanDates(s, baseISO){
+  const base = new Date(baseISO+"T00:00:00");
+  if(isNaN(base)) return [];
+  const out = new Set(), re = /(\d{1,2})\s*\/\s*(\d{1,2})/g;
+  let m;
+  while((m = re.exec(s))){
+    const mo = +m[1], dy = +m[2];
+    if(mo<1 || mo>12 || dy<1 || dy>31) continue;
+    let y = base.getFullYear();
+    const diff = mo - (base.getMonth()+1);
+    if(diff < -6) y++; else if(diff > 6) y--;
+    const d = new Date(y, mo-1, dy);
+    if(d.getMonth() !== mo-1) continue;
+    out.add(isoOf(d));
+  }
+  return [...out];
+}
+function shortLabel(s){
+  let t = String(s).replace(/^\s*[([]?\s*\d{1,2}\s*[).\]]\s*/,"").replace(/^[→⇨▷※·\-\s]+/,"").trim();
+  const head = t.split(/\s*[:：]\s*/)[0];
+  if(head && head.length >= 4) t = head;
+  t = t.replace(/\s+/g," ").trim();
+  return t.length > 22 ? t.slice(0,22)+"…" : t;
+}
+let autoCache = null, autoSig = "";
+function autoCalEvents(){
+  const sig = state.weeks.length + "|" + state.weeks.map(w=>w._u||w.date).join(",");
+  if(autoCache && autoSig === sig) return autoCache;
+  const map = {};
+  const push = (d, txt, kind)=>{
+    if(!d || !txt) return;
+    const a = map[d] || (map[d] = []);
+    if(!a.some(x=>x.txt === txt)) a.push({txt, kind});
+  };
+  state.weeks.forEach(w=>{
+    try{
+      const hh = (w.hh||w.hh===0) ? `${w.ampm||"PM"} ${w.hh}:${p2(w.mm||0)}` : "";
+      push(w.date, ("중등부회의 "+hh).trim(), "meet");
+      if(w.next && w.next.date && w.next.date !== w.date) push(w.next.date, "중등부회의 예정", "meet");
+      (w.agendas||[]).forEach(ag=>(ag.blocks||[]).forEach(b=>{
+        if(!b || b.type !== "text") return;
+        const s = stripHtml(b.text||"").trim();
+        if(!s) return;
+        scanDates(s, w.date).forEach(d=>push(d, shortLabel(s), "plan"));
+      }));
+    }catch(e){}
+  });
+  autoCache = map; autoSig = sig;
+  return map;
+}
+
+/* ── 한 달 그리기 ── */
+function calSheetHTML(m, live){
+  const [Y, MO] = m.split("-").map(Number);
+  const base = state.cal[m] && state.cal[m].base ? state.cal[m].base : 9;
+  const todayISO = (()=>{ const d=new Date(); return isoOf(d); })();
+  const E = (kind, key, lb)=>{
+    const v = sanitize(calVal(m, kind, key));
+    return live
+      ? `<span class="cedit" data-edit="CAL|${m}|${kind}|${key}" data-lb="${esc(lb||"")}">${v}</span>`
+      : (v || "");
+  };
+  const auto = state.calAuto ? autoCalEvents() : {};
+
+  const first = new Date(Y, MO-1, 1);
+  const dim = new Date(Y, MO, 0).getDate();
+  const rows = Math.ceil((first.getDay() + dim) / 7);
+  let body = "";
+  for(let r=0; r<rows; r++){
+    body += "<tr>";
+    for(let c=0; c<7; c++){
+      const d = new Date(Y, MO-1, 1 - first.getDay() + r*7 + c);
+      const key = isoOf(d), own = d.getMonth() === MO-1;
+      const hol = own ? CAL_SEED.holidays[key] : null;
+      const cls = [c===0?"sun":c===6?"sat":"", own?"":"off",
+                   (own && hol)?"hol":"", (own && key===todayISO)?"today":""].filter(Boolean).join(" ");
+      body += `<td class="${cls}"><div class="cellin">`;
+      body += `<div class="dnum">${d.getDate()}${hol?`<span class="hname">${esc(hol)}</span>`:""}</div>`;
+      if(own){
+        body += `<div class="sched">${E("sched", key, "")}</div>`;
+        const list = auto[key] || [];
+        if(list.length) body += `<div class="autoev">${
+          list.map(x=>`<div class="ae ${x.kind}">${esc(x.txt)}</div>`).join("")}</div>`;
+        body += `<div class="note">${E("note", key, "")}</div>`;
+      }
+      body += "</div></td>";
+    }
+    body += "</tr>";
+  }
+
+  return `<div class="sheet calsheet" data-cal="${m}"><div class="page calpage" style="font-size:${base}pt">
+    <div class="mhead">
+      <span class="yr">${Y}</span><span class="no"><b>${MO}</b>월</span>
+      <span class="ttl">중등부 월간 일정표</span>
+      <span class="org">수학도서관</span>
+    </div>
+    <table class="cal"><thead><tr>${
+      WDS.map((w,i)=>`<th class="${i===0?"sun":i===6?"sat":""}">${w}</th>`).join("")
+    }</tr></thead><tbody>${body}</tbody></table>
+    <div class="plan">
+      <div class="box memo"><h3>이달의 일정 · 계획</h3>
+        <div class="body">${E("plan", m, "이달의 일정과 계획을 적습니다")}</div></div>
+      <div class="box todo"><h3>확인 · 준비할 일</h3>
+        <div class="body">${E("todo", m, "")}</div></div>
+    </div>
+  </div></div>`;
+}
+
+function hydrateCal(root){
+  root.querySelectorAll(".cedit").forEach(el=>{
+    if(!state.editing) return;
+    const parts = el.dataset.edit.split("|");
+    const m = parts[1], kind = parts[2], key = parts[3];
+    el.setAttribute("contenteditable","true");
+    el.addEventListener("focus",()=>{
+      root.querySelectorAll(".cedit.sel").forEach(x=>x.classList.remove("sel"));
+      el.classList.add("sel"); state.focusEl = el; state.focusPath = el.dataset.edit;
+      updateFmtBar();
+    });
+    el.addEventListener("paste",ev=>{ ev.preventDefault();
+      document.execCommand("insertText",false,(ev.clipboardData||window.clipboardData).getData("text")); });
+    el.addEventListener("input",()=>{
+      if(!el.textContent.trim() && !el.querySelector("span[style]")) el.innerHTML = "";
+      calSet(m, kind, key, sanitize(el.innerHTML));
+      svState("typing","입력 중…"); saveCalSoon();
+      const cell = el.closest(".cellin");
+      if(cell) cell.classList.toggle("over", cell.scrollHeight > cell.clientHeight + 1);
+    });
+    el.addEventListener("blur",()=>calSet(m, kind, key, sanitize(el.innerHTML)));
+  });
+  root.querySelectorAll(".cellin").forEach(c=>
+    c.classList.toggle("over", c.scrollHeight > c.clientHeight + 1));
+}
+
+function renderCal(){
+  const s = $("#scroll");
+  const m = state.calMonth;
+  calDoc(m);
+  try{
+    s.innerHTML = `<div class="stage calstage">${calSheetHTML(m, true)}</div>`;
+    hydrateCal(s);
+  }catch(err){
+    s.innerHTML = `<div class="empty">이 달을 그리지 못했습니다.<br>
+      <span style="font-size:12px;color:var(--faint)">${esc(String(err&&err.message||err))}</span></div>`;
+    return;
+  }
+  fitCalStage();
+  $("#fitInfo").textContent = "";
+  $("#btnEdit").textContent = state.editing ? "편집 끝내기" : "편집";
+  $("#btnEdit").classList.toggle("solid", state.editing);
+}
+function fitCalStage(){
+  const CW = 297*MM, CH = 210*MM;
+  document.querySelectorAll(".scroll .calstage").forEach(st=>{
+    const sh = st.querySelector(".calsheet"); if(!sh) return;
+    const room = $("#scroll").clientWidth - 40;
+    const z = Math.max(.3, Math.min(1, room/CW));
+    sh.style.transform = `scale(${z})`;
+    st.style.width = (CW*z)+"px"; st.style.height = (CH*z)+"px";
+  });
+}
+
+/* ── 저장 ── */
+async function saveCalNowQuiet(){
+  try{ await store.set("mathlib-cal", JSON.stringify({v:1, updatedAt:new Date().toISOString(), cal:state.cal})); }catch(e){}
+}
+let calTimer = null;
+function saveCalSoon(){ clearTimeout(calTimer); calTimer = setTimeout(saveCalNow, 700); }
+async function saveCalNow(){
+  await store.set("mathlib-cal", JSON.stringify({v:1, updatedAt:new Date().toISOString(), cal:state.cal}));
+  refreshSaveBtn();
+  if(fbOn && autoSync) calPushSoon();
+  else svIdle();
+}
+let calPushTimer = null;
+function calPushSoon(){ clearTimeout(calPushTimer); calPushTimer = setTimeout(calPush, 2200); }
+async function calPush(){
+  if(!fbOn) return;
+  const dirty = Object.keys(state.cal).filter(k=>state.cal[k] && state.cal[k]._dirty);
+  if(!dirty.length) return;
+  const {doc, writeBatch} = fbM;
+  const now = new Date().toISOString();
+  const batch = writeBatch(db);
+  dirty.forEach(k=>{
+    const d = state.cal[k];
+    batch.set(doc(db, CAL_COL, k), {
+      sched: d.sched||{}, notes: d.notes||{},
+      plan: d.plan===undefined?null:d.plan, todo: d.todo===undefined?null:d.todo,
+      base: d.base||null, _u: now, _by: who()
+    });
+  });
+  svState("saving","달력을 보내는 중…");
+  try{
+    await batch.commit();
+    dirty.forEach(k=>{ state.cal[k]._u = now; delete state.cal[k]._dirty; });
+    await store.set("mathlib-cal", JSON.stringify({v:1, updatedAt:now, cal:state.cal}));
+    svState("synced", `모든 기기에 저장됨 ${hhmm()}`);
+  }catch(e){ svState("warn","전송 실패 — "+fsReason(e)); }
+  refreshSaveBtn();
+}
+let calUnsub = null;
+function calListen(){
+  if(!fbM || !db) return;
+  if(calUnsub) calUnsub();
+  const {collection, onSnapshot} = fbM;
+  calUnsub = onSnapshot(collection(db, CAL_COL), snap=>{
+    let changed = 0;
+    snap.docChanges().forEach(ch=>{
+      const k = ch.doc.id;
+      if(ch.type === "removed") return;                 /* 삭제는 따라가지 않습니다 */
+      const r = ch.doc.data(); if(!r) return;
+      const cur = state.cal[k];
+      if(cur && cur._dirty) return;                     /* 내 미저장 수정이 우선 */
+      if(cur && cur._u && r._u && r._u <= cur._u) return;
+      state.cal[k] = {
+        sched: r.sched||{}, notes: r.notes||{},
+        plan: r.plan===null?undefined:r.plan, todo: r.todo===null?undefined:r.todo,
+        base: r.base||undefined, _u: r._u
+      };
+      changed++;
+    });
+    if(!changed) return;
+    store.set("mathlib-cal", JSON.stringify({v:1, updatedAt:new Date().toISOString(), cal:state.cal}));
+    if(state.view === "cal") renderCal();
+  }, err=>{});
+}
+async function calUploadMissing(){
+  if(!fbOn) return;
+  try{
+    const {collection, getDocs} = fbM;
+    const snap = await getDocs(collection(db, CAL_COL));
+    const remote = new Set(snap.docs.map(d=>d.id));
+    let n = 0;
+    Object.keys(state.cal).forEach(k=>{
+      const d = state.cal[k];
+      if(!d) return;
+      const has = Object.keys(d.sched||{}).length || Object.keys(d.notes||{}).length
+               || d.plan !== undefined || d.todo !== undefined;
+      if(has && !remote.has(k)){ d._dirty = true; n++; }
+    });
+    if(n){ await calPush(); toast(`저장소에 없던 달력 ${n}개월을 올렸습니다.`); }
+  }catch(e){}
+}
+
+/* ── 예전 캘린더 백업 파일 불러오기 (덮어쓰지 않고 합칩니다) ── */
+function calImport(obj){
+  if(!obj || typeof obj !== "object") throw new Error("형식이 아닙니다");
+  const src = obj.cal ? null : obj;
+  let n = 0;
+  if(obj.cal && typeof obj.cal === "object"){
+    Object.keys(obj.cal).forEach(k=>{
+      const d = calDoc(k), s = obj.cal[k] || {};
+      Object.assign(d.sched, s.sched||{}); Object.assign(d.notes, s.notes||{});
+      if(s.plan !== undefined) d.plan = s.plan;
+      if(s.todo !== undefined) d.todo = s.todo;
+      d._dirty = true; n++;
+    });
+    return n;
+  }
+  if(!src || (!src.sched && !src.notes && !src.plans && !src.todos))
+    throw new Error("캘린더 백업이 아닙니다");
+  const put = (map, kind)=>Object.keys(map||{}).forEach(key=>{
+    const m = kind==="plan" || kind==="todo" ? key : key.slice(0,7);
+    const d = calDoc(m);
+    if(kind==="sched") d.sched[key] = map[key];
+    else if(kind==="note") d.notes[key] = map[key];
+    else if(kind==="plan") d.plan = map[key];
+    else d.todo = map[key];
+    d._dirty = true; n++;
+  });
+  put(src.sched,"sched"); put(src.notes,"note"); put(src.plans,"plan"); put(src.todos,"todo");
+  return n;
+}
+
+
 function setTab(){
   $("#tabMinutes").setAttribute("aria-selected", state.view==="minutes");
+  $("#tabCal").setAttribute("aria-selected", state.view==="cal");
   $("#tabTracker").setAttribute("aria-selected", state.view==="tracker");
-  ["btnEdit","btnDup","btnDel","btnShare"].forEach(id=>$("#"+id).disabled = state.view!=="minutes");
+  const mi = state.view==="minutes", ca = state.view==="cal";
+  ["btnDup","btnDel"].forEach(id=>$("#"+id).disabled = !mi);
+  ["btnEdit","btnShare","btnPrint"].forEach(id=>$("#"+id).disabled = !(mi||ca));
+  $("#btnNew").hidden = ca;
+  $("#btnAuto").hidden = !ca;
+  $("#btnAuto").textContent = state.calAuto ? "회의일정 표시 ✓" : "회의일정 표시";
+  $("#q").placeholder = ca ? "달력에서 찾기" : "주차·안건·내용 검색";
+  $("#btnOrder").hidden = ca;
 }
 
 /* ── 이벤트 ── */
 $("#list").addEventListener("click",e=>{
+  const cpick = e.target.closest("[data-cpick]");
+  if(cpick){ const m=cpick.dataset.cpick; cpick.checked? state.calSel.add(m):state.calSel.delete(m); renderList(); return; }
+  const mit = e.target.closest("[data-mid]");
+  if(mit && state.view==="cal"){
+    state.calMonth = mit.dataset.mid; renderList(); renderCal(); saveUI();
+    if(innerWidth<=900) $("#rail").classList.remove("open");
+    return;
+  }
   const pick = e.target.closest("[data-pick]");
   if(pick){ const id=pick.dataset.pick; pick.checked? state.sel.add(id):state.sel.delete(id); renderList(); return; }
   const it = e.target.closest(".witem"); if(!it) return;
@@ -1882,9 +2414,20 @@ $("#btnOrder").onclick = ()=>{
   renderList(); saveUI();
   toast(state.order === "desc" ? "최신 주차가 맨 위로 옵니다." : "오래된 주차가 맨 위로 옵니다.");
 };
-$("#tabMinutes").onclick = ()=>{ state.view="minutes"; setTab(); renderMain(); saveUI(); };
-$("#tabTracker").onclick = ()=>{ state.view="tracker"; state.editing=false; setTab(); renderMain(); saveUI(); };
+$("#tabMinutes").onclick = ()=>{ state.view="minutes"; setTab(); renderList(); renderMain(); saveUI(); };
+$("#tabCal").onclick = ()=>{
+  state.view="cal";
+  if(!state.calMonth){ const t=new Date(); state.calMonth = t.getFullYear()+"-"+p2(t.getMonth()+1); }
+  if(monthList().indexOf(state.calMonth)<0) state.calMonth = monthList()[monthList().length-1];
+  setTab(); renderList(); renderMain(); saveUI();
+};
+$("#btnAuto").onclick = ()=>{
+  state.calAuto = !state.calAuto; setTab(); renderCal(); saveUI();
+  toast(state.calAuto ? "회의록의 일정을 함께 표시합니다." : "직접 적은 일정만 표시합니다.");
+};
+$("#tabTracker").onclick = ()=>{ state.view="tracker"; state.editing=false; setTab(); renderList(); renderMain(); saveUI(); };
 $("#btnEdit").onclick = ()=>{ state.editing=!state.editing; renderMain(); saveUI();
+  if(state.editing) updateFmtBar();
   toast(state.editing?"칸을 눌러 바로 고칠 수 있습니다.":"편집을 마쳤습니다."); };
 $("#btnPrint").onclick = doPrint;
 $("#btnDup").onclick = duplicate;
@@ -2080,6 +2623,20 @@ $("#fileInfo").addEventListener("change",e=>{
   autoBk = e.target.checked; store.set(BKONKEY, autoBk?"1":"0");
   toast(autoBk?"하루 1회 자동 백업을 켰습니다.":"자동 백업을 껐습니다.");
 });
+$("#btnCalImport").onclick = ()=>$("#calFileIn").click();
+$("#calFileIn").onchange = e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    let n = 0;
+    try{ n = calImport(JSON.parse(r.result)); }
+    catch(err){ return alert("캘린더 백업 파일이 아닙니다.\n\n예전 캘린더에서 [백업 · 복구] → [파일로 저장] 으로 받은 .json 파일을 골라 주세요.\n\n("+(err.message||err)+")"); }
+    saveCalNow();
+    if(state.view==="cal") renderList(), renderCal();
+    toast(`예전 캘린더에서 ${n}건을 합쳤습니다. [저장]을 눌러 모든 기기에 반영하세요.`);
+  };
+  r.readAsText(f); e.target.value="";
+};
 $("#btnImport").onclick = ()=>$("#fileIn").click();
 $("#fileIn").onchange = e=>{
   const f = e.target.files[0]; if(!f) return;
@@ -2100,7 +2657,8 @@ addEventListener("keydown",e=>{
   if((e.metaKey||e.ctrlKey)&&e.key==="p"){ e.preventDefault(); doPrint(); }
   if((e.metaKey||e.ctrlKey)&&e.key==="s"){ e.preventDefault(); saveNow(); }
 });
-let rz; addEventListener("resize",()=>{ clearTimeout(rz); rz=setTimeout(fitAll,120); });
+let rz; addEventListener("resize",()=>{ clearTimeout(rz);
+  rz=setTimeout(()=>{ if(state.view==="cal") fitCalStage(); else fitAll(); },120); });
 $("#scroll").addEventListener("scroll", saveUI, {passive:true});
 document.addEventListener("visibilitychange", ()=>{ if(document.hidden) save(true); });
 addEventListener("beforeunload", ()=>{ try{ localStorage.setItem(UIKEY, JSON.stringify({
@@ -2185,6 +2743,12 @@ function normalize(){
   }catch(e){ fbCfg = DEFAULT_FB; }
   try{ pendingDel = JSON.parse(await store.get("mathlib-del")||"[]"); }catch(e){}
   autoSync = (await store.get(AUTOKEY)) !== "0";
+  try{
+    const raw = await store.get("mathlib-cal");
+    const o = raw && JSON.parse(raw);
+    if(o && o.cal && typeof o.cal === "object") state.cal = o.cal;
+  }catch(e){}
+  Object.values(state.cal).forEach(d=>{ if(d){ d.sched ||= {}; d.notes ||= {}; } });
   bkDate = await store.get(BKKEY);
   autoBk = (await store.get(BKONKEY)) !== "0";
 
@@ -2207,9 +2771,15 @@ function normalize(){
   try{ ui = JSON.parse(await store.get(UIKEY)); }catch(e){}
   /* 열 때는 항상 날짜가 가장 늦은(마지막) 주차부터 */
   state.cur = state.weeks[state.weeks.length-1]?.id ?? null;
-  if(ui){ state.view = ui.view==="tracker" ? "tracker" : "minutes";
+  if(ui){ state.view = (ui.view==="tracker"||ui.view==="cal") ? ui.view : "minutes";
           state.filter = ui.filter || state.filter;
-          state.order = ui.order === "desc" ? "desc" : "asc"; }
+          state.order = ui.order === "desc" ? "desc" : "asc";
+          if(ui.calMonth) state.calMonth = ui.calMonth;
+          if(ui.calAuto === false) state.calAuto = false; }
+  if(!state.calMonth || monthList().indexOf(state.calMonth) < 0){
+    const t = new Date(); const k = t.getFullYear()+"-"+p2(t.getMonth()+1);
+    state.calMonth = monthList().indexOf(k)>=0 ? k : monthList()[monthList().length-1];
+  }
   state.editing = false;
   setTab(); renderList(); renderMain();
   refreshSaveBtn(); svIdle(); renderFootStat();
