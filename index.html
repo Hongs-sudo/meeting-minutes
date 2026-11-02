@@ -101,6 +101,11 @@ button{font-size:inherit;color:inherit;cursor:pointer}
 .btn.solid:hover{background:#17403f}
 .btn.ghostbtn{background:transparent;border-color:transparent;color:var(--ink2)}
 .btn.danger:hover{color:var(--alert);border-color:var(--alert)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:6px 11px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button:hover{background:#f1f5f4}
+.seg button[aria-pressed=true]{background:var(--brand);color:#fff}
 .btn[disabled]{opacity:.4;cursor:default}
 .mode{font-size:12px;color:var(--ink2)}
 .sv{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
@@ -342,7 +347,10 @@ body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
   width:297mm;height:210mm;padding:7mm 8mm;background:#fff;overflow:hidden;
   box-shadow:0 1px 2px rgba(0,0,0,.13),0 14px 36px rgba(20,48,46,.16)}
 .editing .calsheet{box-shadow:0 1px 2px rgba(0,0,0,.13),0 14px 36px rgba(20,48,46,.16),0 0 0 3px #cbe0de}
+.calsheet[data-mode="2"]{width:210mm;height:297mm;padding:7mm 7mm}
 .calpage{display:flex;flex-direction:column;height:100%;color:#1A1A1A;line-height:1.3}
+.calsheet[data-mode="2"] .calpage{gap:6mm}
+.cmonth{display:flex;flex-direction:column;flex:1;min-height:0}
 .calpage .mhead{display:flex;align-items:baseline;gap:10px;
   border-bottom:1.6pt solid var(--brand);padding-bottom:2mm;flex:none}
 .calpage .yr{font-size:10pt;color:#5c6570}
@@ -378,6 +386,21 @@ table.cal td.today{background:#fff7e0;box-shadow:inset 0 0 0 1.4pt #c7962c}
   font-size:.82em;line-height:1.1;padding:0 3px;cursor:pointer;font-weight:700}
 .aeget:hover{background:#6B2FC9;color:#fff;border-color:#6B2FC9}
 .calpage .plan{display:flex;gap:4mm;height:28mm;margin-top:2mm;flex:none}
+.calsheet[data-mode="2"] .mhead{padding-bottom:1.4mm}
+.calsheet[data-mode="2"] .no{font-size:18pt}
+.calsheet[data-mode="2"] .ttl{font-size:9pt}
+.calsheet[data-mode="2"] .org{font-size:7.5pt}
+.calsheet[data-mode="2"] .yr{font-size:8.5pt}
+.calsheet[data-mode="2"] table.cal th{font-size:7.5pt;padding:1mm 0}
+.calsheet[data-mode="2"] .dnum{font-size:8.5pt}
+.calsheet[data-mode="2"] .dnum .hname{font-size:5.6pt}
+.calsheet[data-mode="2"] .cellin{padding:.7mm .9mm}
+.calsheet[data-mode="2"] .sched{min-height:1.8mm;padding-left:.9mm}
+.calsheet[data-mode="2"] .plan{height:20mm;margin-top:1.5mm;gap:3mm}
+.calsheet[data-mode="2"] .box{padding:1mm 1.5mm}
+.calsheet[data-mode="2"] .box h3{font-size:7pt;margin-bottom:.6mm}
+.calsheet[data-mode="2"] .box .body{font-size:6.4pt;line-height:1.35}
+.cellin.tight .sched,.cellin.tight .note,.cellin.tight .autoev{font-size:.85em;line-height:1.2}
 .calpage .box{border:.5pt solid #cbc8c1;border-top:1.2pt solid var(--brand);
   padding:1.4mm 2mm;display:flex;flex-direction:column;border-radius:0}
 .calpage .box h3{margin:0 0 1mm;font-size:8pt;font-weight:700;color:var(--brand)}
@@ -392,6 +415,7 @@ table.cal td.today{background:#fff7e0;box-shadow:inset 0 0 0 1.4pt #c7962c}
 .editing .cedit.sel{box-shadow:inset 0 0 0 2px #4f8f8b}
 .editing .calpage .box .body .cedit{min-height:100%}
 #capHost.cal{width:297mm;height:210mm}
+#capHost.cal2{width:210mm;height:297mm}
 
 /* ───────── print : 화면과 동일 ───────── */
 @media print{
@@ -403,6 +427,7 @@ table.cal td.today{background:#fff7e0;box-shadow:inset 0 0 0 1.4pt #c7962c}
   .sheet{position:static;box-shadow:none!important;transform:none!important;
     width:var(--pagew);height:var(--pageh);break-inside:avoid}
   .calsheet{width:297mm!important;height:210mm!important}
+  .calsheet[data-mode="2"]{width:210mm!important;height:297mm!important}
   .calstage{width:auto!important;height:auto!important}
   .editing .cedit{background:none!important;box-shadow:none!important}
   .cedit:empty:before{content:none!important}
@@ -478,6 +503,10 @@ table.cal td.today{background:#fff7e0;box-shadow:inset 0 0 0 1.4pt #c7962c}
       <button class="btn danger" id="btnDel">삭제</button>
       <button class="btn" id="btnAuto" hidden>회의일정 표시 ✓</button>
       <button class="btn" id="btnAdopt" hidden>회의일정 가져오기</button>
+      <span class="seg" id="calModeSeg" hidden>
+        <button data-cm="1">1개월 · 가로</button>
+        <button data-cm="2">2개월 · 세로</button>
+      </span>
       <span class="grow"></span>
       <span class="mode" id="fitInfo"></span>
       <span class="sv" id="saveState"><i></i><span>불러오는 중…</span></span>
@@ -583,7 +612,7 @@ function stCls(v){
        : t ? "st-etc" : "st-none";
 }
 const KEY = "mathlib-minutes-v2";
-const APP_VER = "10.28b";
+const APP_VER = "11.03";
 /* 이 앱의 Firebase 주소표 — 공개용 값이며 보안은 로그인과 보안 규칙이 담당합니다 */
 const DEFAULT_FB = {
   apiKey: "AIzaSyAnfqK1Ij6SQBssAW_GtMg47wNNRpDvHUo",
@@ -789,7 +818,7 @@ function renderFileInfo(){
 
 let state = { weeks:[], cur:null, editing:false, view:"minutes", filter:"미완료",
                sel:new Set(), order:"asc",
-               cal:{}, calMonth:"", calSel:new Set(), calAuto:true };
+               cal:{}, calMonth:"", calSel:new Set(), calAuto:true, calMode:"1" };
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -850,7 +879,7 @@ function saveUI(){
   clearTimeout(uiTimer);
   uiTimer = setTimeout(()=>store.set(UIKEY, JSON.stringify({
     cur: state.cur, view: state.view, filter: state.filter, order: state.order,
-    calMonth: state.calMonth, calAuto: state.calAuto,
+    calMonth: state.calMonth, calAuto: state.calAuto, calMode: state.calMode,
     editing: state.editing, scroll: $("#scroll").scrollTop
   })), 300);
 }
@@ -1188,8 +1217,11 @@ function renderCalList(){
   }
   $("#list").innerHTML = html;
   scrollListToCurrent();
-  $("#btnPrint").textContent = state.calSel.size ? `선택 ${state.calSel.size}개월 인쇄` : "이 달 인쇄";
-  $("#btnShare").textContent = state.calSel.size ? `선택 ${state.calSel.size}개월 이미지` : "이미지로 보내기";
+  const two = state.calMode === "2";
+  $("#btnPrint").textContent = state.calSel.size
+    ? `선택 ${state.calSel.size}개월 인쇄` : (two ? "이 두 달 인쇄" : "이 달 인쇄");
+  $("#btnShare").textContent = state.calSel.size
+    ? `선택 ${state.calSel.size}개월 이미지` : "이미지로 보내기";
 }
 function renderList(){
   if(state.view === "cal") return renderCalList();
@@ -1466,8 +1498,7 @@ function applyCalSel(patch){
 }
 function updateFmtBar(){
   if(state.view === "cal"){
-    const d = state.cal[state.calMonth] || {};
-    $("#baseNum").value = num(d.base || 9);
+    $("#baseNum").value = calBase(state.calMonth, state.calMode);
     const live = state.focusEl && state.focusEl.classList.contains("cedit");
     const selText = live && !(window.getSelection()?.isCollapsed ?? true);
     $("#selName").textContent = !live ? "— 칸을 눌러 선택"
@@ -1539,7 +1570,17 @@ function applyFmt(patch){
   el.style.color = f.color || "";
   save(); fitSoon(); updateFmtBar();
 }
+function setCalBase(v){
+  const val = clamp(num(v*2)/2, 4, 16);
+  calPairFor(state.calMonth).forEach(k=>{
+    const d = calDoc(k);
+    if(state.calMode === "2") d.base2 = val; else d.base = val;
+    d._dirty = true;
+  });
+  renderCal(); saveCalSoon(); updateFmtBar();
+}
 function setBase(v){
+  if(state.view === "cal") return setCalBase(v);
   const w = cur(); if(!w) return;
   w.base = clamp(num(v), BASE_MIN, BASE_MAX);
   const page = document.querySelector(".scroll .page");
@@ -1561,8 +1602,8 @@ $("#fmtbar").addEventListener("click",e=>{
   if(state.view === "cal"){
     const d = calDoc(state.calMonth);
     if(t.dataset.base!==undefined){
-      d.base = clamp(num((d.base||9) + parseFloat(t.dataset.base)), 5, 16);
-      d._dirty = true; renderCal(); saveCalSoon(); return;
+      setCalBase(calBase(state.calMonth, state.calMode) + parseFloat(t.dataset.base));
+      return;
     }
     if(t.dataset.fs!==undefined){
       const s0 = effSize(null, state.focusPath) || (d.base||9);
@@ -1572,8 +1613,13 @@ $("#fmtbar").addEventListener("click",e=>{
       return applyCalSel({color: t.dataset.color===INK ? null : t.dataset.color});
     if(t.id==="fmtReset") return applyCalSel({color:null, size:null});
     if(t.id==="fmtResetAll"){
-      if(!confirm("이 달의 글자 크기를 기본값으로 되돌립니다. (적어둔 내용은 그대로입니다)")) return;
-      delete d.base; d._dirty = true; renderCal(); saveCalSoon(); toast("글자 크기를 되돌렸습니다."); return;
+      if(!confirm("이 화면의 글자 크기를 기본값으로 되돌립니다. (적어둔 내용은 그대로입니다)")) return;
+      calPairFor(state.calMonth).forEach(k=>{
+        const x = calDoc(k);
+        if(state.calMode === "2") delete x.base2; else delete x.base;
+        x._dirty = true;
+      });
+      renderCal(); saveCalSoon(); toast("글자 크기를 되돌렸습니다."); return;
     }
     return;
   }
@@ -1783,11 +1829,15 @@ function setPaper(land){
 }
 function doPrintCal(){
   const ms = state.calSel.size ? monthList().filter(m=>state.calSel.has(m))
-                               : (state.calMonth ? [state.calMonth] : []);
-  if(!ms.length) return toast("인쇄할 달이 없습니다.");
+                               : calPairFor(state.calMonth);
+  if(!ms.length || !ms[0]) return toast("인쇄할 달이 없습니다.");
+  const groups = state.calSel.size ? calGroups(ms) : [ms];
   const area = $("#printArea");
-  area.innerHTML = ms.map(m=>calSheetHTML(m, false)).join("");
-  setPaper(true);
+  area.innerHTML = groups.map(g=>calSheetHTML(g, false)).join("");
+  area.style.display = "block";
+  calTighten(area);
+  area.style.display = "";
+  setPaper(state.calMode !== "2");
   document.body.classList.add("multi");
   const done = ()=>{ document.body.classList.remove("multi"); area.innerHTML="";
     setPaper(false); window.removeEventListener("afterprint",done); };
@@ -1904,22 +1954,28 @@ function shotName(w){
   const t = stripHtml(w.label).replace(/[\\/:*?"<>|]/g,"").trim() || w.date;
   return `중등부회의록_${t}.png`;
 }
-async function makeCalShot(m, h2c){
+async function makeCalShot(g, h2c){
+  const ms = Array.isArray(g) ? g : [g];
+  const two = state.calMode === "2";
   const host = $("#capHost");
   host.classList.add("cal");
-  host.innerHTML = calSheetHTML(m, false);
+  host.classList.toggle("cal2", two);
+  host.innerHTML = calSheetHTML(ms, false);
   const sheet = host.querySelector(".calsheet");
   sheet.style.boxShadow = "none"; sheet.style.position = "static"; sheet.style.transform = "none";
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  calTighten(host);
+  await new Promise(r=>requestAnimationFrame(r));
   const canvas = h2c
     ? await h2c(sheet, {backgroundColor:"#ffffff", scale:2, useCORS:true, logging:false,
         width: sheet.offsetWidth, height: sheet.offsetHeight,
         windowWidth: sheet.offsetWidth, windowHeight: sheet.offsetHeight})
     : await nativeCanvas(sheet);
-  host.innerHTML = ""; host.classList.remove("cal");
+  host.innerHTML = ""; host.classList.remove("cal","cal2");
   const blob = await new Promise(r=>canvas.toBlob(r, "image/png"));
-  const [Y,MO] = m.split("-");
-  return new File([blob], `중등부월간일정_${Y}년${+MO}월.png`, {type:"image/png"});
+  const [Y,MO] = ms[0].split("-");
+  const tail = ms.length > 1 ? `-${+ms[1].split("-")[1]}` : "";
+  return new File([blob], `중등부월간일정_${Y}년${+MO}${tail}월.png`, {type:"image/png"});
 }
 async function makeShot(w, h2c){
   const host = $("#capHost");
@@ -1942,9 +1998,10 @@ async function doShare(){
   const isCal = state.view === "cal";
   let ws;
   if(isCal){
-    ws = state.calSel.size ? monthList().filter(m=>state.calSel.has(m))
-                           : (state.calMonth ? [state.calMonth] : []);
-    if(!ws.length) return toast("보낼 달이 없습니다.");
+    const ms = state.calSel.size ? monthList().filter(m=>state.calSel.has(m))
+                                 : calPairFor(state.calMonth);
+    if(!ms.length || !ms[0]) return toast("보낼 달이 없습니다.");
+    ws = state.calSel.size ? calGroups(ms) : [ms];
   }else{
     const ids = state.sel.size ? [...state.sel] : (state.cur ? [state.cur] : []);
     if(!ids.length) return toast("보낼 주차가 없습니다.");
@@ -1954,6 +2011,7 @@ async function doShare(){
   shareFiles = []; if(shareUrl){ URL.revokeObjectURL(shareUrl); shareUrl = null; }
   $("#shareTitle").textContent = ws.length>1 ? `이미지로 보내기 (${ws.length}장)` : "이미지로 보내기";
   $("#capHost").classList.toggle("cal", isCal);
+  $("#capHost").classList.toggle("cal2", isCal && state.calMode === "2");
   $("#shareMsg").textContent = "이미지를 만들고 있습니다…";
   $("#shareShot").innerHTML = `<div class="ph">잠시만 기다려 주세요</div>`;
   ["shareCopy","shareDown","shareGo"].forEach(id=>$("#"+id).hidden = true);
@@ -2223,9 +2281,8 @@ function focusCal(m, date){
 }
 
 /* ── 한 달 그리기 ── */
-function calSheetHTML(m, live){
+function calMonthHTML(m, live, mode){
   const [Y, MO] = m.split("-").map(Number);
-  const base = state.cal[m] && state.cal[m].base ? state.cal[m].base : 9;
   const todayISO = (()=>{ const d=new Date(); return isoOf(d); })();
   const adopted = (state.cal[m] && state.cal[m].adopted) || {};
   const E = (kind, key, lb)=>{
@@ -2264,7 +2321,7 @@ function calSheetHTML(m, live){
     body += "</tr>";
   }
 
-  return `<div class="sheet calsheet" data-cal="${m}"><div class="page calpage" style="font-size:${base}pt">
+  return `<div class="cmonth" data-cal="${m}" style="font-size:${calBase(m,mode)}pt">
     <div class="mhead">
       <span class="yr">${Y}</span><span class="no"><b>${MO}</b>월</span>
       <span class="ttl">중등부 월간 일정표</span>
@@ -2279,7 +2336,35 @@ function calSheetHTML(m, live){
       <div class="box todo"><h3>확인 · 준비할 일</h3>
         <div class="body">${E("todo", m, "")}</div></div>
     </div>
-  </div></div>`;
+  </div>`;
+}
+/* 한 장(1개월 가로 또는 2개월 세로) */
+function calSheetHTML(ms, live, mode){
+  const list = Array.isArray(ms) ? ms : [ms];
+  mode = mode || state.calMode || "1";
+  return `<div class="sheet calsheet" data-mode="${mode}" data-cal="${list[0]}">`
+    + `<div class="page calpage">${list.map(m=>calMonthHTML(m, live, mode)).join("")}</div></div>`;
+}
+function calBase(m, mode){
+  const d = state.cal[m] || {};
+  return mode === "2" ? (d.base2 || 6.5) : (d.base || 9);
+}
+function nextMonth(m){
+  const i = monthList().indexOf(m);
+  return (i >= 0 && i+1 < monthList().length) ? monthList()[i+1] : null;
+}
+/* 화면에 띄울 짝 : 고른 달 + 다음 달 */
+function calPairFor(m){
+  if(state.calMode !== "2") return [m];
+  const n = nextMonth(m);
+  return n ? [m, n] : [m];
+}
+/* 인쇄·이미지용 묶음 */
+function calGroups(list){
+  if(state.calMode !== "2") return list.map(m=>[m]);
+  const out = [];
+  for(let i=0; i<list.length; i+=2) out.push(list.slice(i, i+2));
+  return out;
 }
 
 function hydrateCal(root){
@@ -2300,12 +2385,15 @@ function hydrateCal(root){
       calSet(m, kind, key, sanitize(el.innerHTML));
       svState("typing","입력 중…"); saveCalSoon();
       const cell = el.closest(".cellin");
-      if(cell) cell.classList.toggle("over", cell.scrollHeight > cell.clientHeight + 1);
+      if(cell){
+        cell.classList.remove("tight","over");
+        if(cell.scrollHeight > cell.clientHeight + 1) cell.classList.add("tight");
+        if(cell.scrollHeight > cell.clientHeight + 1) cell.classList.add("over");
+      }
     });
     el.addEventListener("blur",()=>calSet(m, kind, key, sanitize(el.innerHTML)));
   });
-  root.querySelectorAll(".cellin").forEach(c=>
-    c.classList.toggle("over", c.scrollHeight > c.clientHeight + 1));
+  calTighten(root);
 }
 
 function renderCal(){
@@ -2313,7 +2401,7 @@ function renderCal(){
   const m = state.calMonth;
   calDoc(m);
   try{
-    s.innerHTML = `<div class="stage calstage">${calSheetHTML(m, true)}</div>`;
+    s.innerHTML = `<div class="stage calstage">${calSheetHTML(calPairFor(m), true)}</div>`;
     hydrateCal(s);
   }catch(err){
     s.innerHTML = `<div class="empty">이 달을 그리지 못했습니다.<br>
@@ -2326,13 +2414,24 @@ function renderCal(){
   $("#btnEdit").classList.toggle("solid", state.editing);
 }
 function fitCalStage(){
-  const CW = 297*MM, CH = 210*MM;
+  const two = state.calMode === "2";
+  const CW = (two?210:297)*MM, CH = (two?297:210)*MM;
   document.querySelectorAll(".scroll .calstage").forEach(st=>{
     const sh = st.querySelector(".calsheet"); if(!sh) return;
     const room = $("#scroll").clientWidth - 40;
     const z = Math.max(.3, Math.min(1, room/CW));
     sh.style.transform = `scale(${z})`;
     st.style.width = (CW*z)+"px"; st.style.height = (CH*z)+"px";
+  });
+}
+/* 칸이 넘치면 한 단계 줄이고, 그래도 넘치면 표시 */
+function calTighten(root){
+  root.querySelectorAll(".cellin").forEach(c=>{
+    c.classList.remove("tight","over");
+    if(c.scrollHeight > c.clientHeight + 1) c.classList.add("tight");
+  });
+  root.querySelectorAll(".cellin.tight").forEach(c=>{
+    if(c.scrollHeight > c.clientHeight + 1) c.classList.add("over");
   });
 }
 
@@ -2362,7 +2461,7 @@ async function calPush(){
     batch.set(doc(db, CAL_COL, k), {
       sched: d.sched||{}, notes: d.notes||{},
       plan: d.plan===undefined?null:d.plan, todo: d.todo===undefined?null:d.todo,
-      adopted: d.adopted||null, base: d.base||null, _u: now, _by: who()
+      adopted: d.adopted||null, base: d.base||null, base2: d.base2||null, _u: now, _by: who()
     });
   });
   svState("saving","달력을 보내는 중…");
@@ -2391,7 +2490,8 @@ function calListen(){
       state.cal[k] = {
         sched: r.sched||{}, notes: r.notes||{},
         plan: r.plan===null?undefined:r.plan, todo: r.todo===null?undefined:r.todo,
-        adopted: r.adopted||undefined, base: r.base||undefined, _u: r._u
+        adopted: r.adopted||undefined, base: r.base||undefined,
+        base2: r.base2||undefined, _u: r._u
       };
       changed++;
     });
@@ -2411,7 +2511,7 @@ async function calUploadMissing(){
       const d = state.cal[k];
       if(!d) return;
       const has = Object.keys(d.sched||{}).length || Object.keys(d.notes||{}).length
-               || d.plan !== undefined || d.todo !== undefined || d.adopted;
+               || d.plan !== undefined || d.todo !== undefined || d.adopted || d.base2;
       if(has && !remote.has(k)){ d._dirty = true; n++; }
     });
     if(n){ await calPush(); toast(`저장소에 없던 달력 ${n}개월을 올렸습니다.`); }
@@ -2460,6 +2560,10 @@ function setTab(){
   $("#btnNew").hidden = ca;
   $("#btnAuto").hidden = !ca;
   $("#btnAuto").textContent = state.calAuto ? "회의일정 표시 ✓" : "회의일정 표시";
+  const seg = $("#calModeSeg");
+  seg.hidden = !ca;
+  seg.querySelectorAll("[data-cm]").forEach(b=>
+    b.setAttribute("aria-pressed", String(b.dataset.cm === state.calMode)));
   const ab = $("#btnAdopt");
   ab.hidden = !ca;
   if(ca){
@@ -2501,6 +2605,13 @@ $("#tabCal").onclick = ()=>{
   if(monthList().indexOf(state.calMonth)<0) state.calMonth = monthList()[monthList().length-1];
   setTab(); renderList(); renderMain(); saveUI();
 };
+$("#calModeSeg").addEventListener("click", e=>{
+  const b = e.target.closest("[data-cm]"); if(!b) return;
+  if(state.calMode === b.dataset.cm) return;
+  state.calMode = b.dataset.cm;
+  setTab(); renderList(); renderCal(); saveUI();
+  toast(state.calMode === "2" ? "두 달씩 A4 세로로 봅니다." : "한 달씩 A4 가로로 봅니다.");
+});
 $("#btnAdopt").onclick = ()=>{
   const m = state.calMonth;
   if(calPending(m)){
@@ -2878,7 +2989,8 @@ function normalize(){
           state.filter = ui.filter || state.filter;
           state.order = ui.order === "desc" ? "desc" : "asc";
           if(ui.calMonth) state.calMonth = ui.calMonth;
-          if(ui.calAuto === false) state.calAuto = false; }
+          if(ui.calAuto === false) state.calAuto = false;
+          if(ui.calMode === "2") state.calMode = "2"; }
   if(!state.calMonth || monthList().indexOf(state.calMonth) < 0){
     const t = new Date(); const k = t.getFullYear()+"-"+p2(t.getMonth()+1);
     state.calMonth = monthList().indexOf(k)>=0 ? k : monthList()[monthList().length-1];
