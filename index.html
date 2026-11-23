@@ -282,6 +282,9 @@ body.editing .fmtbar{display:flex;align-items:center;flex-wrap:wrap}
 .sw{width:19px;height:19px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);padding:0}
 .sw[aria-pressed=true]{box-shadow:0 0 0 2px var(--brand)}
 .fmtbar [disabled]{opacity:.4;cursor:default}
+.fmtbar .zgrp{display:flex;align-items:center;gap:6px}
+.fmtbar .tgl[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+.num.off{color:var(--faint);background:#f1f5f4}
 .editing [data-edit].sel{box-shadow:inset 0 0 0 2px #4f8f8b}
 .modal{position:fixed;inset:0;background:rgba(16,38,37,.55);display:flex;align-items:center;
   justify-content:center;z-index:60;padding:20px}
@@ -520,6 +523,15 @@ table.cal td.today{background:#fff7e0;box-shadow:inset 0 0 0 1.4pt #c7962c}
       <input class="num" id="baseNum" inputmode="decimal" aria-label="전체 글자 크기(pt)">
       <button class="sq" data-base="1" title="크게">＋</button><span class="unit">pt</span>
       <span class="sep"></span>
+      <span class="zgrp" id="zoomGrp">
+        <span class="fl" title="편집 화면에서 크게 보기 — 인쇄·이미지는 늘 A4 한 장에 맞춰 나갑니다">본문 배율</span>
+        <button class="sq" data-zoom="-5" title="작게">−</button>
+        <input class="num" id="zoomNum" inputmode="numeric" aria-label="본문 배율(%)">
+        <button class="sq" data-zoom="5" title="크게">＋</button><span class="unit">%</span>
+        <button class="btn tgl" id="zoomAuto" aria-pressed="true" style="padding:4px 10px"
+          title="A4 한 장에 맞는 크기로 되돌립니다">자동</button>
+      </span>
+      <span class="sep"></span>
       <span class="fl" title="글자를 드래그해 선택하면 그 부분에만 적용됩니다">선택한 칸</span><span class="selname" id="selName">— 칸을 눌러 선택</span>
       <button class="sq" id="fsMinus" data-fs="-1">−</button>
       <input class="num" id="fsNum" inputmode="decimal" aria-label="선택한 칸 글자 크기(pt)">
@@ -615,7 +627,7 @@ function stCls(v){
        : t ? "st-etc" : "st-none";
 }
 const KEY = "mathlib-minutes-v2";
-const APP_VER = "11.03c";
+const APP_VER = "11.04";
 /* 이 앱의 Firebase 주소표 — 공개용 값이며 보안은 로그인과 보안 규칙이 담당합니다 */
 const DEFAULT_FB = {
   apiKey: "AIzaSyAnfqK1Ij6SQBssAW_GtMg47wNNRpDvHUo",
@@ -819,7 +831,7 @@ function renderFileInfo(){
   }
 }
 
-let state = { weeks:[], cur:null, editing:false, view:"minutes", filter:"미완료",
+let state = { weeks:[], cur:null, editing:false, view:"minutes", filter:"미완료", zoom:null,
                sel:new Set(), order:"asc",
                cal:{}, calMonth:"", calSel:new Set(), calAuto:true, calMode:"1" };
 
@@ -883,7 +895,7 @@ function saveUI(){
   uiTimer = setTimeout(()=>store.set(UIKEY, JSON.stringify({
     cur: state.cur, view: state.view, filter: state.filter, order: state.order,
     calMonth: state.calMonth, calAuto: state.calAuto, calMode: state.calMode,
-    editing: state.editing, scroll: $("#scroll").scrollTop
+    zoom: state.zoom, editing: state.editing, scroll: $("#scroll").scrollTop
   })), 300);
 }
 let saveTimer, lastLocalStamp=null, pushTimer=null, autoSync=true;
@@ -1450,6 +1462,7 @@ const COLORS = [["검정 (기본)","#1A1A1A"],["파랑","#1257E8"],["빨강","#E
                 ["초록","#0E9048"],["주황","#EA6A00"]];
 const INK = "#1A1A1A";
 const BASE_MIN=6, BASE_MAX=18, FS_MIN=5, FS_MAX=36;
+const ZOOM_MIN=50, ZOOM_MAX=200;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const num=v=>Math.round(v);
 
@@ -1500,6 +1513,7 @@ function applyCalSel(patch){
   saveCalSoon();
 }
 function updateFmtBar(){
+  syncZoomUI();
   if(state.view === "cal"){
     $("#baseNum").value = calBase(state.calMonth, state.calMode);
     const live = state.focusEl && state.focusEl.classList.contains("cedit");
@@ -1626,6 +1640,9 @@ $("#fmtbar").addEventListener("click",e=>{
     }
     return;
   }
+  if(t.id==="zoomAuto") return setZoom(null);
+  if(t.dataset.zoom!==undefined)
+    return setZoom((state.zoom || Math.round(lastFit*100)) + parseFloat(t.dataset.zoom));
   if(t.dataset.base!==undefined) return setBase((w.base||10)+parseFloat(t.dataset.base));
   if(t.dataset.fs!==undefined){
     const s0 = effSize(w,state.focusPath); if(s0==null) return toast("먼저 바꿀 칸을 눌러 선택하세요.");
@@ -1643,6 +1660,7 @@ $("#fmtbar").addEventListener("click",e=>{
 });
 document.addEventListener("selectionchange", ()=>{ if(state.editing) updateFmtBar(); });
 $("#baseNum").addEventListener("change",e=>setBase(parseFloat(e.target.value)||10));
+$("#zoomNum").addEventListener("change",e=>setZoom(e.target.value.trim()===""?null:e.target.value));
 $("#fsNum").addEventListener("change",e=>{
   const v = parseFloat(e.target.value);
   applyFmt({size: isNaN(v) ? null : clamp(num(v), FS_MIN, FS_MAX)});
@@ -1685,20 +1703,60 @@ function fitStage(){
     const z = Math.max(.3, Math.min(1, room/PAGE_W));
     sheet.style.transform = `scale(${z})`;
     st.style.width = (PAGE_W*z)+"px";
-    st.style.height = (PAGE_H*z)+"px";
+    st.style.height = ((sheet.offsetHeight||PAGE_H)*z)+"px";
     st.dataset.zoom = z;
   });
 }
 let fitTimer;
 function fitSoon(){ clearTimeout(fitTimer); fitTimer=setTimeout(fitAll,180); }
+let lastFit = 1;
+/* 편집 중에만 쓰는 화면용 확대 — 인쇄·이미지에는 쓰지 않는다 */
+function applyZoom(sheet, kAuto){
+  const page = sheet.querySelector(".page");
+  if(!page) return kAuto;
+  const z = (state.editing && state.view==="minutes" && state.zoom)
+    ? clamp(state.zoom, ZOOM_MIN, ZOOM_MAX)/100 : null;
+  if(!z || Math.abs(z-kAuto) < 0.005){ sheet.style.height = ""; return kAuto; }
+  page.style.transform = z===1 ? "none" : `scale(${z})`;
+  page.style.width     = z===1 ? "100%" : (100/z)+"%";
+  sheet.style.height = Math.max(PAGE_H, PAD_V*2 + page.scrollHeight*z) + "px";
+  return z;
+}
+function syncZoomUI(){
+  const g = $("#zoomGrp"); if(!g) return;
+  if(state.view !== "minutes"){ g.style.display = "none"; return; }
+  g.style.display = "";
+  const auto = state.zoom == null;
+  $("#zoomAuto").setAttribute("aria-pressed", auto ? "true" : "false");
+  $("#zoomNum").value = auto ? Math.round(lastFit*100) : state.zoom;
+  $("#zoomNum").classList.toggle("off", auto);
+}
+function setZoom(v){
+  if(state.view !== "minutes") return;
+  if(v == null) state.zoom = null;
+  else{
+    const n = parseFloat(v);
+    if(isNaN(n)) return syncZoomUI();
+    state.zoom = clamp(Math.round(n), ZOOM_MIN, ZOOM_MAX);
+  }
+  saveUI(); fitAll();
+}
 function fitAll(){
   document.querySelectorAll(".scroll .sheet, #printArea .sheet").forEach(sh=>{
     if(sh.classList.contains("calsheet")) return;
     const z = sh.style.transform;             /* 화면 배율 잠시 해제하고 본문 배율 계산 */
     sh.style.transform = "none";
     const k = fitSheet(sh);
+    const live = !!sh.closest(".scroll");
+    const m = live ? applyZoom(sh, k) : k;
     sh.style.transform = z;
-    if(sh.closest(".scroll")) $("#fitInfo").textContent = k<0.995 ? `본문 배율 ${Math.round(k*100)}%` : "";
+    if(live){
+      lastFit = k;
+      $("#fitInfo").textContent = Math.abs(m-k) < 0.005
+        ? (k<0.995 ? `본문 배율 ${Math.round(k*100)}% · 자동` : "")
+        : `본문 배율 ${Math.round(m*100)}% · 화면에서만 (인쇄 ${Math.round(k*100)}%)`;
+      syncZoomUI();
+    }
   });
   fitStage();
 }
@@ -2880,7 +2938,8 @@ let rz; addEventListener("resize",()=>{ clearTimeout(rz);
 $("#scroll").addEventListener("scroll", saveUI, {passive:true});
 document.addEventListener("visibilitychange", ()=>{ if(document.hidden) save(true); });
 addEventListener("beforeunload", ()=>{ try{ localStorage.setItem(UIKEY, JSON.stringify({
-  cur:state.cur, view:state.view, filter:state.filter, editing:state.editing, scroll:$("#scroll").scrollTop })); }catch(e){} });
+  cur:state.cur, view:state.view, filter:state.filter, zoom:state.zoom,
+  editing:state.editing, scroll:$("#scroll").scrollTop })); }catch(e){} });
 
 /* ── 시작 ── */
 function normalize(){
@@ -2994,7 +3053,8 @@ function normalize(){
           state.order = ui.order === "desc" ? "desc" : "asc";
           if(ui.calMonth) state.calMonth = ui.calMonth;
           if(ui.calAuto === false) state.calAuto = false;
-          if(ui.calMode === "2") state.calMode = "2"; }
+          if(ui.calMode === "2") state.calMode = "2";
+          if(typeof ui.zoom === "number") state.zoom = clamp(Math.round(ui.zoom), ZOOM_MIN, ZOOM_MAX); }
   if(!state.calMonth || monthList().indexOf(state.calMonth) < 0){
     const t = new Date(); const k = t.getFullYear()+"-"+p2(t.getMonth()+1);
     state.calMonth = monthList().indexOf(k)>=0 ? k : monthList()[monthList().length-1];
